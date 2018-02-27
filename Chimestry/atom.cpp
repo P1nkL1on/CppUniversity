@@ -2,55 +2,59 @@
 
 int Atom::getElectronCount() const
 {
-    int pc = particlecount, summ = 0;
-    while (pc--) summ += (particles[pc].getQ() == -1) * 1;
+    particle** p = particles;
+    int summ = 0, now = 0;
+    while (p && now ++ < particlecount)
+        summ += ((*p++)->getQ() == -1) * 1;
     return summ;
 }
 
 int Atom::getProtonCount() const
 {
     int pc = particlecount, summ = 0;
-    while (pc--) summ += (particles[pc].getQ() == 1 && particles[pc].getMass() == 1) * 1;
+    while (--pc >= 0) summ += (particles[pc]->getQ() == 1 && particles[pc]->getMass() == 1) * 1;
     return summ;
 }
 
 int Atom::getNeironCount() const
 {
     int pc = particlecount, summ = 0;
-    while (pc--) summ += (particles[pc].getQ() == 0) * 1;
+    while (--pc >= 0) summ += (particles[pc]->getQ() == 0) * 1;
     return summ;
 }
 
 int Atom::getMass() const
 {
     int pc = particlecount, summ = 0;
-    while (pc--) summ += (particles[pc].getMass());
+    while (--pc >= 0) summ += (particles[pc]->getMass());
     return summ;
 }
 
-Atom::Atom()
+Atom::Atom() : BigParticle()
 {
     name = "--";
     number = 0;
     particlecount = 1;
-    particles = new particle[1];
-    particles[0] = Electron();
+    particles = new particle* [1];
+    particles[0] = new Electron();
 }
 
-Atom::Atom(char *atomName, int atomMass, int atomQ)
+Atom::Atom(char *atomName, int atomMass, int atomQ) : BigParticle()
 {
     cout  << "+ " << atomName<< endl;
     name = atomName;
     number = atomQ;
 
-    particles = new particle[atomMass + atomQ];
+    particles = new particle*[atomMass + atomQ];
 
-    for (int i = 0; i < atomQ; i++){
-        particles[i * 2] = Electron();
-        particles[i * 2 + 1] = Proton();
+    for (int i = 0; i < atomMass - atomQ; i++)
+        particles[i] = new Neitron();
+
+    for (int i = atomMass - atomQ; i < atomMass + atomQ; i+= 2){
+        particles[i] = new Electron();
+        particles[i + 1] = new Proton();
     }
-    for (int i = atomQ; i < atomMass; i++)
-        particles[i] = Neitron();
+
 
     particlecount = atomMass + atomQ;
 
@@ -62,8 +66,11 @@ void Atom::Trace() const
     cout << name  << "  ( #" << number << " )"<< endl << "  Mass: " << getMass() <<  endl << "  e- : " << getElectronCount() << endl;
     cout << "  p+ :  " << getProtonCount() << endl << "  n0 :  " << getNeironCount() << endl;
 
-    int pc = particlecount;
-    while (pc--) particles[pc].Trace();
+    particle** p = particles;
+    int now = 0;
+    while (p && now ++ < particlecount)
+        (*p++)->Trace();
+    cout << endl;
 }
 
 Atom::~Atom()
