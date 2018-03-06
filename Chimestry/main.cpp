@@ -1,4 +1,4 @@
-#include "molecule.h".h"
+#include "molecule.h"
 
 using namespace std;
 
