@@ -8,8 +8,8 @@ class TreeRB
 {
     TreeNode<T>* root;
 public:
-    TreeRB<T>(){ root = NULL; }
-    TreeRB<T>(T arr[]);
+    TreeRB(){ root = NULL; }
+    TreeRB(T arr[], int count);
     ~TreeRB<T>(){ delete root; }
     void Trace (int depth);
 
@@ -26,6 +26,12 @@ public:
     void insertCase3 (TreeNode<T> *n);
     void insertCase4 (TreeNode<T> *n);
     void insertCase5 (TreeNode<T> *n);
+
+    TreeNode<T>* subling (TreeNode<T>*n){
+        if (n == n->parent->left)
+            return n->parent->right;
+        return n->parent->left;
+    }
 
     void deleteOneChild (TreeNode<T> *n);
 

@@ -11,11 +11,13 @@ template <class T>
 class TreeNode
 {
     T date;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode *parent;
-    char color;
+
 public:
+    TreeNode<T> *left;
+    TreeNode<T> *right;
+    TreeNode<T> *parent;
+    char color;
+
     TreeNode<T>(){
         cout << "+T";
         date = T();
