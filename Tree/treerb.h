@@ -6,14 +6,17 @@
 template <class T>
 class TreeRB
 {
-    TreeNode<T>* root;
 public:
+    TreeNode<T>* root;
+
     TreeRB(){ root = NULL; }
     TreeRB(T arr[], int count);
-    ~TreeRB<T>(){ delete root; }
+    ~TreeRB<T>(){
+        delete root;
+    }
     void Trace (int depth);
 
-
+    void AddComponent (T value);
 
     TreeNode<T> *grandParent (TreeNode<T> *of);
     TreeNode<T> *uncle (TreeNode<T> *of);
