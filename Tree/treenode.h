@@ -13,23 +13,33 @@ class TreeNode
     T date;
     TreeNode *left;
     TreeNode *right;
+    TreeNode *parent;
     char color;
 public:
-    TreeNode(){
+    TreeNode<T>(){
         cout << "+T";
         date = T();
         color = 'b';
         left = right = NULL;
     }
-    TreeNode(bool isBlack, T d){
+    TreeNode<T>(bool isBlack, T d){
         date = d;
         color = (isBlack)? 'b' : 'r';
         left = right = NULL;
         cout << "+T (" << color <<")";
     }
+    ~TreeNode<T>(){
+        if (left)
+            delete left;
+        if (right)
+            delete right;
+        delete parent;
+        //
+    }
 
-    int SetChild (TreeNode *child){
+    int SetChild (TreeNode<T> *child){
         cout << left << "_" << right << endl;
+        child->parent = this;
         if (left == 0x0)
         {
             left = child;
@@ -40,6 +50,8 @@ public:
             right = child;
             return 1;
         }
+
+        child->parent = NULL;
         return -1;
     }
     T getDate()
@@ -47,7 +59,7 @@ public:
         return date;
     }
     int TraceInfo (int depth){
-        int traceCnt = 0, dep = depth;
+        int traceCnt = 1, dep = depth;
         while (dep--)
             cout << " ";
         cout << color << " " << getDate() << endl;
