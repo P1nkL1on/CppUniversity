@@ -8,10 +8,10 @@ class Molecule : public BigParticle
 private:
     char* name;
     int atomCount;
-    Atom* atoms;
+    Atom** atoms;
 public:
     Molecule();
-    Molecule (char *molName, int molAtomCount, Atom *molAtoms);
+    Molecule (char *molName, int molAtomCount, Atom **molAtoms);
     ~Molecule();
     void Trace() const;
 
