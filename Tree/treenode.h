@@ -19,28 +19,29 @@ public:
     char color;
 
     TreeNode<T>(){
-        cout << "+T";
+        //cout << "+T";
         date = T();
-        color = 'b';
-        left = right = NULL;
+        color = 'r';
+        left = right = parent = NULL;
     }
-    TreeNode<T>(bool isBlack, T d){
+    TreeNode<T>(T d){
         date = d;
-        color = (isBlack)? 'b' : 'r';
-        left = right = NULL;
-        cout << "+T (" << color <<")";
+        color = 'r';
+        left = right = parent = NULL;
+        //cout << "+T (" << color <<")";
     }
     ~TreeNode<T>(){
-        if (left)
+        if (!left)
             delete left;
-        if (right)
+        if (!right)
             delete right;
-        delete parent;
+        if (!parent)
+            delete parent;
         //
     }
 
     int SetChild (TreeNode<T> *child){
-        cout << left << "_" << right << endl;
+        //cout << left << "_" << right << endl;
         child->parent = this;
         if (left == 0x0)
         {

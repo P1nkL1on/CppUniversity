@@ -16,6 +16,32 @@ void TreeRB<T>::Trace(int depth)
 }
 
 template<class T>
+TreeNode<T> *FindAChildlessNode (TreeNode<T>*currentNode){
+    if (!currentNode->left || !currentNode->right)
+        return currentNode;
+    TreeNode<T>* post = FindAChildlessNode(currentNode->left);
+    if (post != NULL)
+        return post;
+    post = FindAChildlessNode(currentNode->right);
+    return post;
+}
+
+template<class T>
+void TreeRB<T>::AddComponent(T value)
+{
+    //  cout << "Add a " << value << endl;
+    TreeNode<T> *newChild = new TreeNode<T>(value);
+    if (root == NULL){
+        root = newChild;
+        return;
+    }
+    TreeNode<T>* free = FindAChildlessNode(root);
+    //cout << "Free is now "; free->TraceInfo(10); cout << endl;
+    free->SetChild(newChild);
+    insertCase1(newChild);
+}
+
+template<class T>
 TreeNode<T> *TreeRB<T>::grandParent(TreeNode<T> *of)
 {
     if (of != NULL && of->parent != NULL)
@@ -61,7 +87,7 @@ void TreeRB<T>::rotateLeft(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::rotateRight(TreeNode<T> *n)
 {
-    struct node *pivot = n->left;
+    TreeNode<T> *pivot = n->left;
 
     pivot->parent = n->parent;
     if (n->parent != NULL) {
@@ -82,6 +108,7 @@ void TreeRB<T>::rotateRight(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase1(TreeNode<T> *n)
 {
+    cout << "case1" << endl;
     if (n->parent == NULL)
         n->color = 'b';
     else
@@ -90,6 +117,7 @@ void TreeRB<T>::insertCase1(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase2(TreeNode<T> *n)
 {
+    cout << "case2" << endl;
     if (n->parent->color == 'b')
         return;
     insertCase3(n);
@@ -98,6 +126,7 @@ void TreeRB<T>::insertCase2(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase3(TreeNode<T> *n)
 {
+    cout << "case3" << endl;
     TreeNode<T> *u = uncle(n), *g;
     if (u != NULL && u->color == 'r'){
         n->parent->color = 'b';
@@ -112,7 +141,8 @@ void TreeRB<T>::insertCase3(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase4(TreeNode<T> *n)
 {
-    TreeNode<T>* g = grandParent(g);
+    cout << "case4" << endl;
+    TreeNode<T>* g = grandParent(n);
     if (n == n->parent->right && n->parent == g->left)
     {
         rotateLeft(n->parent);
@@ -128,6 +158,7 @@ void TreeRB<T>::insertCase4(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase5(TreeNode<T> *n)
 {
+    cout << "case5" << endl;
     TreeNode<T> *g = grandParent(n);
     n->parent->color = 'b';
     g->color = 'r';
