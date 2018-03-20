@@ -9,20 +9,27 @@ TreeRB<T>::TreeRB(T arr[], int count)
         insertCase1(newNode);
     }
 }
-template<class T>
-void TreeRB<T>::Trace(int depth)
-{
-    root->TraceInfo(depth);
-}
+
 
 template<class T>
-TreeNode<T> *FindAChildlessNode (TreeNode<T>*currentNode){
+void TreeRB<T>::DeepByPass(CallBack callback)
+{
+    refindRoot(root);
+    int count = DeepByPassRecursive(root, callback);
+    cout << "Total node count: " << count << endl;
+    return;
+}
+
+
+template<class T>
+TreeNode<T> *FindAChildlessNode (TreeNode<T>*currentNode, T forValue){
     if (!currentNode->left || !currentNode->right)
         return currentNode;
-    TreeNode<T>* post = FindAChildlessNode(currentNode->left);
+
+    TreeNode<T>* post = FindAChildlessNode(currentNode->left, forValue);
     if (post != NULL)
         return post;
-    post = FindAChildlessNode(currentNode->right);
+    post = FindAChildlessNode(currentNode->right, forValue);
     return post;
 }
 
@@ -33,12 +40,73 @@ void TreeRB<T>::AddComponent(T value)
     TreeNode<T> *newChild = new TreeNode<T>(value);
     if (root == NULL){
         root = newChild;
+        newChild->color = 'b';
         return;
     }
-    TreeNode<T>* free = FindAChildlessNode(root);
-    //cout << "Free is now "; free->TraceInfo(10); cout << endl;
+    newChild->color = 'r';
+    TreeNode<T>* free = FindAChildlessNode(root, value);
+    //cout << "Free is now "; cout << free->getDate(); cout << endl;
     free->SetChild(newChild);
     insertCase1(newChild);
+}
+
+template<class T>
+TreeNode<T> *TreeRB<T>::Find(T value)
+{
+    TreeNode<T> *n = findRecursive(root, value);
+
+    if (n != NULL)
+        cout << "Found " << value << "!" << endl;
+    else
+        cout << "Did not found " << value << "!" << endl;
+    return n;
+}
+
+template<class T>
+TreeNode<T> *TreeRB<T>::findRecursive(TreeNode<T> *nowNode, T value)
+{
+    if (nowNode == NULL)
+        return NULL;
+
+    T date = nowNode->getDate();
+    cout << "Now in node " << date << endl;
+    if (date == value)
+        return nowNode;
+
+    if ((nowNode->left != NULL) && value == nowNode->left->getDate())
+        return nowNode->left;
+
+    if ((nowNode->right != NULL) && value == nowNode->right->getDate())
+        return nowNode->right;
+
+    if (date > value){
+        //cout << date << " > " << value << endl;
+        return findRecursive(nowNode->right, value);
+    }
+    if (date < value){
+        //cout << date << " < " << value << endl;
+        return findRecursive(nowNode->left, value);
+    }
+    return NULL;
+}
+
+template<class T>
+int TreeRB<T>::DeepByPassRecursive(TreeNode<T> *nowNode, CallBack callBack)
+{
+    int traceCnt = 1;
+    callBack(nowNode);
+
+    if (nowNode->left)
+        traceCnt += DeepByPassRecursive(nowNode->left, callBack);//left->TraceInfo(depth + 1);
+    if (nowNode->right)
+        traceCnt += DeepByPassRecursive(nowNode->right, callBack);
+    return traceCnt;
+}
+
+template<class T>
+TreeNode<T> *TreeRB<T>::getRoot()
+{
+    return root;
 }
 
 template<class T>
@@ -65,6 +133,7 @@ TreeNode<T> *TreeRB<T>::uncle(TreeNode<T> *of)
 template<class T>
 void TreeRB<T>::rotateLeft(TreeNode<T> *n)
 {
+    cout << "left rotate" << endl;
        TreeNode<T> *pivot = n->right;
        pivot->parent = n->parent;
 
@@ -87,6 +156,7 @@ void TreeRB<T>::rotateLeft(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::rotateRight(TreeNode<T> *n)
 {
+    cout << "right rotate" << endl;
     TreeNode<T> *pivot = n->left;
 
     pivot->parent = n->parent;
@@ -106,9 +176,16 @@ void TreeRB<T>::rotateRight(TreeNode<T> *n)
 }
 
 template<class T>
+void TreeRB<T>::refindRoot(TreeNode<T> *n)
+{
+    while (root->parent != NULL)
+        root = root->parent;
+}
+
+template<class T>
 void TreeRB<T>::insertCase1(TreeNode<T> *n)
 {
-    cout << "case1" << endl;
+    //cout << "case1" << endl; Trace(10);
     if (n->parent == NULL)
         n->color = 'b';
     else
@@ -117,7 +194,7 @@ void TreeRB<T>::insertCase1(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase2(TreeNode<T> *n)
 {
-    cout << "case2" << endl;
+    //cout << "case2" << endl; Trace(10);
     if (n->parent->color == 'b')
         return;
     insertCase3(n);
@@ -126,7 +203,7 @@ void TreeRB<T>::insertCase2(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase3(TreeNode<T> *n)
 {
-    cout << "case3" << endl;
+    //cout << "case3" << endl; Trace(10);
     TreeNode<T> *u = uncle(n), *g;
     if (u != NULL && u->color == 'r'){
         n->parent->color = 'b';
@@ -141,25 +218,31 @@ void TreeRB<T>::insertCase3(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::insertCase4(TreeNode<T> *n)
 {
-    cout << "case4" << endl;
+    //cout << "case4" << endl; Trace(10);
     TreeNode<T>* g = grandParent(n);
-    if (n == n->parent->right && n->parent == g->left)
+//    if (g != NULL){
+//        insertCase5(n);
+//        return;
+//    }
+    if (n == n->parent->right && /*o*//* g!= NULL &&*/  n->parent == g->left)
     {
         rotateLeft(n->parent);
         n = n->left;
     } else
-        if (n == n->parent->left && n->parent == g->right){
-            rotateRight(n->parent);
-            n = n->right;
-        }
+    if (n == n->parent->left && /*o*/ /*g!= NULL &&*/ n->parent == g->right){
+        rotateRight(n->parent);
+        n = n->right;
+    }
     insertCase5(n);
 }
 
 template<class T>
 void TreeRB<T>::insertCase5(TreeNode<T> *n)
 {
-    cout << "case5" << endl;
+    //cout << "case5" << endl; Trace(10);
     TreeNode<T> *g = grandParent(n);
+    //if (!g)return;
+
     n->parent->color = 'b';
     g->color = 'r';
     if (n == n->parent->left && n->parent == g->left)
@@ -171,36 +254,49 @@ void TreeRB<T>::insertCase5(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::deleteOneChild(TreeNode<T> *n)
 {
-    if (n == NULL || !(n->left == NULL && n->right == NULL))
+    if (n == NULL || (n != NULL && n->left == NULL && n->right == NULL)){
+        if (n) delete n;
         return;
-    TreeNode<T>* child = (n->right == NULL)? n->left : n->right;
-
-    *n = *child;
-    if (n->color == 'b'){
-        if (child->color == 'r')
-            child->color = 'b';
-        else
-            deleteCase1(child);
     }
 
-    delete n;
+    if (n != NULL && n->left && n->right){
+        cout << "Rec delete" << endl;
+        TreeNode<T> * biggest = FindBiggest(n->left);
+        n->setDate(biggest);
+        deleteOneChild(biggest);
+    }else{
+        TreeNode<T>* child = (n->right == NULL)? n->left : n->right;
+
+        n->setDate(child);
+
+    //    if (n->color == 'b'){
+    //        if (child->color == 'r')
+    //            child->color = 'b';
+    //        else
+    //            deleteCase1(child);
+    //    }
+        delete n;
+    }
+    cout << "Delete success!" << endl;
 }
 
 
 template<class T>
 void TreeRB<T>::deleteCase1(TreeNode<T> *n)
 {
+    cout << "dcase 1" << endl;
     if (n->parent != NULL)
         deleteCase2(n);
 }
 template<class T>
 void TreeRB<T>::deleteCase2(TreeNode<T> *n)
 {
+    cout << "dcase2" << endl;
     TreeNode<T>*s = subling(n);
     if (s->color == 'r'){
         n->parent->color = 'r';
         s->color = 'b';
-        if (n == n->panret->left)
+        if (n == n->parent->left)
             rotateLeft(n->parent);
         else
             rotateRight(n->parent);
@@ -211,6 +307,7 @@ void TreeRB<T>::deleteCase2(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::deleteCase3(TreeNode<T> *n)
 {
+    cout << "dcase 3" << endl;
     TreeNode<T>*s = subling(n);
     if (n->parent->color == 'b'
         && s->color == 'b'
@@ -225,11 +322,13 @@ void TreeRB<T>::deleteCase3(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::deleteCase4(TreeNode<T> *n)
 {
+    cout << "dcase 4" << endl;
     TreeNode<T>*s = subling(n);
     if (n->parent->color == 'r'
         && s->color == 'b'
         && s->left->color == 'b'
-        && s->right->color == 'b'){
+        && s->right->color == 'b')
+    {
         s->color = 'r';
         n->parent->color = 'b';
     }else
@@ -239,6 +338,7 @@ void TreeRB<T>::deleteCase4(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::deleteCase5(TreeNode<T> *n)
 {
+    cout << "dcase 5" << endl;
     TreeNode<T>*s = subling(n);
     if (s->color == 'b'){
         if (n == n->parent->left && s->right->color == 'b' && s->left->color == 'r')
@@ -259,6 +359,7 @@ void TreeRB<T>::deleteCase5(TreeNode<T> *n)
 template<class T>
 void TreeRB<T>::deleteCase6(TreeNode<T> *n)
 {
+    cout << "dcase 6" << endl;
     TreeNode<T>*s = subling(n);
 
     s->color = n->parent->color;

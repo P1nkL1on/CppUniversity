@@ -12,37 +12,55 @@ class TreeNode
 {
     T date;
 
+    //static int NodeCountInMemory;
 public:
+    bool checked;
     TreeNode<T> *left;
     TreeNode<T> *right;
     TreeNode<T> *parent;
     char color;
 
     TreeNode<T>(){
-        //cout << "+T";
+        //NodeCountInMemory++;
         date = T();
         color = 'r';
         left = right = parent = NULL;
+        checked = false;
     }
     TreeNode<T>(T d){
+        //TreeNode<T>::NodeCountInMemory++;
         date = d;
         color = 'r';
         left = right = parent = NULL;
         //cout << "+T (" << color <<")";
+        checked = false;
     }
     ~TreeNode<T>(){
-        if (!left)
+        if (parent){
+            if (parent->left == this)
+                parent->left = NULL;
+            else
+                parent->right = NULL;
+        }
+        if (left)
             delete left;
-        if (!right)
+        if (right)
             delete right;
-        if (!parent)
-            delete parent;
-        //
+//        left = right = NULL;
+        //TreeNode<T>::NodeCountInMemory--;
     }
 
     int SetChild (TreeNode<T> *child){
-        //cout << left << "_" << right << endl;
+        //cout << "--------   " << child->date << "  is now child of " << this->date << endl;
         child->parent = this;
+        if (!left && !right){
+            //cout << "check with all kids 0x0" << endl;
+            if (this->date < child->date)
+                right = child;
+            else
+                left = child;
+            return 0;
+        }
         if (left == 0x0)
         {
             left = child;
@@ -57,22 +75,15 @@ public:
         child->parent = NULL;
         return -1;
     }
+    void setDate (TreeNode<T>*of){
+        date = of->date;
+    }
+
     T getDate()
     {
         return date;
     }
-    int TraceInfo (int depth){
-        int traceCnt = 1, dep = depth;
-        while (dep--)
-            cout << " ";
-        cout << color << " " << getDate() << endl;
 
-        if (left)
-            traceCnt += left->TraceInfo(depth + 1);
-        if (right)
-            traceCnt += right->TraceInfo(depth + 1);
-        return traceCnt;
-    }
 };
 
 #endif // TREENODE_H
