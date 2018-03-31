@@ -1,0 +1,13 @@
+D:\microsoft visual studio projects\GWENT\bin\Debug\GWENT.exe.config
+D:\microsoft visual studio projects\GWENT\obj\Debug\GWENT.csprojResolveAssemblyReference.cache
+D:\microsoft visual studio projects\GWENT\bin\Debug\GWENT.exe
+D:\microsoft visual studio projects\GWENT\bin\Debug\GWENT.pdb
+D:\microsoft visual studio projects\GWENT\obj\Debug\GWENT.exe
+D:\microsoft visual studio projects\GWENT\obj\Debug\GWENT.pdb
+D:\GWENT\bin\Debug\GWENT.exe.config
+D:\GWENT\bin\Debug\GWENT.exe
+D:\GWENT\bin\Debug\GWENT.pdb
+D:\GWENT\obj\Debug\GWENT.csprojResolveAssemblyReference.cache
+D:\GWENT\obj\Debug\GWENT.csproj.CoreCompileInputs.cache
+D:\GWENT\obj\Debug\GWENT.exe
+D:\GWENT\obj\Debug\GWENT.pdb

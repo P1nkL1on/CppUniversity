@@ -9,12 +9,14 @@ class TreeIterator
 {
     TreeRB<T>* originalTree;
     QStack<TreeNode<T>*>* stack;
-
+    bool finished;
 public:
     TreeIterator();
     TreeIterator(TreeRB<T>* tree);
-    void Inc();
-    TreeNode<T>* get ();
+    bool isEnd();
+    TreeIterator<T>& operator++();
+    TreeNode<T>* operator * ();
+    //TreeNode<T>* get ();
 };
 
 #endif // TREEITERATOR_H

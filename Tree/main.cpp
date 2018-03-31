@@ -13,12 +13,14 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 20; i++, t->DeepByPass(cb), cout << endl)
         t->AddComponent(i);
 
-    TreeIterator<int>* ti = new TreeIterator<int>(t);
 
-    for (int i = 0; i < 10; i++){
-        ti->Inc();
-        cb(ti->get());
-    }
+    cout << "ITERATOR" << endl;
+    for (TreeIterator<int> ti(t); !ti.isEnd(); ++ti)
+        cb(*ti);
+
+   // for (; ti->Inc(); cb(ti->get()))
+   //     ;
+
 
 //    TreeNode<int> *n = t->Find(14);
 //    t->deleteOneChild(n);
