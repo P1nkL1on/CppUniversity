@@ -13,7 +13,7 @@ namespace GWENT
     public abstract class Card
     {
         protected Cards exapler;
-        protected string name;
+        public string name;
         protected string description;
         public List<Tag> tags;
         protected Rarity rarity;

@@ -39,7 +39,7 @@ namespace GWENT
             view = new CardListViewer(fieldTop, 2, 10);
             view.SetList("Deck", leftHand);
 
-            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler };
+            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
             for (int i = 0; i < 25; i++)
             {
                 rightDeck.Add(new Unit(types[i % types.Count]));
@@ -144,7 +144,8 @@ namespace GWENT
         }
         public void DrawACard(bool left)
         {
-            int time = 00;
+            int time = 400;
+            
             if (left)
             {
                 if (leftDeck.Count == 0) return;
@@ -155,6 +156,7 @@ namespace GWENT
                 pingBoard(new Point(31, 35), new Point(30, 34), ConsoleColor.Gray, 10, time, true, true, false);
                 leftHand.Add(a);
                 DrawCounts(CountPlace.leftHand);
+                LOGS.Add("Left player draws '"+ a.name +"'");
                 view.Redraw();
             }
             else
@@ -166,6 +168,7 @@ namespace GWENT
                 pingBoard(new Point(52, 35), new Point(52, 34), ConsoleColor.Gray, 10, time, true, false, false);
                 rightHand.Add(a);
                 DrawCounts(CountPlace.rightHand);
+                LOGS.Add("Right player draws '" + a.name + "'");
                 view.Redraw();
             }
             Thread.Sleep(time / 5);
@@ -276,6 +279,7 @@ namespace GWENT
 
         public static List<Card> selectFrom(string what, int count, bool exactly, List<Card> from)
         {
+            LOGS.Add(what);
             DRAW.PushColor(ConsoleColor.DarkGreen);
             DRAW.setBuffTo(39 - what.Length / 2, 32);
             DRAW.str(" " + what + " : ");
@@ -317,7 +321,7 @@ namespace GWENT
             List<Unit> units = left.getUnits;
             units.AddRange(right.getUnits);
             foreach (Unit u in units)
-                if (u.Power <= 0) u.Die(this);
+                if (u.Power <= 0 && !u.dead) u.Die(this);
 
         }
 

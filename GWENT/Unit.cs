@@ -25,7 +25,7 @@ namespace GWENT
         {
             DRAW.PushColor(ConsoleColor.DarkGreen);
             DRAW.setBuffTo(bufHorizontal, bufVertical);
-            DRAW.str("".PadRight(6)); 
+            DRAW.str("".PadRight(6));
             DRAW.setBuffTo(bufHorizontal, bufVertical + 1);
             DRAW.str("".PadRight(6));
             DRAW.PopColor();
@@ -40,6 +40,7 @@ namespace GWENT
     }
     public class Unit : Card
     {
+        public bool dead;
         protected int basePower;
         protected int currentHealth;
         int buffBonus;
@@ -73,9 +74,10 @@ namespace GWENT
                 default:
                     break;
             }
+            game.CheckDeadUnits();
             game.RedrawTop();
             game.DrawCounts(Game.CountPlace.ALL);
-            game.CheckDeadUnits();
+            
         }
 
         public Point leftTop
@@ -85,7 +87,8 @@ namespace GWENT
 
         void SetStandartActions(int pow)
         {
-            onDeploy = new Action((card, game) => { LOGS.deployMessage(this.name); });
+            dead = false;
+            onDeploy = new Action((card, game) => {  });
             onEnterGraveyard = new Action((card, game) => { });
             onTurnStart = new Action((card, game) => { });
             onTurnEnd = new Action((card, game) => { });
@@ -93,7 +96,7 @@ namespace GWENT
             buffBonus = 0;
         }
 
-        public Unit() { }
+        public Unit() { dead = false; }
         public Unit(int power, string nam, string descr, Rarity rar, List<Tag> unitags)
         {
             exapler = Cards.None;
@@ -116,7 +119,7 @@ namespace GWENT
                         if (enemy != null)
                         {
                             game.pingBoard(this, enemy, 800, 10, ConsoleColor.Red);
-                            enemy.Damage(4);
+                            enemy.Damage(4, this);
                         }
                     });
                     break;
@@ -127,36 +130,46 @@ namespace GWENT
                     {
                         List<Card> selectFrom = game.FriendField(this).getUnitsAsCards;
                         selectFrom.Remove(this);
-                        List<Card> allys = Game.selectFrom("Select ally to boost by 6",1, true, selectFrom);
+                        List<Card> allys = Game.selectFrom("Select ally to boost by 6", 1, true, selectFrom);
 
-                        Unit targ = (allys.Count > 0) ? allys[0] as Unit: null;
+                        Unit targ = (allys.Count > 0) ? allys[0] as Unit : null;
                         if (targ != null)
                         {
                             game.pingBoard(this, targ, 800, 10, ConsoleColor.Green);
-                            targ.Boost(6);
+                            targ.Boost(6, this);
                         }
                     });
+                    //onEnterGraveyard = new Action((card, game) =>
+                    //{
+                    //    List<Card> enemies = game.EnemyField(this).getUnitsAsCards;
+                    //    foreach (Unit enemy in enemies)
+                    //    {
+                    //        game.pingBoard(this, enemy, 200, 5, ConsoleColor.Magenta);
+                    //        enemy.Damage(1, this);
+                    //    }
+                    //});
                     break;
                 case Cards.RedanianKnight:
-                    SetParams("Redanian Knight", "If this unit has no Armor, boost it by 2 and give it 2 Armor on turn end.", new List<Tag>(){Tag.NothernRealms, Tag.Solder, Tag.Redanie}, Rarity.bronze);
+                    SetParams("Redanian Knight", "If this unit has no Armor, boost it by 2 and give it 2 Armor on turn end.", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Redanie }, Rarity.bronze);
                     SetStandartActions(7);
                     onTurnEnd = new Action((card, game) =>
                     {
-                        if (armorCount <= 0) { armorCount = 2; Boost(2); }
+                        if (armorCount <= 0) { armorCount = 2; Boost(2, this); }
                     });
                     break;
                 case Cards.RedanianKnightElect:
-                    SetParams("Redanian Knight-Elect", "If this unit has Armor on turn end, boost adjacent units by 1. 2 Armor.", new List<Tag>(){Tag.NothernRealms, Tag.Solder, Tag.Redanie}, Rarity.bronze);
+                    SetParams("Redanian Knight-Elect", "If this unit has Armor on turn end, boost adjacent units by 1. 2 Armor.", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Redanie }, Rarity.bronze);
                     SetStandartActions(7);
                     armorCount = 2;
                     onTurnEnd = new Action((card, game) =>
                     {
-                        if (armorCount > 0) {
+                        if (armorCount > 0)
+                        {
                             Field f = game.FriendField(this);
                             Unit left = f.NearUnit(this, true),
                                  right = f.NearUnit(this, false);
-                            if (left != null) { game.pingBoard(this, left, 400, 5, ConsoleColor.Green); left.Boost(1); }
-                            if (right != null) { game.pingBoard(this, right, 400, 5, ConsoleColor.Green); right.Boost(1); }
+                            if (left != null) { game.pingBoard(this, left, 400, 5, ConsoleColor.Green); left.Boost(1, this); }
+                            if (right != null) { game.pingBoard(this, right, 400, 5, ConsoleColor.Green); right.Boost(1, this); }
                         }
                     });
                     break;
@@ -176,8 +189,19 @@ namespace GWENT
                         if (enemy != null)
                         {
                             game.pingBoard(this, enemy, 400, 15, ConsoleColor.Red);
-                            enemy.Damage(1);
+                            enemy.Damage(1, this);
                         }
+                    });
+                    break;
+
+                case Cards.DandelionPoet:
+                    SetParams("Dandelion : Poet", "Draw a card, then play a card.", new List<Tag>() { Tag.Neutral, Tag.Support}, Rarity.gold);
+                    SetStandartActions(5);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        bool isLeft = game.FriendField(this).isBlue;
+                        game.DrawACard(isLeft);
+                        game.PlayCard(isLeft);
                     });
                     break;
                 default:
@@ -255,8 +279,9 @@ namespace GWENT
             Game.DrawPicture(DRAW.rarityColor(rarity), exapler);
         }
 
-        public bool Damage(int dmg)
+        public bool Damage(int dmg, Card from)
         {
+            LOGS.Add(from.name + " deal " + dmg + "damage to " + name);
             if (armorCount > 0 && dmg >= armorCount)
                 Console.Beep(400, 200);
             Console.Beep(1200, 200);
@@ -270,15 +295,17 @@ namespace GWENT
             Redraw();
             return (currentHealth <= 0);
         }
-        public void Boost(int buff)
+        public void Boost(int buff, Card from)
         {
+            LOGS.Add(from.name + " boost "+name+" for +" + buff);
             Console.Beep(1400, 100);
             DRAW.message(lastHo, lastVe, ("+" + buff).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.Green, 800);
             buffBonus += buff;
             Redraw();
         }
-        public void Strengthlen(int str)
+        public void Strengthlen(int str, Card from)
         {
+            LOGS.Add(from.name + " strengt " + name + " for +" + str);
             Console.Beep(400, 100);
             DRAW.message(lastHo, lastVe, ("+" + str).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.White, 800);
             basePower += str;
@@ -297,7 +324,11 @@ namespace GWENT
 
         public void Die(Game game)
         {
-            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 1000);
+            LOGS.Add(name + " died");
+            dead = true;
+            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 500, true, "*");
+            this.TriggerEvent(Event.death, game);
+            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 500, false, " ");
             Field at = game.FriendField(this);
             int rowIndex, charIndex = at.IndexOf(this, out rowIndex);
             Row row = at.getRow(rowIndex);

@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace GWENT
 {
-    public static class LOGS{
-        static List<string> list = new List<string>();
-        public static void deployMessage(string name) { list.Add(String.Format("{0} deployed;", name)); }
-    }
+    
     public enum Rarity
     {
         bronze = 0,
@@ -82,5 +79,7 @@ namespace GWENT
         RedanianElite = 532,
         TridamInfantry = 533,
         ReinforcedTrebuchet = 534,
+
+        DandelionPoet = 1000,
     }
 }
