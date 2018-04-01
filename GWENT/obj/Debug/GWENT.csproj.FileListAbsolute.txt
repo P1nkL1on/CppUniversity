@@ -11,3 +11,9 @@ D:\GWENT\obj\Debug\GWENT.csprojResolveAssemblyReference.cache
 D:\GWENT\obj\Debug\GWENT.csproj.CoreCompileInputs.cache
 D:\GWENT\obj\Debug\GWENT.exe
 D:\GWENT\obj\Debug\GWENT.pdb
+D:\CPPuniver\GWENT\bin\Debug\GWENT.exe.config
+D:\CPPuniver\GWENT\obj\Debug\GWENT.exe
+D:\CPPuniver\GWENT\obj\Debug\GWENT.pdb
+D:\CPPuniver\GWENT\bin\Debug\GWENT.exe
+D:\CPPuniver\GWENT\bin\Debug\GWENT.pdb
+D:\CPPuniver\GWENT\obj\Debug\GWENT.csprojResolveAssemblyReference.cache

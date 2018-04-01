@@ -14,6 +14,23 @@ namespace GWENT
         turnEnd = 2,
         turnStart = 3
     }
+
+    public class UnitDeployPlace : Unit
+    {
+        public UnitDeployPlace()
+        {
+
+        }
+        public override void TraceField(int bufHorizontal, int bufVertical)
+        {
+            DRAW.PushColor(ConsoleColor.DarkGreen);
+            DRAW.setBuffTo(bufHorizontal, bufVertical);
+            DRAW.str("".PadRight(7)); 
+            DRAW.setBuffTo(bufHorizontal, bufVertical + 1);
+            DRAW.str("".PadRight(7));
+            DRAW.PopColor();
+        }
+    }
     public class Unit : Card
     {
         protected int basePower;
@@ -50,6 +67,7 @@ namespace GWENT
                     break;
             }
             game.RedrawTop();
+            game.DrawCounts(Game.CountPlace.ALL);
         }
 
         public Point leftTop
@@ -67,14 +85,17 @@ namespace GWENT
             buffBonus = 0;
         }
 
+        public Unit() { }
         public Unit(int power, string nam, string descr, Rarity rar, List<Tag> unitags)
         {
+            exapler = Cards.None;
             SetParams(nam, descr, unitags, rar);
             SetStandartActions(power);
         }
 
         public Unit(Cards name)
         {
+            exapler = name;
             switch (name)
             {
                 case Cards.AedirianMauler:
@@ -82,8 +103,8 @@ namespace GWENT
                     SetStandartActions(7);
                     onDeploy = new Action((card, game) =>
                     {
-                        List<Unit> enemies = Game.selectFrom(1, true, game.EnemyField(this).getUnits);
-                        Unit enemy = (enemies.Count > 0) ? enemies[0] : null;
+                        List<Card> enemies = Game.selectFrom("Select enemy to deal 4 damage", 1, true, game.EnemyField(this).getUnitsAsCards);
+                        Unit enemy = (enemies.Count > 0) ? enemies[0] as Unit : null;
                         if (enemy != null)
                         {
                             game.pingBoard(this, enemy, 800, 10, ConsoleColor.Red);
@@ -96,15 +117,45 @@ namespace GWENT
                     SetStandartActions(5);
                     onDeploy = new Action((card, game) =>
                     {
-                        List<Unit> allys = Game.selectFrom(1, true, game.FriendField(this).getUnits);
-                        allys.Remove(this);
-                        Unit targ = (allys.Count > 0) ? allys[game.rnd.Next(allys.Count)] : null;
+                        List<Card> selectFrom = game.FriendField(this).getUnitsAsCards;
+                        selectFrom.Remove(this);
+                        List<Card> allys = Game.selectFrom("Select ally to boost by 6",1, true, selectFrom);
+
+                        Unit targ = (allys.Count > 0) ? allys[0] as Unit: null;
                         if (targ != null)
                         {
                             game.pingBoard(this, targ, 800, 10, ConsoleColor.Green);
                             targ.Boost(6);
                         }
                     });
+                    break;
+                case Cards.RedanianKnight:
+                    SetParams("Redanian Knight", "If this unit has no Armor, boost it by 2 and give it 2 Armor on turn end.", new List<Tag>(){Tag.NothernRealms, Tag.Solder, Tag.Redanie}, Rarity.bronze);
+                    SetStandartActions(7);
+                    onTurnEnd = new Action((card, game) =>
+                    {
+                        if (armorCount <= 0) { armorCount = 2; Boost(2); }
+                    });
+                    break;
+                case Cards.RedanianKnightElect:
+                    SetParams("Redanian Knight-Elect", "If this unit has Armor on turn end, boost adjacent units by 1. 2 Armor.", new List<Tag>(){Tag.NothernRealms, Tag.Solder, Tag.Redanie}, Rarity.bronze);
+                    SetStandartActions(7);
+                    armorCount = 2;
+                    onTurnEnd = new Action((card, game) =>
+                    {
+                        if (armorCount > 0) {
+                            Field f = game.FriendField(this);
+                            Unit left = f.NearUnit(this, true),
+                                 right = f.NearUnit(this, false);
+                            if (left != null) { game.pingBoard(this, left, 400, 5, ConsoleColor.Green); left.Boost(1); }
+                            if (right != null) { game.pingBoard(this, right, 400, 5, ConsoleColor.Green); right.Boost(1); }
+                        }
+                    });
+                    break;
+                case Cards.TridamInfantry:
+                    SetParams("Tridam Infantry", "4 Armor.", new List<Tag>() { Tag.NothernRealms, Tag.Solder }, Rarity.bronze);
+                    SetStandartActions(10);
+                    armorCount = 4;
                     break;
                 default:
                     break;
@@ -131,6 +182,8 @@ namespace GWENT
 
         public override void TraceInList(int bufHorizontal, int bufVertical)
         {
+            lastDrawType = 1;
+            lastVe = bufVertical; lastHo = bufHorizontal;
             DRAW.setBuffTo(bufHorizontal, bufVertical);
             DRAW.rarity(2, rarity);
             DRAW.power(Power, 3, PowerColor);
@@ -138,6 +191,7 @@ namespace GWENT
         }
         public override void TraceField(int bufHorizontal, int bufVertical)
         {
+            lastDrawType = 0;
             lastVe = bufVertical; lastHo = bufHorizontal;
             DRAW.setBuffTo(bufHorizontal, bufVertical);
             DRAW.str(name, 6, true);
@@ -149,9 +203,20 @@ namespace GWENT
                 + DRAW.timer(innerTimer, timerStep);
             DRAW.str("".PadLeft(3 - dopCells));
         }
-        public void Redraw()
+        int lastDrawType;
+
+        public override void Redraw()
         {
-            TraceField(lastHo, lastVe);
+            if (lastDrawType == 0)
+                TraceField(lastHo, lastVe);
+            else
+                TraceInList(lastHo, lastVe);
+        }
+        public override void RedrawSelected(bool selected)
+        {
+            DRAW.PushColor((selected) ? ConsoleColor.DarkGreen : ConsoleColor.Black);
+            Redraw();
+            DRAW.PopColor();
         }
         public override void TraceFull(int bufHorizontal, int bufVertical, int wid)
         {
@@ -163,7 +228,8 @@ namespace GWENT
             DRAW.str(" Power:  "); DRAW.power(Power, 2, PowerColor);
             DRAW.setBuffTo(bufHorizontal, bufVertical + 3 + i);
             DRAW.str(" Rarity: "); DRAW.rarity(2, rarity); DRAW.str(" " + rarity.ToString());
-            i += DRAW.str((description.Length == 0) ? "no ability" : description, bufHorizontal + 1, bufVertical + 4 + i, wid, 5);
+            i += DRAW.str((description.Length == 0) ? "no ability" : description, bufHorizontal, bufVertical + 4 + i, wid + 1, 5);
+            Game.DrawPicture(DRAW.rarityColor(rarity), exapler);
         }
 
         public bool Damage(int dmg)

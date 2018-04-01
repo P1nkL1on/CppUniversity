@@ -15,8 +15,9 @@ namespace GWENT
             while (true)
             {
                 Game g = new Game(new Random());
-                //g.RoundStart(1);
+                g.Start();
                 Console.ReadLine();
+                Console.Clear();
             }
         }
     }
