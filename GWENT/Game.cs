@@ -39,11 +39,11 @@ namespace GWENT
             view = new CardListViewer(fieldTop, 2, 10);
             view.SetList("Deck", leftHand);
 
-            List<Cards> types = new List<Cards>() { Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler };
+            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler };
             for (int i = 0; i < 25; i++)
             {
-                rightDeck.Add(new Unit(types[i % 5]));
-                leftDeck.Add(new Unit(types[i % 5]));
+                rightDeck.Add(new Unit(types[i % types.Count]));
+                leftDeck.Add(new Unit(types[i % types.Count]));
             }
 
             this.rnd = rnd;
@@ -109,34 +109,34 @@ namespace GWENT
             if (plc == CountPlace.leftHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei);
-                DRAW.str("Hand :  " + (leftHand.Count+"").PadLeft(2, ' '));
+                DRAW.str("Hand :  " + (leftHand.Count + "").PadLeft(2, ' '));
             }
             if (plc == CountPlace.leftDeck || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei + 1);
-                DRAW.str("Deck :  " + (leftDeck.Count+"").PadLeft(2, ' '));
+                DRAW.str("Deck :  " + (leftDeck.Count + "").PadLeft(2, ' '));
             }
             if (plc == CountPlace.leftGrave || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei + 2);
-                DRAW.str("Grave : " + (leftGraveyard.Count+"").PadLeft(2, ' '));
+                DRAW.str("Grave : " + (leftGraveyard.Count + "").PadLeft(2, ' '));
             }
 
             //Console.ForegroundColor = ConsoleColor.DarkRed;
             if (plc == CountPlace.rightHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei);
-                DRAW.str("Hand :  " + (rightHand.Count+"").PadLeft(2, ' '));
+                DRAW.str("Hand :  " + (rightHand.Count + "").PadLeft(2, ' '));
             }
             if (plc == CountPlace.rightDeck || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei + 1);
-                DRAW.str("Deck :  " + (rightDeck.Count+"").PadLeft(2, ' '));
+                DRAW.str("Deck :  " + (rightDeck.Count + "").PadLeft(2, ' '));
             }
             if (plc == CountPlace.rightHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei + 2);
-                DRAW.str("Grave : " + (rightGraveyard.Count+"").PadLeft(2, ' '));
+                DRAW.str("Grave : " + (rightGraveyard.Count + "").PadLeft(2, ' '));
             }
             //if (plc != CountPlace.ALL)
             //    Console.Beep(600, 100);
@@ -170,7 +170,7 @@ namespace GWENT
             }
             Thread.Sleep(time / 5);
         }
-        void pingBoard(Point fromP, Point toP, ConsoleColor clr, int tail, int time, bool sameSide, bool toIsLeft, bool finishGap)
+        public void pingBoard(Point fromP, Point toP, ConsoleColor clr, int tail, int time, bool sameSide, bool toIsLeft, bool finishGap)
         {
             if (sameSide) { if (toIsLeft) toP.Offset(100, 0); else toP.Offset(-100, 0); }
             Point curr = new Point(fromP.X, fromP.Y);
@@ -301,7 +301,6 @@ namespace GWENT
                     currentSelected %= from.Count;
 
                     TraceCardInfo(from[currentSelected]);
-
                 } while (k != ConsoleKey.Enter);
 
                 from[currentSelected].RedrawSelected(false);
@@ -311,6 +310,15 @@ namespace GWENT
             DRAW.setBuffTo(20, 32);
             DRAW.str("".PadLeft(40));
             return res;
+        }
+
+        public void CheckDeadUnits()
+        {
+            List<Unit> units = left.getUnits;
+            units.AddRange(right.getUnits);
+            foreach (Unit u in units)
+                if (u.Power <= 0) u.Die(this);
+
         }
 
         public void PlayCard(bool isLeft)
@@ -341,6 +349,19 @@ namespace GWENT
                 u.TriggerEvent(Event.turnStart, this);
             }
         }
+        public void AddToGraveyard(bool isLeft, Card what)
+        {
+            if (isLeft)
+            {
+                leftGraveyard.Add(what);
+                DrawCounts(CountPlace.leftGrave);
+            }
+            else
+            {
+                rightGraveyard.Add(what);
+                DrawCounts(CountPlace.rightGrave);
+            }
+        }
 
         public void Start()
         {
@@ -351,5 +372,7 @@ namespace GWENT
                 NextTurn();
             }
         }
+
+
     }
 }

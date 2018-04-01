@@ -81,5 +81,6 @@ namespace GWENT
         KaedweniKnight = 531,
         RedanianElite = 532,
         TridamInfantry = 533,
+        ReinforcedTrebuchet = 534,
     }
 }

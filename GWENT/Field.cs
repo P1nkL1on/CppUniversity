@@ -24,7 +24,7 @@ namespace GWENT
 
             TestFieldSpawn();
         }
-
+        public Row getRow (int i){  return rows[i]; }
         public void SelectAndDeployUnit( Unit unit, Game game )
         {
             int curRow = 0, curInd = 0, prevRow = 0;
@@ -50,11 +50,11 @@ namespace GWENT
                 if (k == ConsoleKey.LeftArrow)
                     curRow++;
                 curRow = (curRow + rows.Count)%rows.Count;
-                curInd = (curInd + rows[curRow].unitCount) % rows[curRow].unitCount;
-            } while (true);
+                curInd = (curInd + rows[curRow].unitCount + 1) % (rows[curRow].unitCount + 1);
+            } while (k != ConsoleKey.Enter);
 
-            Row add = rows[0];
-            add.DeployUnitOnRow(unit, 0);
+            Row add = rows[curRow];
+            add.DeployUnitOnRow(unit, curInd);
             add.RedrawAll();
             unit.TriggerEvent(Event.deploy, game);
         }
@@ -165,7 +165,7 @@ namespace GWENT
             return null;
         }
     }
-    class Row
+    public class Row
     {
         List<Unit> units;
         string name;
@@ -195,6 +195,11 @@ namespace GWENT
             return units.IndexOf(unit);
         }
 
+        public void removeAt(Unit u )
+        {
+            units.Remove(u);
+        }
+
         public bool CallRedraw(Unit unit, bool selected)
         {
             int unitIndex = indexOf(unit);
@@ -211,7 +216,8 @@ namespace GWENT
             DrawTop(TotalPower, 0);
             for (int i = 0; i < units.Count; i++)
                 units[i].TraceField(bufHoriz, 2 + bufVert + 3 * i);
-            //CallRedraw(units[2], true);
+            if (units.Count < 9)
+                UnitDeployPlace.ClearField(bufHoriz, 2 + bufVert + 3 * units.Count);
             return true;
         }
 
