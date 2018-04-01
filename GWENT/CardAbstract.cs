@@ -12,6 +12,7 @@ namespace GWENT
     public delegate void Action( Card sender, Game gameState );
     public abstract class Card
     {
+        protected Cards exapler;
         protected string name;
         protected string description;
         public List<Tag> tags;
@@ -22,6 +23,8 @@ namespace GWENT
         public abstract void TraceField(int bufHorizontal, int bufVertical);
         public abstract void TraceInList(int bufHorizontal, int bufVertical);
         public abstract void TraceFull(int bufHorizontal, int bufVertical, int wid);
+        public abstract void Redraw();
+        public abstract void RedrawSelected(bool selected);
 
         public abstract int Power {get;}
 

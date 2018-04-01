@@ -24,15 +24,51 @@ namespace GWENT
 
             TestFieldSpawn();
         }
+
+        public void SelectAndDeployUnit( Unit unit, Game game )
+        {
+            int curRow = 0, curInd = 0, prevRow = 0;
+            UnitDeployPlace udp = new UnitDeployPlace();
+            ConsoleKey k;
+            do
+            {
+                rows[curRow].getUnits.Insert(curInd, udp);
+                rows[curRow].RedrawAll();
+                rows[prevRow].RedrawAll();
+                rows[curRow].getUnits.RemoveAt(curInd);
+
+                k = Console.ReadKey().Key;
+                if (k == ConsoleKey.DownArrow)
+                    curInd++;
+                if (k == ConsoleKey.UpArrow)
+                    curInd--;
+                
+
+                prevRow = curRow;
+                if (k == ConsoleKey.RightArrow)
+                    curRow--;
+                if (k == ConsoleKey.LeftArrow)
+                    curRow++;
+                curRow = (curRow + rows.Count)%rows.Count;
+                curInd = (curInd + rows[curRow].unitCount) % rows[curRow].unitCount;
+            } while (true);
+
+            Row add = rows[0];
+            add.DeployUnitOnRow(unit, 0);
+            add.RedrawAll();
+            unit.TriggerEvent(Event.deploy, game);
+        }
+        
         void TestFieldSpawn()
         {
             for (int i = 0; i < rows.Count; i++)
             {
-                for (int j = 0; j < 1; j++)//j < (16 - i * i); j++)
-                //{
-                    //if ((i + j) % 2 == 0)
-                        rows[i].DeployUnitOnRow(new Unit(Cards.TemerianDrummer), 0);//(new Unit(11, "Fiend", "", Rarity.bronze, new List<Tag>() { Tag.Monsters, Tag.Relict }), 0);
-                    //else
+                for (int j = 0; j < (3 - i * i); j++)
+                    //{
+                    if ((i + j) % 2 == 0)
+                        rows[i].DeployUnitOnRow(new Unit(Cards.AedirianMauler), 0);//(new Unit(11, "Fiend", "", Rarity.bronze, new List<Tag>() { Tag.Monsters, Tag.Relict }), 0);
+                    else
+                        rows[i].DeployUnitOnRow(new Unit(Cards.TemerianDrummer), 0);
                         //rows[i].DeployUnitOnRow(new Unit(16, "Geralt", "", Rarity.gold, new List<Tag>() { Tag.Neutral, Tag.Witcher }), 0);
                 //}
             }
@@ -75,6 +111,10 @@ namespace GWENT
         {
             get { List<Unit> res = new List<Unit>(); for (int i = 0; i < rows.Count; i++) res.AddRange(rows[i].getUnits); return res; }
         }
+        public List<Card> getUnitsAsCards
+        {
+            get { List<Card> res = new List<Card>(); for (int i = 0; i < rows.Count; i++) res.AddRange(rows[i].getUnits); return res; }
+        }
         public void DrawStart()
         {
             for (int i = 0; i < rows.Count; i++)
@@ -109,6 +149,20 @@ namespace GWENT
                 res.AddRange(rows[r].findByTag(tags));
             }
             return res;
+        }
+        
+        public Unit NearUnit (Unit un, bool left, int far){
+            for (int i = 0; i < rows.Count; i++)
+                if (rows[i].indexOf(un) >= 0)
+                    return rows[i].UnitNeightboor(un, far * ((left)? -1 : 1));
+            return null;
+        }
+        public Unit NearUnit(Unit un, bool left)
+        {
+            for (int i = 0; i < rows.Count; i++)
+                if (rows[i].indexOf(un) >= 0)
+                    return rows[i].UnitNeightboor(un, ((left) ? -1 : 1));
+            return null;
         }
     }
     class Row
@@ -212,6 +266,12 @@ namespace GWENT
             }
             return res;
         }
-    }
 
+        public Unit UnitNeightboor (Unit who, int offset){
+            int whoInd = units.IndexOf(who);
+            if (whoInd + offset >= 0 && whoInd + offset < units.Count)
+                return units[whoInd + offset];
+            return null;
+        }
+    }
 }

@@ -35,17 +35,24 @@ namespace GWENT
             selectedIndexes = new List<int>();
         }
 
-        void DrawCard(int index, Card card)
+        void TraceCard(int index, Card card)
         {
             card.TraceInList(bufLeft + 1, bufTop + 2 + index * 2);
+        }
+        void TraceEmptyCard(int index)
+        {
+            DRAW.setBuffTo(bufLeft + 1, bufTop + 2 + index * 2);
+            DRAW.str("".PadLeft(15));
         }
         public void Redraw()
         {
             DRAW.setBuffTo(bufLeft, bufTop);
             DRAW.str(name + " :");
-            for (int i = currentTopIndex; i < currentList.Count; i++)
-                if (i - currentTopIndex <= maxCards)
-                    DrawCard(i, currentList[i]);
+            for (int i = currentTopIndex; i < currentTopIndex + maxCards; i++)
+                if (i - currentTopIndex <= maxCards && i < currentList.Count)
+                    TraceCard(i, currentList[i]);
+                else
+                    TraceEmptyCard(i);
         }
 
 

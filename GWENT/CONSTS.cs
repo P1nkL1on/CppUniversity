@@ -28,6 +28,8 @@ namespace GWENT
         Nilfgaard = 5,
 
         Temeria = 51,
+        Aedrian = 52,
+        Redanie = 53,
 
         Mage = 101,
         Solder = 102,
@@ -44,6 +46,7 @@ namespace GWENT
 
     public enum Cards
     {
+        None = -1,
         // nothern bronze
         BloodFlail = 501,
         Specter = 502,
@@ -76,6 +79,7 @@ namespace GWENT
         FieldMedic = 529,
         KaedweniCavalry = 530,
         KaedweniKnight = 531,
-        RedanianElite = 532
+        RedanianElite = 532,
+        TridamInfantry = 533,
     }
 }

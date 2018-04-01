@@ -38,10 +38,12 @@ namespace GWENT
 
             view = new CardListViewer(fieldTop, 2, 10);
             view.SetList("Deck", leftHand);
+
+            List<Cards> types = new List<Cards>() { Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler };
             for (int i = 0; i < 25; i++)
             {
-                rightDeck.Add(new Unit(rnd.Next(5, 15), "r_" + rnd.Next(0, 300) + "dasidpaosidpaosidpa", "", Rarity.bronze, new List<Tag>() { Tag.Monsters }));
-                leftDeck.Add(new Unit(rnd.Next(5, 15), "l_" + rnd.Next(0, 300) + "aaaaaaa", "", Rarity.silver, new List<Tag>() { Tag.NothernRealms }));
+                rightDeck.Add(new Unit(types[i % 5]));
+                leftDeck.Add(new Unit(types[i % 5]));
             }
 
             this.rnd = rnd;
@@ -57,21 +59,40 @@ namespace GWENT
             DrawBorders(Focus.none);
             TraceCardInfo(leftDeck[0]);
 
-            left.RandomUnitOnRow(rnd, -1).TriggerEvent(Event.deploy, this);
+            //left.RandomUnitOnRow(rnd, -1).TriggerEvent(Event.deploy, this);
             //pingBoard(left.RandomUnitOnRow(rnd, -1), right.RandomUnitOnRow(rnd, -1), 1000, 20, ConsoleColor.Red);
+            //foreach (Unit u in right.getUnits)
+            //{
+            //    u.TriggerEvent(Event.deploy, this);
+            //}
+            //foreach (Unit u in left.getUnits){
+            //    u.TriggerEvent(Event.turnEnd, this);
+            //}
         }
         void DrawBorders(Focus foc)
         {
             DRAW.border(1, 1, 18, 24, foc == Focus.cardViewer, ConsoleColor.Gray);
             DRAW.border(19, 1, 46, 35, foc == Focus.field, ConsoleColor.Gray);
-            DRAW.border(1, 26, 18, 18, true, ConsoleColor.Gray);
+            //DRAW.border(1, 26, 18, 18, true, ConsoleColor.DarkGray);
+            DrawPicture(ConsoleColor.DarkGray, Cards.None);
+            DrawCardBorder();
+        }
+        static void DrawCardBorder()
+        {
             DRAW.border(19, 37, 46, 7, false, ConsoleColor.Gray);
         }
-        public void TraceCardInfo(Card card)
+        public static void DrawPicture(ConsoleColor clr, Cards pictureType)
         {
-            card.TraceFull(20, 37, 44);
+            DRAW.border(1, 26, 18, 18, true, clr);
+            DRAW.picture(pictureType);
         }
-        enum CountPlace
+        public static void TraceCardInfo(Card card)
+        {
+            DrawCardBorder();
+            for (int i = 37; i < 43; i++) { DRAW.setBuffTo(20, i + 1); DRAW.str("".PadLeft(44)); }
+            card.TraceFull(20, 37, 43);
+        }
+        public enum CountPlace
         {
             leftHand = 0,
             leftDeck = 1,
@@ -81,41 +102,41 @@ namespace GWENT
             rightGrave = 5,
             ALL = 6
         }
-        void DrawCounts(CountPlace plc)
+        public void DrawCounts(CountPlace plc)
         {
-            int hei = 31, widLeft = 9, widRight = 24;
+            int hei = 31, widLeft = 0, widRight = 33;
             //Console.ForegroundColor = ConsoleColor.DarkBlue;
             if (plc == CountPlace.leftHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei);
-                DRAW.str("Hand :  " + leftHand.Count);
+                DRAW.str("Hand :  " + (leftHand.Count+"").PadLeft(2, ' '));
             }
             if (plc == CountPlace.leftDeck || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei + 1);
-                DRAW.str("Deck :  " + leftDeck.Count);
+                DRAW.str("Deck :  " + (leftDeck.Count+"").PadLeft(2, ' '));
             }
             if (plc == CountPlace.leftGrave || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widLeft, fieldTop + hei + 2);
-                DRAW.str("Grave : " + leftGraveyard.Count);
+                DRAW.str("Grave : " + (leftGraveyard.Count+"").PadLeft(2, ' '));
             }
 
             //Console.ForegroundColor = ConsoleColor.DarkRed;
             if (plc == CountPlace.rightHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei);
-                DRAW.str("Hand :  " + rightHand.Count);
+                DRAW.str("Hand :  " + (rightHand.Count+"").PadLeft(2, ' '));
             }
             if (plc == CountPlace.rightDeck || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei + 1);
-                DRAW.str("Deck :  " + rightDeck.Count);
+                DRAW.str("Deck :  " + (rightDeck.Count+"").PadLeft(2, ' '));
             }
             if (plc == CountPlace.rightHand || plc == CountPlace.ALL)
             {
                 DRAW.setBuffTo(fieldLeft + widRight, fieldTop + hei + 2);
-                DRAW.str("Grave : " + rightGraveyard.Count);
+                DRAW.str("Grave : " + (rightGraveyard.Count+"").PadLeft(2, ' '));
             }
             //if (plc != CountPlace.ALL)
             //    Console.Beep(600, 100);
@@ -123,25 +144,59 @@ namespace GWENT
         }
         public void DrawACard(bool left)
         {
+            int time = 00;
             if (left)
             {
                 if (leftDeck.Count == 0) return;
-                leftHand.Add(leftDeck[0]);
+
+                Card a = leftDeck[0];
                 leftDeck.RemoveAt(0);
                 DrawCounts(CountPlace.leftDeck);
+                pingBoard(new Point(31, 35), new Point(30, 34), ConsoleColor.Gray, 10, time, true, true, false);
+                leftHand.Add(a);
                 DrawCounts(CountPlace.leftHand);
                 view.Redraw();
             }
             else
             {
                 if (rightDeck.Count == 0) return;
-                rightHand.Add(rightDeck[0]);
+                Card a = rightDeck[0];
                 rightDeck.RemoveAt(0);
                 DrawCounts(CountPlace.rightDeck);
+                pingBoard(new Point(52, 35), new Point(52, 34), ConsoleColor.Gray, 10, time, true, false, false);
+                rightHand.Add(a);
                 DrawCounts(CountPlace.rightHand);
                 view.Redraw();
             }
-            Thread.Sleep(420);
+            Thread.Sleep(time / 5);
+        }
+        void pingBoard(Point fromP, Point toP, ConsoleColor clr, int tail, int time, bool sameSide, bool toIsLeft, bool finishGap)
+        {
+            if (sameSide) { if (toIsLeft) toP.Offset(100, 0); else toP.Offset(-100, 0); }
+            Point curr = new Point(fromP.X, fromP.Y);
+            List<Point> pts = new List<Point>();
+            while (curr != toP)
+            {
+                pts.Add(new Point(curr.X, curr.Y - 1));
+
+                if (curr.Y == toP.Y || curr.X < fieldLeft + 20 || curr.X > fieldLeft + 22)
+                {
+                    if (toP.X > curr.X) curr.Offset(1, 0);
+                    else
+                        if (toP.X < curr.X) curr.Offset(-1, 0);
+                }
+                else
+                {
+                    if (sameSide) { sameSide = false; if (toIsLeft) toP.Offset(-100, 0); else toP.Offset(100, 0); }
+                    if (toP.Y > curr.Y) curr.Offset(0, 1);
+                    else
+                        if (toP.Y < curr.Y) curr.Offset(0, -1);
+                }
+            }
+            if (finishGap)
+                for (int i = 0; i < 5; i++)
+                    pts.Add(new Point(curr.X - 1, curr.Y));
+            DRAW.pingField(clr, pts, time, tail);
         }
         public void pingBoard(Unit from, Unit to, int time, int tail, ConsoleColor clr)
         {
@@ -155,31 +210,8 @@ namespace GWENT
             //fromP.Offset(0, -1);
 
             bool sameSide = ((fromIsLeft && toIsLeft) || (!fromIsLeft && !toIsLeft)) && (fromP.Y != toP.Y);
-            if (sameSide) { if (toIsLeft) toP.Offset(100, 0); else toP.Offset(-100, 0); }
 
-            Point curr = new Point(fromP.X, fromP.Y);
-            List<Point> pts = new List<Point>();
-            while (curr != toP)
-            {
-                pts.Add(new Point(curr.X, curr.Y - 1));
-
-                if (curr.Y == toP.Y || curr.X < fieldLeft + 20 || curr.X > fieldLeft + 24)
-                {
-                    if (toP.X > curr.X) curr.Offset(1, 0);
-                    else
-                    if (toP.X < curr.X) curr.Offset(-1, 0);
-                }
-                else
-                {
-                    if (sameSide) { sameSide = false; if (toIsLeft) toP.Offset(-100, 0); else toP.Offset(100, 0); }
-                    if (toP.Y > curr.Y) curr.Offset(0, 1);
-                    else
-                    if (toP.Y < curr.Y) curr.Offset(0, -1);
-                }
-            }
-            for (int i = 0; i < 5; i++)
-                pts.Add(new Point(curr.X - 1, curr.Y));
-            DRAW.pingField(clr, pts, time, tail);
+            pingBoard(fromP, toP, clr, tail, time, sameSide, toIsLeft, true);
         }
         static void randomPing()
         {
@@ -210,7 +242,7 @@ namespace GWENT
             left.RedrawTop();
             right.RedrawTop();
         }
-        public void RoundStart(int roundIndex)
+        void RoundStart(int roundIndex)
         {
             if (roundIndex > 3)
                 throw new Exception("game has only 3 rounds!");
@@ -237,12 +269,87 @@ namespace GWENT
             return null;
         }
 
-        public static List<Unit> selectFrom(int count, bool exactly, List<Unit> from)
+        public static List<Card> selectFrom(int count, bool exactly, List<Card> from)
         {
-            List<Unit> res = new List<Unit>();
-            for (int i = 0; i < Math.Max(count, from.Count); i++)
-                res.Add(from[i]);
+            return selectFrom("Select " + count + " unit(s)", count, exactly, from);
+        }
+
+        public static List<Card> selectFrom(string what, int count, bool exactly, List<Card> from)
+        {
+            DRAW.PushColor(ConsoleColor.DarkGreen);
+            DRAW.setBuffTo(39 - what.Length / 2, 32);
+            DRAW.str(" " + what + " : ");
+            DRAW.PopColor();
+
+            List<Card> res = new List<Card>();
+            for (int i = 0; i < Math.Min(count, from.Count); i++)
+            {
+                int currentSelected = 0, prevSelected = 0;
+                ConsoleKey k = ConsoleKey.Enter;
+                do
+                {
+                    from[prevSelected].RedrawSelected(false);
+                    from[currentSelected].RedrawSelected(true);
+                    k = Console.ReadKey().Key;
+                    prevSelected = currentSelected;
+                    if (k == ConsoleKey.DownArrow)
+                        currentSelected++;
+                    if (k == ConsoleKey.UpArrow)
+                        currentSelected--;
+
+                    currentSelected += from.Count;
+                    currentSelected %= from.Count;
+
+                    TraceCardInfo(from[currentSelected]);
+
+                } while (k != ConsoleKey.Enter);
+
+                from[currentSelected].RedrawSelected(false);
+                res.Add(from[currentSelected]);
+                from.Remove(from[currentSelected]);
+            }
+            DRAW.setBuffTo(20, 32);
+            DRAW.str("".PadLeft(40));
             return res;
+        }
+
+        public void PlayCard(bool isLeft)
+        {
+            if (leftHand.Count == 0) return;
+            Card choosed = selectFrom("Choose a card to play", 1, true, leftHand)[0];
+            leftHand.Remove(choosed);
+            view.Redraw();
+            if ((choosed as Unit) != null)
+            {
+                left.SelectAndDeployUnit(choosed as Unit, this);
+            }
+            else
+            {
+                // spell cast
+            }
+        }
+
+        void NextTurn()
+        {
+            foreach (Unit u in left.getUnits)
+            {
+                u.TriggerEvent(Event.turnEnd, this);
+            }
+
+            foreach (Unit u in left.getUnits)
+            {
+                u.TriggerEvent(Event.turnStart, this);
+            }
+        }
+
+        public void Start()
+        {
+            this.RoundStart(1);
+            while (true)
+            {
+                this.PlayCard(true);
+                NextTurn();
+            }
         }
     }
 }

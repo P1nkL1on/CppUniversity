@@ -27,8 +27,7 @@ namespace GWENT
             return clr;
 
         }
-
-        public static void rarity(int leng, Rarity rar)
+        public static ConsoleColor rarityColor(Rarity rar)
         {
             ConsoleColor clr = ConsoleColor.DarkYellow;
             switch (rar)
@@ -42,6 +41,11 @@ namespace GWENT
                 default:
                     break;
             }
+            return clr;
+        }
+        public static void rarity(int leng, Rarity rar)
+        {
+            ConsoleColor clr = rarityColor(rar);
             PushColor(clr);
             Console.Write("".PadLeft(leng, ' '));
             PopColor();
@@ -191,6 +195,14 @@ namespace GWENT
             Console.ForegroundColor = ConsoleColor.Gray;
             PopColor();
             Thread.Sleep(msecWait);
+        }
+
+        public static void picture(Cards type)
+        {
+            string what = "XXXX";
+            if (type != Cards.None)
+                what = type.ToString();
+            str(what, 3, 27, 14, 1);
         }
     }
 }
