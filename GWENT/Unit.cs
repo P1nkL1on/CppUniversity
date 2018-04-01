@@ -25,10 +25,17 @@ namespace GWENT
         {
             DRAW.PushColor(ConsoleColor.DarkGreen);
             DRAW.setBuffTo(bufHorizontal, bufVertical);
-            DRAW.str("".PadRight(7)); 
+            DRAW.str("".PadRight(6)); 
             DRAW.setBuffTo(bufHorizontal, bufVertical + 1);
-            DRAW.str("".PadRight(7));
+            DRAW.str("".PadRight(6));
             DRAW.PopColor();
+        }
+        public static void ClearField(int bufHorizontal, int bufVertical)
+        {
+            DRAW.setBuffTo(bufHorizontal, bufVertical);
+            DRAW.str("".PadRight(6));
+            DRAW.setBuffTo(bufHorizontal, bufVertical + 1);
+            DRAW.str("".PadRight(6));
         }
     }
     public class Unit : Card
@@ -68,6 +75,7 @@ namespace GWENT
             }
             game.RedrawTop();
             game.DrawCounts(Game.CountPlace.ALL);
+            game.CheckDeadUnits();
         }
 
         public Point leftTop
@@ -156,6 +164,21 @@ namespace GWENT
                     SetParams("Tridam Infantry", "4 Armor.", new List<Tag>() { Tag.NothernRealms, Tag.Solder }, Rarity.bronze);
                     SetStandartActions(10);
                     armorCount = 4;
+                    break;
+
+                case Cards.ReinforcedTrebuchet:
+                    SetParams("Reinforced Trebuchet", "Deal 1 damage to a random enemy on turn end.", new List<Tag>() { Tag.NothernRealms, Tag.Machine }, Rarity.bronze);
+                    SetStandartActions(8);
+                    onTurnEnd = new Action((card, game) =>
+                    {
+                        List<Card> enemies = game.EnemyField(this).getUnitsAsCards;
+                        Unit enemy = (enemies.Count > 0) ? enemies[game.rnd.Next(enemies.Count)] as Unit : null;
+                        if (enemy != null)
+                        {
+                            game.pingBoard(this, enemy, 400, 15, ConsoleColor.Red);
+                            enemy.Damage(1);
+                        }
+                    });
                     break;
                 default:
                     break;
@@ -270,6 +293,23 @@ namespace GWENT
             if (game.right.IndexOf(this, out rowIndex) >= 0)
                 return game.right.isBlue;
             throw new Exception("No such unit in a field!");
+        }
+
+        public void Die(Game game)
+        {
+            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 1000);
+            Field at = game.FriendField(this);
+            int rowIndex, charIndex = at.IndexOf(this, out rowIndex);
+            Row row = at.getRow(rowIndex);
+
+            if (!at.isBlue)
+                game.pingBoard(new Point(lastHo, lastVe), new Point(52, 36), ConsoleColor.Gray, 10, 500, true, false, false);
+            else
+                game.pingBoard(new Point(lastHo, lastVe), new Point(30, 36), ConsoleColor.Gray, 10, 500, true, true, true);
+
+            row.removeAt(this);
+            row.RedrawAll();
+            game.AddToGraveyard(at.isBlue, this);
         }
     }
 }

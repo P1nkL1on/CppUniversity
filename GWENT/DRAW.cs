@@ -204,5 +204,33 @@ namespace GWENT
                 what = type.ToString();
             str(what, 3, 27, 14, 1);
         }
+
+        public static void die (Random rnd, int left, int top, int wid, int hei, int time){
+            List<Point> first = new List<Point>(), second = new List<Point>();
+            for (int i = 0; i < wid; i++)
+                for (int j = 0; j < hei; j++)
+                {
+                    first.Add(new Point(i, j));
+                    second.Add(new Point(i, j));
+                }
+          
+            for (int i = 0; i < wid * hei; i++)
+            {
+                int ind = rnd.Next(first.Count);
+                Point p = first[ind]; first.RemoveAt(ind);
+                setBuffTo(p.X + left, p.Y + top);
+                str("*");
+                Thread.Sleep(time / 2 / ( wid * hei));
+                Console.Beep(rnd.Next(200, 800), 50);
+            }
+            for (int i = 0; i < wid * hei; i++)
+            {
+                int ind = rnd.Next(second.Count);
+                Point p = second[ind]; second.RemoveAt(ind);
+                setBuffTo(p.X + left, p.Y + top);
+                str(" ");
+                Thread.Sleep(time / 2 / (wid * hei));
+            }
+        }
     }
 }
