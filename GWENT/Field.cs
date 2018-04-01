@@ -24,12 +24,17 @@ namespace GWENT
 
             TestFieldSpawn();
         }
-        public Row getRow (int i){  return rows[i]; }
-        public void SelectAndDeployUnit( Unit unit, Game game )
+        public Row getRow(int i) { return rows[i]; }
+        public void SelectAndDeployUnit(Unit unit, Game game)
         {
             int curRow = 0, curInd = 0, prevRow = 0;
             UnitDeployPlace udp = new UnitDeployPlace();
             ConsoleKey k;
+            DRAW.PushColor(ConsoleColor.DarkGreen);
+            String what = "Select a place for unit deploying";
+            DRAW.setBuffTo(39 - what.Length / 2, 32);
+            DRAW.str(" " + what+" : ");
+            DRAW.PopColor();
             do
             {
                 rows[curRow].getUnits.Insert(curInd, udp);
@@ -42,23 +47,28 @@ namespace GWENT
                     curInd++;
                 if (k == ConsoleKey.UpArrow)
                     curInd--;
-                
+
 
                 prevRow = curRow;
                 if (k == ConsoleKey.RightArrow)
                     curRow--;
                 if (k == ConsoleKey.LeftArrow)
                     curRow++;
-                curRow = (curRow + rows.Count)%rows.Count;
+                curRow = (curRow + rows.Count) % rows.Count;
                 curInd = (curInd + rows[curRow].unitCount + 1) % (rows[curRow].unitCount + 1);
             } while (k != ConsoleKey.Enter);
+
+
+            DRAW.setBuffTo(20, 32);
+            DRAW.str("".PadLeft(40));
 
             Row add = rows[curRow];
             add.DeployUnitOnRow(unit, curInd);
             add.RedrawAll();
             unit.TriggerEvent(Event.deploy, game);
+
         }
-        
+
         void TestFieldSpawn()
         {
             for (int i = 0; i < rows.Count; i++)
@@ -69,7 +79,7 @@ namespace GWENT
                         rows[i].DeployUnitOnRow(new Unit(Cards.AedirianMauler), 0);//(new Unit(11, "Fiend", "", Rarity.bronze, new List<Tag>() { Tag.Monsters, Tag.Relict }), 0);
                     else
                         rows[i].DeployUnitOnRow(new Unit(Cards.TemerianDrummer), 0);
-                        //rows[i].DeployUnitOnRow(new Unit(16, "Geralt", "", Rarity.gold, new List<Tag>() { Tag.Neutral, Tag.Witcher }), 0);
+                //rows[i].DeployUnitOnRow(new Unit(16, "Geralt", "", Rarity.gold, new List<Tag>() { Tag.Neutral, Tag.Witcher }), 0);
                 //}
             }
         }
@@ -145,16 +155,18 @@ namespace GWENT
         public List<Unit> findByTag(List<Tag> tags)
         {
             List<Unit> res = new List<Unit>();
-            for (int r = 0; r < rows.Count; r++) {
+            for (int r = 0; r < rows.Count; r++)
+            {
                 res.AddRange(rows[r].findByTag(tags));
             }
             return res;
         }
-        
-        public Unit NearUnit (Unit un, bool left, int far){
+
+        public Unit NearUnit(Unit un, bool left, int far)
+        {
             for (int i = 0; i < rows.Count; i++)
                 if (rows[i].indexOf(un) >= 0)
-                    return rows[i].UnitNeightboor(un, far * ((left)? -1 : 1));
+                    return rows[i].UnitNeightboor(un, far * ((left) ? -1 : 1));
             return null;
         }
         public Unit NearUnit(Unit un, bool left)
@@ -175,7 +187,14 @@ namespace GWENT
 
         public List<Unit> getUnits
         {
-            get { return units; }
+            get
+            {
+                //List<Unit> res = new List<Unit>();
+                //for (int i = 0; i < units.Count; i++)
+                //    if (!units[i].dead)
+                //        res.Add(units[i]);
+                return units;
+            }
         }
         public Row(int bufHoriz, int bufVert, string name, bool isBlue)
         {
@@ -195,7 +214,7 @@ namespace GWENT
             return units.IndexOf(unit);
         }
 
-        public void removeAt(Unit u )
+        public void removeAt(Unit u)
         {
             units.Remove(u);
         }
@@ -268,12 +287,13 @@ namespace GWENT
                     if (units[i].tags.IndexOf(tags[j]) < 0)
                         allTags = false;
                 if (allTags)
-                    res.Add( units[i] );
+                    res.Add(units[i]);
             }
             return res;
         }
 
-        public Unit UnitNeightboor (Unit who, int offset){
+        public Unit UnitNeightboor(Unit who, int offset)
+        {
             int whoInd = units.IndexOf(who);
             if (whoInd + offset >= 0 && whoInd + offset < units.Count)
                 return units[whoInd + offset];

@@ -141,8 +141,8 @@ namespace GWENT
             int timeInterval = Math.Max(2, totalTimeMs / (points.Count + tailLength * 2));
             for (int i = 0; i < points.Count + tailLength * 2; i++)
             {
-                if (i < points.Count) DrawPoint(' ',points[i], clr);
-                if (i>= tailLength / 2 && i < points.Count + tailLength/2) DrawPoint(' ',points[i - tailLength/2], dop);
+                if (i < points.Count) DrawPoint(' ', points[i], clr);
+                if (i >= tailLength / 2 && i < points.Count + tailLength / 2) DrawPoint(' ', points[i - tailLength / 2], dop);
                 if (i >= tailLength && i < points.Count + tailLength) DrawPoint('▓', points[i - tailLength], ConsoleColor.Black);
                 if (i >= tailLength / 2 * 3 && i < points.Count + tailLength / 2 * 3) DrawPoint('░', points[i - tailLength / 2 * 3], ConsoleColor.Black);
                 if (i >= tailLength * 2 && i < points.Count + tailLength * 2) DrawPoint(' ', points[i - tailLength * 2], ConsoleColor.Black);
@@ -154,7 +154,7 @@ namespace GWENT
         public static void border(int left, int top, int wid, int hei, bool isSelected, ConsoleColor clr)
         {
             Console.ForegroundColor = clr;
-            borderStr(left, top, wid, hei,(isSelected)? "╔═╗║╚╝" : "┌─┐│└┘");
+            borderStr(left, top, wid, hei, (isSelected) ? "╔═╗║╚╝" : "┌─┐│└┘");
             Console.ResetColor();
         }
         public static void border(bool isSelected, ConsoleColor clr)
@@ -179,7 +179,7 @@ namespace GWENT
             for (int i = 1; i < hei; i++)
             {
                 setBuffTo(left + wid - 1, top + i); str(symbols[3] + "");
-                setBuffTo(left, top + i); str(symbols[3]+"");
+                setBuffTo(left, top + i); str(symbols[3] + "");
             }
             setBuffTo(left, top + hei);
             str(symbols[4] + "".PadLeft(wid - 2, symbols[1]) + symbols[5]);
@@ -205,32 +205,42 @@ namespace GWENT
             str(what, 3, 27, 14, 1);
         }
 
-        public static void die (Random rnd, int left, int top, int wid, int hei, int time){
+        public static void die(Random rnd, int left, int top, int wid, int hei, int time, bool sound, string what)
+        {
             List<Point> first = new List<Point>(), second = new List<Point>();
             for (int i = 0; i < wid; i++)
                 for (int j = 0; j < hei; j++)
-                {
                     first.Add(new Point(i, j));
-                    second.Add(new Point(i, j));
-                }
-          
+
             for (int i = 0; i < wid * hei; i++)
             {
                 int ind = rnd.Next(first.Count);
                 Point p = first[ind]; first.RemoveAt(ind);
                 setBuffTo(p.X + left, p.Y + top);
-                str("*");
-                Thread.Sleep(time / 2 / ( wid * hei));
-                Console.Beep(rnd.Next(200, 800), 50);
-            }
-            for (int i = 0; i < wid * hei; i++)
-            {
-                int ind = rnd.Next(second.Count);
-                Point p = second[ind]; second.RemoveAt(ind);
-                setBuffTo(p.X + left, p.Y + top);
-                str(" ");
+                str(what);
                 Thread.Sleep(time / 2 / (wid * hei));
+                if (sound)
+                    Console.Beep(rnd.Next(200, 800), 50);
             }
+        }
+    }
+
+    public static class LOGS
+    {
+        static List<string> logs = new List<string>();
+        static int currentLogInd = 0, maxLogIndex = 40;
+        static int left = 70, top = 2, wid = 50;
+
+        public static void Add(string s)
+        {
+            if (currentLogInd >= maxLogIndex)
+            {
+                currentLogInd = 0; for (int i = top; i < top + maxLogIndex; i++) { DRAW.setBuffTo(left, i); DRAW.str("".PadLeft(wid + 1, ' ')); }
+            }
+            int add = DRAW.str("-" + s, left, top + currentLogInd, wid, 1);
+            currentLogInd += add + 1;
+            logs.Add(s);
+
         }
     }
 }

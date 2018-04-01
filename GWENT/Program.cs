@@ -11,7 +11,9 @@ namespace GWENT
     {
         static void Main(string[] args)
         {
+            
             Console.SetWindowSize(Console.LargestWindowWidth * 4 / 5, Console.LargestWindowHeight * 7/ 8);
+            Console.ReadLine();
             while (true)
             {
                 Game g = new Game(new Random());
