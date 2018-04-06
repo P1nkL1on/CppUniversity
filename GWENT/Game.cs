@@ -13,8 +13,10 @@ namespace GWENT
         cardViewer = 0,
         field = 1
     }
+    public delegate bool filter (Card card);
     public class Game
     {
+        public static filter AnyCard = new filter((card)=>{return true;});
         public Random rnd;
         public Field left, right;
         int fieldLeft, fieldTop;
@@ -39,7 +41,7 @@ namespace GWENT
             view = new CardListViewer(fieldTop, 2, 10);
             view.SetList("Deck", leftHand);
 
-            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
+            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.ReaverScout, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
             for (int i = 0; i < 25; i++)
             {
                 rightDeck.Add(new Unit(types[i % types.Count]));
@@ -142,37 +144,53 @@ namespace GWENT
             //    Console.Beep(600, 100);
             Console.ResetColor();
         }
-        public void DrawACard(bool left)
+        public Card DrawACard(bool left, filter f)
         {
             int time = 400;
             
             if (left)
             {
-                if (leftDeck.Count == 0) return;
+                if (leftDeck.Count == 0) return null;
+                int index = -1;
+                
+                    for (int i = 0; i < leftDeck.Count; i++)
+                        if (index == -1 && f(leftDeck[i]))
+                            index = i;
+                if (index < 0)return null;
+                Card a = leftDeck[index];
+                leftDeck.RemoveAt(index);
 
-                Card a = leftDeck[0];
-                leftDeck.RemoveAt(0);
                 DrawCounts(CountPlace.leftDeck);
                 pingBoard(new Point(31, 35), new Point(30, 34), ConsoleColor.Gray, 10, time, true, true, false);
                 leftHand.Add(a);
                 DrawCounts(CountPlace.leftHand);
                 LOGS.Add("Left player draws '"+ a.name +"'");
                 view.Redraw();
+                return a;
             }
             else
             {
-                if (rightDeck.Count == 0) return;
-                Card a = rightDeck[0];
-                rightDeck.RemoveAt(0);
+                if (rightDeck.Count == 0) return null;
+                int index = -1;
+                    for (int i = 0; i < rightDeck.Count; i++)
+                        if (index == -1 && f(rightDeck[i]))
+                            index = i;
+                if (index < 0)return null;
+                Card a = rightDeck[index];
+                rightDeck.RemoveAt(index);
+
                 DrawCounts(CountPlace.rightDeck);
                 pingBoard(new Point(52, 35), new Point(52, 34), ConsoleColor.Gray, 10, time, true, false, false);
                 rightHand.Add(a);
                 DrawCounts(CountPlace.rightHand);
                 LOGS.Add("Right player draws '" + a.name + "'");
                 view.Redraw();
+                return a;
             }
             Thread.Sleep(time / 5);
         }
+        
+
         public void pingBoard(Point fromP, Point toP, ConsoleColor clr, int tail, int time, bool sameSide, bool toIsLeft, bool finishGap)
         {
             if (sameSide) { if (toIsLeft) toP.Offset(100, 0); else toP.Offset(-100, 0); }
@@ -254,7 +272,47 @@ namespace GWENT
             if (roundIndex == 2) cardCount = 4;
             if (roundIndex == 3) cardCount = 2;
             for (int i = 0; i < cardCount; i++)
-                DrawACard(i % 2 == 0);
+                DrawACard(i % 2 == 0, AnyCard);
+        }
+
+        public enum From{
+            friendlyDeck = 0,
+            friendlyGraveyard = 1,
+            
+            enemyDeck = 3,
+            enemyGraveyard = 4
+        }
+
+        public List<Card> selectA (From f, Unit forThis){
+            int rowIndex;
+            if (left.IndexOf(forThis, out rowIndex) >= 0){
+                    switch (f){
+                        case From.friendlyDeck:
+                            return leftDeck;
+                        case From.friendlyGraveyard:
+                            return leftGraveyard;
+                        case From.enemyDeck:
+                            return rightDeck;
+                        case From.enemyGraveyard:
+                            return rightGraveyard;
+                        default:
+                            break;
+                    }
+            }else{
+                    switch (f){
+                        case From.friendlyDeck:
+                       return rightDeck;
+                        case From.friendlyGraveyard:
+                            return rightGraveyard;
+                        case From.enemyDeck:
+                            return leftDeck;
+                        case From.enemyGraveyard:
+                            return leftGraveyard;
+                        default:
+                            break;
+                    }
+            }
+            return new List<Card>();
         }
 
         public Field FriendField(Unit forThis)
@@ -331,14 +389,20 @@ namespace GWENT
             Card choosed = selectFrom("Choose a card to play", 1, true, leftHand)[0];
             leftHand.Remove(choosed);
             view.Redraw();
+            PlayCard(isLeft, choosed);
+        }
+        public void PlayCard (bool isLeft, Card choosed){
             if ((choosed as Unit) != null)
             {
-                left.SelectAndDeployUnit(choosed as Unit, this);
+                if (isLeft)
+                    left.SelectAndDeployUnit(choosed as Unit, this);
+                else
+                    right.SelectAndDeployUnit(choosed as Unit, this);
             }
             else
             {
                 // spell cast
-            }
+            }        
         }
 
         void NextTurn()
@@ -377,6 +441,14 @@ namespace GWENT
             }
         }
 
+        public List<Card> selectByFilter (List<Card> from, filter f){
+            List<Card> res = new List<Card>();
+            foreach (Card c in from)
+                if (f(c))
+                    res.Add(c);
+            return res;
+        }
 
+        
     }
 }

@@ -31,7 +31,7 @@ namespace GWENT
             UnitDeployPlace udp = new UnitDeployPlace();
             ConsoleKey k;
             DRAW.PushColor(ConsoleColor.DarkGreen);
-            String what = "Select a place for unit deploying";
+            String what = "Select a place for " + unit.name;
             DRAW.setBuffTo(39 - what.Length / 2, 32);
             DRAW.str(" " + what+" : ");
             DRAW.PopColor();
@@ -68,6 +68,31 @@ namespace GWENT
             unit.TriggerEvent(Event.deploy, game);
 
         }
+        
+        public void RandomlyDeployUnit(Unit unit, Game game){
+            List<int> canBeDeplyedIn = new List<int>() { 0,1,2};
+            for (int i = 0; i < rows.Count; i++)
+                if (rows[i].unitCount >= 9)
+                    canBeDeplyedIn.Remove(i);
+            Row add = rows[canBeDeplyedIn[game.rnd.Next(canBeDeplyedIn.Count)]];
+            add.DeployUnitOnRow(unit, add.unitCount);
+            add.RedrawAll();
+            unit.TriggerEvent(Event.deploy, game);
+        }
+
+        public void DeployUnitNear(Unit unit,Game game, Unit near)
+        {
+            int rowIndex;
+            int atrowindex = IndexOf(unit, out rowIndex);
+            Row add = rows[rowIndex];
+            if (add.unitCount < 9)
+                add.DeployUnitOnRow(unit, atrowindex);
+            else
+                RandomlyDeployUnit(unit, game);
+            add.RedrawAll();
+            unit.TriggerEvent(Event.deploy, game);
+        }
+
 
         void TestFieldSpawn()
         {

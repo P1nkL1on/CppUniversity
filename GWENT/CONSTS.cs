@@ -43,12 +43,13 @@ namespace GWENT
 
     public enum Cards
     {
+        Any = 0,
         None = -1,
         // nothern bronze
         BloodFlail = 501,
         Specter = 502,
         Winch = 503,
-        ReaverScout = 504,
+        ReaverScout = 504,          //!
         TormentedMage = 505,
         AretuzeAdept = 506,
         BlueStripeCommando = 507,
@@ -58,7 +59,7 @@ namespace GWENT
         DamnedSorceress = 511,
         DunBanner = 512,
         KaedweniRevenant = 513,
-        TemerianDrummer = 514,
+        TemerianDrummer = 514,               //!
         Ballista = 515,
         BatteringRam = 516,
         PoorInfantry = 517,
@@ -66,9 +67,9 @@ namespace GWENT
         RightInfantry = 519,
         ReaverHunter = 520,
         SiegeMaster = 521,
-        AedirianMauler = 522,
-        RedanianKnight = 523,
-        RedanianKnightElect = 524,
+        AedirianMauler = 522,               //!
+        RedanianKnight = 523,               //!
+        RedanianKnightElect = 524,               //!
         ReinforcedBallista = 525,
         SiegeSupport = 526,
         Trebuchet = 527,
@@ -77,9 +78,9 @@ namespace GWENT
         KaedweniCavalry = 530,
         KaedweniKnight = 531,
         RedanianElite = 532,
-        TridamInfantry = 533,
-        ReinforcedTrebuchet = 534,
+        TridamInfantry = 533,               //!
+        ReinforcedTrebuchet = 534,               //!
 
-        DandelionPoet = 1000,
+        DandelionPoet = 1000,               //!
     }
 }
