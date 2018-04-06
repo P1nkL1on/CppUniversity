@@ -27,6 +27,7 @@ namespace GWENT
         Temeria = 51,
         Aedrian = 52,
         Redanie = 53,
+        Kaedwen = 54,
 
         Mage = 101,
         Solder = 102,
@@ -38,7 +39,17 @@ namespace GWENT
         Construct = 202,
         
         Beast = 240, 
-        Relict = 241
+        Relict = 241,
+
+        Special = 20,
+        Item = 21,
+        Organic = 22,
+        Alchemy = 23,
+        Tactics = 24,
+
+        Token = 40,
+        Cursed = 41,
+        Doomed = 42
     }
 
     public enum Cards
@@ -80,6 +91,8 @@ namespace GWENT
         RedanianElite = 532,
         TridamInfantry = 533,               //!
         ReinforcedTrebuchet = 534,               //!
+        LeftFlankInfantry = 535,
+        RightFlankInfantry = 536,
 
         DandelionPoet = 1000,               //!
     }

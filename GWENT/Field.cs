@@ -65,10 +65,21 @@ namespace GWENT
             Row add = rows[curRow];
             add.DeployUnitOnRow(unit, curInd);
             add.RedrawAll();
-            unit.TriggerEvent(Event.deploy, game);
+            unit.TriggerEvent(Event.deploy, game, unit);
 
         }
-        
+
+        public int isCrewed(Unit who)
+        {
+            int rowIndex, res = 0;
+            int indexOf = IndexOf(who, out rowIndex );
+            if (indexOf > 0)
+                if (rows[rowIndex].getUnit(indexOf - 1).abilities.IndexOf(Ability.crew) >= 0) res++;
+            if (indexOf < rows[rowIndex].unitCount - 1)
+                if (rows[rowIndex].getUnit(indexOf + 1).abilities.IndexOf(Ability.crew) >= 0) res++;
+            return res;
+        }
+
         public void RandomlyDeployUnit(Unit unit, Game game){
             List<int> canBeDeplyedIn = new List<int>() { 0,1,2};
             for (int i = 0; i < rows.Count; i++)
@@ -77,20 +88,20 @@ namespace GWENT
             Row add = rows[canBeDeplyedIn[game.rnd.Next(canBeDeplyedIn.Count)]];
             add.DeployUnitOnRow(unit, add.unitCount);
             add.RedrawAll();
-            unit.TriggerEvent(Event.deploy, game);
+            unit.TriggerEvent(Event.deploy, game, unit);
         }
 
-        public void DeployUnitNear(Unit unit,Game game, Unit near)
+        public void DeployUnitNear(Unit unit,Game game, Unit near, int offset)
         {
             int rowIndex;
-            int atrowindex = IndexOf(unit, out rowIndex);
+            int atrowindex = IndexOf(near, out rowIndex);
             Row add = rows[rowIndex];
             if (add.unitCount < 9)
-                add.DeployUnitOnRow(unit, atrowindex);
+                add.DeployUnitOnRow(unit, atrowindex + offset);
             else
                 RandomlyDeployUnit(unit, game);
             add.RedrawAll();
-            unit.TriggerEvent(Event.deploy, game);
+            unit.TriggerEvent(Event.deploy, game, unit);
         }
 
 
@@ -274,6 +285,7 @@ namespace GWENT
                 units.Add(unit);
             else
                 units.Insert(at, unit);
+            
             return true;
         }
 

@@ -17,5 +17,4 @@ D:\CPPuniver\GWENT\obj\Debug\GWENT.pdb
 D:\CPPuniver\GWENT\bin\Debug\GWENT.exe
 D:\CPPuniver\GWENT\bin\Debug\GWENT.pdb
 D:\CPPuniver\GWENT\obj\Debug\GWENT.csprojResolveAssemblyReference.cache
-D:\CPPuniver\GWENT\obj\Debug\GWENT.csproj.CoreCompileInputs.cache
 D:\CPPuniver\GWENT\bin\Debug\Colorful.Console.dll

@@ -41,9 +41,11 @@ namespace GWENT
             view = new CardListViewer(fieldTop, 2, 10);
             view.SetList("Deck", leftHand);
 
-            List<Cards> types = new List<Cards>() { Cards.ReinforcedTrebuchet, Cards.ReaverScout, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
+            List<Cards> types = new List<Cards>() { Cards.SiegeSupport , Cards.ReinforcedBallista};//, Cards.PoorInfantry,Cards.ReinforcedTrebuchet};//, Cards.ReaverScout, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
+            List<Cards> specialTypes = new List<Cards>() { Cards.BloodFlail};
             for (int i = 0; i < 25; i++)
             {
+                //if (i < 2)leftDeck.Add(new Special(specialTypes[0]));
                 rightDeck.Add(new Unit(types[i % types.Count]));
                 leftDeck.Add(new Unit(types[i % types.Count]));
             }
@@ -146,7 +148,7 @@ namespace GWENT
         }
         public Card DrawACard(bool left, filter f)
         {
-            int time = 400;
+            int time = 0;//400;
             
             if (left)
             {
@@ -187,7 +189,7 @@ namespace GWENT
                 view.Redraw();
                 return a;
             }
-            Thread.Sleep(time / 5);
+            //Thread.Sleep(time / 5);
         }
         
 
@@ -219,7 +221,7 @@ namespace GWENT
                     pts.Add(new Point(curr.X - 1, curr.Y));
             DRAW.pingField(clr, pts, time, tail);
         }
-        public void pingBoard(Unit from, Unit to, int time, int tail, ConsoleColor clr)
+        public void pingBoard(Card from, Card to, int time, int tail, ConsoleColor clr)
         {
             bool fromIsLeft = from.isBlue(this),
                  toIsLeft = to.isBlue(this);
@@ -283,6 +285,19 @@ namespace GWENT
             enemyGraveyard = 4
         }
 
+        public int sideOFCard(Card c)
+        {
+            if (leftHand.IndexOf(c) >= 0
+                || leftDeck.IndexOf(c) >= 0
+                || leftGraveyard.IndexOf(c) >= 0)
+                return 0;
+            if (rightHand.IndexOf(c) >= 0
+                || rightDeck.IndexOf(c) >= 0
+                || rightGraveyard.IndexOf(c) >= 0)
+                return 1;
+            return -1;
+        }
+
         public List<Card> selectA (From f, Unit forThis){
             int rowIndex;
             if (left.IndexOf(forThis, out rowIndex) >= 0){
@@ -322,12 +337,20 @@ namespace GWENT
             if (right.IndexOf(forThis, out rowIndex) >= 0) return right;
             return null;
         }
+        public Field FriendField(bool isBlue)
+        {
+            return (isBlue)?left:right;
+        }
         public Field EnemyField(Unit forThis)
         {
             int rowIndex;
             if (left.IndexOf(forThis, out rowIndex) >= 0) return right;
             if (right.IndexOf(forThis, out rowIndex) >= 0) return left;
             return null;
+        }
+        public Field EnemyField(bool isBlue)
+        {
+            return (!isBlue) ? left : right;
         }
 
         public static List<Card> selectFrom(int count, bool exactly, List<Card> from)
@@ -401,7 +424,8 @@ namespace GWENT
             }
             else
             {
-                // spell cast
+                if (isLeft)
+                    (choosed as Special).TriggerEvent(Event.deploy, this, true);
             }        
         }
 
@@ -409,12 +433,12 @@ namespace GWENT
         {
             foreach (Unit u in left.getUnits)
             {
-                u.TriggerEvent(Event.turnEnd, this);
+                u.TriggerEvent(Event.turnEnd, this, u);
             }
 
             foreach (Unit u in left.getUnits)
             {
-                u.TriggerEvent(Event.turnStart, this);
+                u.TriggerEvent(Event.turnStart, this, u);
             }
         }
         public void AddToGraveyard(bool isLeft, Card what)
@@ -449,6 +473,12 @@ namespace GWENT
             return res;
         }
 
+        public List<Card> allUnitsOnField()
+        {
+            List<Card> l = left.getUnitsAsCards;
+            l.AddRange(right.getUnitsAsCards);
+            return l;
+        }
         
     }
 }

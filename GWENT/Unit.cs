@@ -12,7 +12,15 @@ namespace GWENT
         deploy = 0,
         death = 1,
         turnEnd = 2,
-        turnStart = 3
+        turnStart = 3,
+        unitSpawned = 4,
+        unitDied = 5
+    }
+
+    public enum Ability
+    {
+        none = 0,
+        crew = 1,
     }
 
     public class UnitDeployPlace : Unit
@@ -48,28 +56,47 @@ namespace GWENT
 
         int lastHo;
         int lastVe;
+        public List<Ability> abilities;
+        protected
+        Action onDeploy, onEnterGraveyard, onTurnEnd, onTurnStart,
+               onUnitSpawned, onUnitDie;
 
-        protected Action onDeploy;
-        protected Action onEnterGraveyard;
-        protected Action onTurnEnd;
-        protected Action onTurnStart;
 
-
-        public void TriggerEvent(Event even, Game game)
+        public void TriggerEvent(Event even, Game game, Unit sender)
         {
             switch (even)
             {
                 case Event.deploy:
-                    onDeploy(this, game);
+                    this.SpawnEffect(game);
+                    Redraw();
+                    onDeploy(sender, game);
+                    foreach (Card c in game.allUnitsOnField())
+                    {
+                        Unit u = c as Unit;
+                        if (u != this)
+                            u.TriggerEvent(Event.unitSpawned, game, this);
+                    }
+                    break;
+                case Event.unitSpawned:
+                    onUnitSpawned(sender, game);
+                    break;
+                case Event.unitDied:
+                    onUnitDie(sender, game);
                     break;
                 case Event.death:
-                    onEnterGraveyard(this, game);
+                    onEnterGraveyard(sender, game);
+                    foreach (Card c in game.allUnitsOnField())
+                    {
+                        Unit u = c as Unit;
+                        if (u != this)
+                            u.TriggerEvent(Event.unitDied, game, this);
+                    }
                     break;
                 case Event.turnEnd:
-                    onTurnEnd(this, game);
+                    onTurnEnd(sender, game);
                     break;
                 case Event.turnStart:
-                    onTurnStart(this, game);
+                    onTurnStart(sender, game);
                     break;
                 default:
                     break;
@@ -80,18 +107,21 @@ namespace GWENT
 
         }
 
-        public Point leftTop
+        public override Point leftTop
         {
             get { return new Point(lastHo, lastVe); }
         }
 
         void SetStandartActions(int pow)
         {
+            abilities = new List<Ability>();
             dead = false;
             onDeploy = new Action((card, game) => { });
             onEnterGraveyard = new Action((card, game) => { });
             onTurnStart = new Action((card, game) => { });
             onTurnEnd = new Action((card, game) => { });
+            onUnitDie = new Action((card, game) => { });
+            onUnitSpawned = new Action((card, game) => { });
             basePower = currentHealth = pow;
             buffBonus = 0;
         }
@@ -109,6 +139,63 @@ namespace GWENT
             exapler = name;
             switch (name)
             {
+                case Cards.ReinforcedBallista:
+                    SetParams("Reinforced Ballista", "Deal 2 damage to an enemy. Crewed: Repeat its ability.", new List<Tag>() { Tag.NothernRealms, Tag.Machine }, Rarity.bronze);
+                    SetStandartActions(7);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.FriendField(this);
+                        for (int i = 0; i < 1 + f.isCrewed(this); i++){
+                            List<Card> enemies = Game.selectFrom("Select enemy to deal 2 damage", 1, true, game.EnemyField(this).getUnitsAsCards);
+                            Unit enemy = (enemies.Count > 0) ? enemies[0] as Unit : null;
+                            if (enemy != null)
+                            {
+                                game.pingBoard(this, enemy, 500, 10, ConsoleColor.Red);
+                                enemy.Damage(2, this);
+                            }
+                        }
+                    });
+                    break;
+                case Cards.SiegeSupport:
+                    SetParams("Siege Support", "Whenever an ally appears, boost it by 1. If it's a Machine, also give it 1 Armor. Crew.", new List<Tag>() { Tag.NothernRealms, Tag.Kaedwen, Tag.Support }, Rarity.bronze);
+                    SetStandartActions(7);
+                    abilities.Add(Ability.crew);
+                    onUnitSpawned = new Action((card, game) =>
+                    {
+                        if (card != null)
+                        {
+                            game.pingBoard(this, card, 300, 10, ConsoleColor.Green);
+                            Unit u = card as Unit;
+                            u.Boost(1, this);
+                            if (u.tags.IndexOf(Tag.Machine) >= 0)
+                                u.BoostArmor(1, this);
+                        }
+                    });
+                    break;
+                case Cards.LeftFlankInfantry:
+                    SetParams("Left Flank Infantry", "", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Temeria }, Rarity.bronze);
+                    SetStandartActions(2);
+                    break;
+                case Cards.RightFlankInfantry:
+                    SetParams("Right Flank Infantry", "", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Temeria }, Rarity.bronze);
+                    SetStandartActions(2);
+                    break;
+                case Cards.PoorInfantry:
+                    SetParams("Poor F'ing Infantry", "Spawn Left Flank Infantry and Right Flank Infantry to the left and right of this unit, respectively.", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Temeria }, Rarity.bronze);
+                    SetStandartActions(6);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        int rowIndex;
+                        Field f = game.FriendField(this);
+                        int atInd = f.IndexOf(this, out rowIndex);
+                        f.DeployUnitNear(new Unit(Cards.RightFlankInfantry), game, this, 1);
+                        f.DeployUnitNear(new Unit(Cards.LeftFlankInfantry), game, this, 0);
+                    });
+                    break;
+                case Cards.Specter:
+                    SetParams("Specter", "", new List<Tag>() { Tag.NothernRealms, Tag.Token }, Rarity.bronze);
+                    SetStandartActions(5);
+                    break;
                 case Cards.ReaverScout:
                     SetParams("Reaver Scout", "Choose a different Bronze ally and play a copy of it from your deck.", new List<Tag>() { Tag.NothernRealms, Tag.Support, Tag.Redanie }, Rarity.bronze);
                     SetStandartActions(1);
@@ -328,6 +415,14 @@ namespace GWENT
             buffBonus += buff;
             Redraw();
         }
+        public void BoostArmor(int buff, Card from)
+        {
+            LOGS.Add(from.name + " added to " + name + " " + buff+" armor");
+            Console.Beep(300, 50);
+            DRAW.message(lastHo, lastVe, ("+" + buff).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.Yellow, 800);
+            armorCount += buff;
+            Redraw();
+        }
         public void Strengthlen(int str, Card from)
         {
             LOGS.Add(from.name + " strengt " + name + " for +" + str);
@@ -337,7 +432,7 @@ namespace GWENT
             currentHealth += str;
         }
 
-        public bool isBlue(Game game)
+        public override bool isBlue(Game game)
         {
             int rowIndex;
             if (game.left.IndexOf(this, out rowIndex) >= 0)
@@ -352,7 +447,7 @@ namespace GWENT
             LOGS.Add(name + " died");
             dead = true;
             DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 500, true, "*");
-            this.TriggerEvent(Event.death, game);
+            this.TriggerEvent(Event.death, game, this);
             DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 500, false, " ");
             Field at = game.FriendField(this);
             int rowIndex, charIndex = at.IndexOf(this, out rowIndex);
@@ -366,6 +461,13 @@ namespace GWENT
             row.removeAt(this);
             row.RedrawAll();
             game.AddToGraveyard(at.isBlue, this);
+        }
+
+        public void SpawnEffect(Game game)
+        {
+            LOGS.Add(name + " spawned");
+            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 0, false, " ");
+            DRAW.die(game.rnd, lastHo, lastVe, 6, 2, 400, false, "%");
         }
     }
 }
