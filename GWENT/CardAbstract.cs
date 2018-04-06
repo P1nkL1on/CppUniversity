@@ -12,11 +12,11 @@ namespace GWENT
     public delegate void Action( Card sender, Game gameState );
     public abstract class Card
     {
-        protected Cards exapler;
+        public Cards exapler;
         public string name;
         protected string description;
         public List<Tag> tags;
-        protected Rarity rarity;
+        public Rarity rarity;
         protected int innerTimer;
         protected int timerStep;
 

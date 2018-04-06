@@ -77,7 +77,7 @@ namespace GWENT
             game.CheckDeadUnits();
             game.RedrawTop();
             game.DrawCounts(Game.CountPlace.ALL);
-            
+
         }
 
         public Point leftTop
@@ -88,7 +88,7 @@ namespace GWENT
         void SetStandartActions(int pow)
         {
             dead = false;
-            onDeploy = new Action((card, game) => {  });
+            onDeploy = new Action((card, game) => { });
             onEnterGraveyard = new Action((card, game) => { });
             onTurnStart = new Action((card, game) => { });
             onTurnEnd = new Action((card, game) => { });
@@ -109,6 +109,40 @@ namespace GWENT
             exapler = name;
             switch (name)
             {
+                case Cards.ReaverScout:
+                    SetParams("Reaver Scout", "Choose a different Bronze ally and play a copy of it from your deck.", new List<Tag>() { Tag.NothernRealms, Tag.Support, Tag.Redanie }, Rarity.bronze);
+                    SetStandartActions(1);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        List<Card> selectFrom = game.selectByFilter(
+                            game.FriendField(this).getUnitsAsCards,
+                            new filter((c) => { return (c as Unit != null) && ((c as Unit).rarity == Rarity.bronze); }));
+                        selectFrom.Remove(this);
+                        List<Card> allys = Game.selectFrom("Select bronze ally to play copy", 1, true, selectFrom);
+                        Unit targ = (allys.Count > 0) ? allys[0] as Unit : null;
+                        if (targ != null)
+                        {
+                            bool isLeft = game.FriendField(this).isBlue;
+                            Card drawen = game.DrawACard(isLeft, new filter((c) =>
+                            { return (c.exapler == targ.exapler) && (c.exapler != Cards.ReaverScout); }));
+                            if (drawen != null)
+                                game.PlayCard(isLeft, drawen);
+                        }
+                    });
+                    break;
+                case Cards.TemerianInfantry:
+                    SetParams("Temerian Infantry", "Summon all copies of this unit.", new List<Tag>() { Tag.NothernRealms, Tag.Temeria, Tag.Solder }, Rarity.bronze);
+                    SetStandartActions(3);
+                    onDeploy = new Action((card, game) =>
+                    {
+
+                        bool isLeft = game.FriendField(this).isBlue;
+                        Card drawen = game.DrawACard(isLeft, new filter((c) =>
+                        { return (c.exapler == this.exapler); }));
+                        if (drawen != null)
+                            game.PlayCard(isLeft, drawen);
+                    });
+                    break;
                 case Cards.AedirianMauler:
                     SetParams("Aedirian Mauler", "Deal 4 damage to enemy.", new List<Tag>() { Tag.NothernRealms, Tag.Solder }, Rarity.bronze);
                     SetStandartActions(7);
@@ -139,15 +173,6 @@ namespace GWENT
                             targ.Boost(6, this);
                         }
                     });
-                    //onEnterGraveyard = new Action((card, game) =>
-                    //{
-                    //    List<Card> enemies = game.EnemyField(this).getUnitsAsCards;
-                    //    foreach (Unit enemy in enemies)
-                    //    {
-                    //        game.pingBoard(this, enemy, 200, 5, ConsoleColor.Magenta);
-                    //        enemy.Damage(1, this);
-                    //    }
-                    //});
                     break;
                 case Cards.RedanianKnight:
                     SetParams("Redanian Knight", "If this unit has no Armor, boost it by 2 and give it 2 Armor on turn end.", new List<Tag>() { Tag.NothernRealms, Tag.Solder, Tag.Redanie }, Rarity.bronze);
@@ -195,12 +220,12 @@ namespace GWENT
                     break;
 
                 case Cards.DandelionPoet:
-                    SetParams("Dandelion : Poet", "Draw a card, then play a card.", new List<Tag>() { Tag.Neutral, Tag.Support}, Rarity.gold);
+                    SetParams("Dandelion : Poet", "Draw a card, then play a card.", new List<Tag>() { Tag.Neutral, Tag.Support }, Rarity.gold);
                     SetStandartActions(5);
                     onDeploy = new Action((card, game) =>
                     {
                         bool isLeft = game.FriendField(this).isBlue;
-                        game.DrawACard(isLeft);
+                        game.DrawACard(isLeft, Game.AnyCard);
                         game.PlayCard(isLeft);
                     });
                     break;
@@ -297,7 +322,7 @@ namespace GWENT
         }
         public void Boost(int buff, Card from)
         {
-            LOGS.Add(from.name + " boost "+name+" for +" + buff);
+            LOGS.Add(from.name + " boost " + name + " for +" + buff);
             Console.Beep(1400, 100);
             DRAW.message(lastHo, lastVe, ("+" + buff).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.Green, 800);
             buffBonus += buff;

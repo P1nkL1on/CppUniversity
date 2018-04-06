@@ -29,7 +29,7 @@ namespace GWENT
         }
         public static ConsoleColor rarityColor(Rarity rar)
         {
-            ConsoleColor clr = ConsoleColor.DarkYellow;
+            ConsoleColor clr = ConsoleColor.DarkMagenta;
             switch (rar)
             {
                 case Rarity.silver:
