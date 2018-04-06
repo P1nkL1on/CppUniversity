@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace GWENT
 {
@@ -27,6 +28,8 @@ namespace GWENT
         public abstract void RedrawSelected(bool selected);
 
         public abstract int Power {get;}
+        public abstract bool isBlue(Game game);
+        public abstract Point leftTop { get; }
 
         protected void SetParams(string n, string d, List<Tag> t, Rarity r)
         {

@@ -218,7 +218,7 @@ namespace GWENT
                 Point p = first[ind]; first.RemoveAt(ind);
                 setBuffTo(p.X + left, p.Y + top);
                 str(what);
-                Thread.Sleep(time / 2 / (wid * hei));
+                if (time > 0)Thread.Sleep(time / 2 / (wid * hei));
                 if (sound)
                     Console.Beep(rnd.Next(200, 800), 50);
             }
