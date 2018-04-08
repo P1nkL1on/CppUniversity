@@ -13,7 +13,7 @@ namespace GWENT
     {
         public static void drawImage(int top, int left)
         {
-            Bitmap b = new Bitmap("cards/b.png");
+            Bitmap b = new Bitmap("cards/a.png");
             //b = new Bitmap(b, b.Width / 30, b.Height / 30);
             int step = 30;
             Color bc;
@@ -23,11 +23,18 @@ namespace GWENT
                 for (int j = 0; j < b.Width; j += step)
                 {
                     bc = b.GetPixel(j, i);
-                    Console.ForegroundColor = Color.FromArgb(255, bc.R, bc.G, bc.B);//Color.Red;
-                    Console.Write("*", bc);
+                    //Console.ForegroundColor = Color.FromArgb(255, bc.R, bc.G, bc.B);//Color.Red;
+                    //Console.Write("*", bc);
+                    DrawPixel(bc);
                 }
                 //Console.ReadKey();
             }
+        }
+        static string symbolsOfDraw = " .,-~+*o8#@";
+        static void DrawPixel(Color pixel)
+        {
+            int darkness = pixel.B + pixel.G + pixel.R, ind = darkness *(symbolsOfDraw.Length-1) / (255*3);
+            Console.Write(symbolsOfDraw[ind]);
         }
     }
 }
