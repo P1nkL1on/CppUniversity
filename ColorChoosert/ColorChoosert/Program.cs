@@ -11,7 +11,7 @@ namespace ColorChoosert
     class Program
     {
 
-        static List<ConsoleColor> availableBack = new List<ConsoleColor>() { ConsoleColor.Black, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.DarkBlue, ConsoleColor.DarkCyan, ConsoleColor.DarkGray, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta, ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Gray, ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.White, ConsoleColor.Yellow };
+        static List<ConsoleColor> availableBack = new List<ConsoleColor>() { ConsoleColor.Black, ConsoleColor.DarkGray, ConsoleColor.Gray, ConsoleColor.White, ConsoleColor.Blue, ConsoleColor.DarkBlue, ConsoleColor.Cyan, ConsoleColor.DarkCyan, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta, ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.Yellow };
         static List<ConsoleColor> availableFore = availableBack;//availableBack.Except(new ConsoleColor[]{ ConsoleColor.Black });
 
         public struct Col
@@ -33,6 +33,11 @@ namespace ColorChoosert
                 this.symbol = symbol;
                 this.associate = associate;
             }
+            public override string ToString()
+            {
+                return String.Format("{0},{1},{2},{3},{4},{5}",
+                    associate.R, associate.G, associate.B, availableBack.IndexOf(back), availableFore.IndexOf(fore), symbol);
+            }
         }
 
         static List<char> list;
@@ -42,29 +47,59 @@ namespace ColorChoosert
         static void Main(string[] args)
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
-            Console.ReadLine();
-            WriteAllVariants();
-            //int X = 10;
-            Bitmap b = new Bitmap("cards/nova.png");
-            Print(b, 10);
-            Console.ReadLine();
+            Console.WriteLine("Press ENTER to start calibration;");
+            string S = Console.ReadLine();
+            if (S.ToLower() == "calibrate")
+                WriteAllVariants();
+            else
+                LoadDictionary(S=="load");
+            while (true)
+            {
+                string fileName = "";
+                int res = 20;
+                Console.WriteLine("\nName a picture path and set a resolution step;\nExample:\n\n\t\tnova.png\n\t\t7\n");
+                try
+                {
+                    fileName = Console.ReadLine();
+                    res = int.Parse(Console.ReadLine().Trim());
+                    Bitmap b = new Bitmap("cards/" + fileName);
+                    Print(b, res);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+
+                Console.ResetColor();
+                Console.WriteLine();
+                Console.WriteLine("Press ENTER to retry;");
+                Console.ReadLine();
+                Console.Clear();
+            }
         }
 
         static void WriteAllVariants()
         {
-            int step = 20, stepColor = 1, done = 0;
-            for (int c = 0; c < s.Length; c+= step)
-                for (int b = 0; b < availableBack.Count; b+= stepColor)
-                    for (int f = 0; f < availableFore.Count; f+= stepColor)
+            Console.WriteLine("Calibration started. Enter misssteps and color barrier in format \"S S X\"");
+            string[] parts = Console.ReadLine().Split(' ');
+            int step = int.Parse(parts[0]), stepColor = int.Parse(parts[1]), done = 0, colorToper = int.Parse(parts[2]);
+            if (colorToper < 0) colorToper = 600;
+
+            for (int c = 0; c < s.Length; c += step)
+                for (int b = 0; b < Math.Min(colorToper, availableBack.Count); b += stepColor)
+                    for (int f = 0; f < Math.Min(colorToper, availableFore.Count); f += stepColor)
                     {
                         done++;
                         Console.BackgroundColor = availableBack[b];
                         Console.ForegroundColor = availableFore[f];
                         dictionary.Add(new Col(availableBack[b], availableFore[f], s[c], CalculateColor(s[c])));
                         Console.ResetColor();
-                        Console.WriteLine((done +"/" + s.Length / step * availableBack.Count * availableFore.Count / stepColor / stepColor+ "").PadLeft(50));
+                        Console.WriteLine((done + "/" + s.Length / step * availableBack.Count * availableFore.Count / stepColor / stepColor + "").PadLeft(50));
                         //Console.ReadKey();
                     }
+            Console.Clear();
+            Console.WriteLine("Calibration is over;");
+            SaveDictionary();
         }
         static Color CalculateColor(char a)
         {
@@ -93,7 +128,33 @@ namespace ColorChoosert
         }
         static void SaveDictionary()
         {
-
+            // Create a file to write to.
+            string createText = "";//"Hello and Welcome" + Environment.NewLine;
+            for (int i = 0; i < dictionary.Count; i++)
+                createText += dictionary[i].ToString() + "\n";
+            File.WriteAllText("save.txt", createText);
+        }
+        static void LoadDictionary(bool print)
+        {
+            //try
+            //{
+                string[] lines = System.IO.File.ReadAllLines(@"save.txt");
+                Console.WriteLine();
+                int lineInd = 0;
+                foreach (string line in lines)
+                {
+                    lineInd++;
+                    string[] parts = line.Split(new char[]{','}, 6);
+                    Col a = new Col(availableBack[int.Parse(parts[3])], availableFore[int.Parse(parts[4])], parts[5][0],
+                        Color.FromArgb(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])));
+                    if (print) { a.Print(); Console.ResetColor(); }
+                    dictionary.Add(a);
+                }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine("\nError in founding save! " + e.Message);
+            //}
         }
         static void WB()
         {
@@ -122,21 +183,32 @@ namespace ColorChoosert
         {
             Random rnd = new Random();
             int left = 0, top = 0;
-            int resolHoriz = resol * 5 / 8;
+            int resolHoriz = resol * 6 / 8;
             // what.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            Dictionary<Color, int> inds = new Dictionary<Color, int>();
+
             for (int i = 0; i < what.Height; i += resol)
             {
                 Console.SetCursorPosition(left, top + i / resol);
                 for (int j = 0; j < what.Width; j += resolHoriz)
                 {
                     Color clr = what.GetPixel(j, i);
-                    int bestInd = 0, minDiff = 255 * 3;
-                    for (int d = 0; d < dictionary.Count; d++)
+                    if (inds.ContainsKey(clr))
                     {
-                        int cd = diff(dictionary[d].associate, clr);
-                        if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                        dictionary[inds.FirstOrDefault(x => x.Key == clr).Value].Print();
                     }
-                    dictionary[bestInd].Print();
+                    else
+                    {
+                        int bestInd = 0, minDiff = 255 * 3;
+                        for (int d = 0; d < dictionary.Count; d++)
+                        {
+                            int cd = diff(dictionary[d].associate, clr);
+                            if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                            if (minDiff <= 0) break;
+                        }
+                        dictionary[bestInd].Print();
+                        inds.Add(clr, bestInd);
+                    }
                 }
             }
         }
@@ -157,7 +229,7 @@ namespace ColorChoosert
                 }
             }
         }
-        
+
         static string Print()
         {
             Console.SetCursorPosition(0, 0);
