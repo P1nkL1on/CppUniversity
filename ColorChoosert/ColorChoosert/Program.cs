@@ -12,7 +12,8 @@ namespace ColorChoosert
     {
 
         static List<ConsoleColor> availableBack = new List<ConsoleColor>() { ConsoleColor.Black, ConsoleColor.DarkGray, ConsoleColor.Gray, ConsoleColor.White, ConsoleColor.Blue, ConsoleColor.DarkBlue, ConsoleColor.Cyan, ConsoleColor.DarkCyan, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta, ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.Yellow };
-        static List<ConsoleColor> availableFore = availableBack;//availableBack.Except(new ConsoleColor[]{ ConsoleColor.Black });
+        static List<Color> sameColors = new List<Color>() { Color.Black,Color.DarkGray, Color.Gray, Color.White, Color.Blue, Color.DarkBlue, Color.Cyan, Color.DarkCyan, Color.DarkGreen, Color.DarkMagenta, Color.DarkRed, Color.FromArgb(122,122,0), Color.Green, Color.Magenta, Color.Red, Color.Yellow };
+        static List<ConsoleColor> availableFore = availableBack;
 
         public struct Col
         {
@@ -37,6 +38,11 @@ namespace ColorChoosert
             {
                 return String.Format("{0},{1},{2},{3},{4},{5}",
                     associate.R, associate.G, associate.B, availableBack.IndexOf(back), availableFore.IndexOf(fore), symbol);
+            }
+
+            public int colorDiff
+            {
+                get { return diff(sameColors[availableFore.IndexOf(fore)], sameColors[availableBack.IndexOf(back)]); }
             }
         }
 
@@ -175,7 +181,7 @@ namespace ColorChoosert
             Console.ReadLine();
 
         }
-        static int diff(Color a, Color b)
+        public static int diff(Color a, Color b)
         {
             return Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
         }
@@ -199,11 +205,11 @@ namespace ColorChoosert
                     }
                     else
                     {
-                        int bestInd = 0, minDiff = 255 * 3;
+                        int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
                         for (int d = 0; d < dictionary.Count; d++)
                         {
                             int cd = diff(dictionary[d].associate, clr);
-                            if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                            if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
                             if (minDiff <= 0) break;
                         }
                         dictionary[bestInd].Print();

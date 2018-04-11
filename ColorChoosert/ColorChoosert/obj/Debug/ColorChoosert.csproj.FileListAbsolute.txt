@@ -11,3 +11,4 @@ D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Debug\ColorChoosert.pdb
 D:\CPPuniver\ColorChoosert\ColorChoosert\bin\Debug\ColorChoosert.exe
 D:\CPPuniver\ColorChoosert\ColorChoosert\bin\Debug\ColorChoosert.pdb
 D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Debug\ColorChoosert.csprojResolveAssemblyReference.cache
+D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Debug\ColorChoosert.csproj.CoreCompileInputs.cache
