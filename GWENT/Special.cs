@@ -82,6 +82,30 @@ namespace GWENT
         public Special(Cards c)
         {
             switch (c){
+                case Cards.BitingFrost:
+                    SetParams("Biting Frost", "Apply a Hazard to an enemy row that deals 2 damage to the lowest unit on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard}, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.EnemyField(this.isLeft);
+                        f.ApplyHazzardToRow(f.SelectRow(), Hazard.Frost);
+                    });
+                    break;
+                case Cards.InpenetrableFog:
+                    SetParams("Inpenetrable Fog", "Apply a Hazard to an enemy row that deals 2 damage to the highest unit on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.EnemyField(this.isLeft);
+                        f.ApplyHazzardToRow(f.SelectRow(), Hazard.Tuman);
+                    });
+                    break;
+                case Cards.TorrentioalRain:
+                    SetParams("Torrential Rain", "Apply a Hazard to an enemy row that deals 1 damage to 2 random units on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.EnemyField(!this.isLeft);
+                        f.ApplyHazzardToRow(f.SelectRow(), Hazard.Rain);
+                    });
+                    break;
                 case Cards.BloodFlail:
                     SetParams("Bloody Flail", "Deal 5 damage and Spawn a Specter on a random row.", new List<Tag>() { Tag.NothernRealms, Tag.Special, Tag.Item }, Rarity.bronze);
                     onDeploy = new Action((card, game) =>

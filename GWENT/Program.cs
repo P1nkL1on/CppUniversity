@@ -11,7 +11,7 @@ namespace GWENT
     {
         static void Main(string[] args)
         {
-            ASCIIdrawer.drawImage(0,0);
+            //ASCIIdrawer.drawImage(0,0);
             //Console.WriteLine("Bronze", Color.FromArgb(150, 100,50));
             Console.SetWindowSize(Console.LargestWindowWidth * 4 / 5, Console.LargestWindowHeight * 7/ 8);
             Console.ReadLine();

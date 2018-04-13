@@ -18,6 +18,7 @@ namespace GWENT
     {
         public static filter AnyCard = new filter((card)=>{return true;});
         public Random rnd;
+        static Random rndStat = new Random();
         public Field left, right;
         int fieldLeft, fieldTop;
         //also lists
@@ -42,10 +43,10 @@ namespace GWENT
             view.SetList("Deck", leftHand);
 
             List<Cards> types = new List<Cards>() { Cards.SiegeSupport , Cards.ReinforcedBallista};//, Cards.PoorInfantry,Cards.ReinforcedTrebuchet};//, Cards.ReaverScout, Cards.TridamInfantry, Cards.RedanianKnight, Cards.RedanianKnightElect, Cards.TemerianDrummer, Cards.AedirianMauler, Cards.DandelionPoet};
-            List<Cards> specialTypes = new List<Cards>() { Cards.BloodFlail};
+            List<Cards> specialTypes = new List<Cards>() { Cards.InpenetrableFog, Cards.TorrentioalRain, Cards.BitingFrost};
             for (int i = 0; i < 25; i++)
             {
-                //if (i < 2)leftDeck.Add(new Special(specialTypes[0]));
+                if (i < 8)leftDeck.Add(new Special(specialTypes[i % specialTypes.Count]));
                 rightDeck.Add(new Unit(types[i % types.Count]));
                 leftDeck.Add(new Unit(types[i % types.Count]));
             }
@@ -95,6 +96,30 @@ namespace GWENT
             DrawCardBorder();
             for (int i = 37; i < 43; i++) { DRAW.setBuffTo(20, i + 1); DRAW.str("".PadLeft(44)); }
             card.TraceFull(20, 37, 43);
+        }
+        public static Unit HighestUnit(List<Unit> from)
+        {
+            int maxPower = 0;
+            foreach (Unit u in from)
+                if (u.Power > maxPower) maxPower = u.Power;
+            List<Unit> highs = new List<Unit>();
+            foreach (Unit u in from)
+                if (u.Power == maxPower) highs.Add(u);
+            if (highs.Count == 0)
+                return null;
+            return highs[rndStat.Next(highs.Count)];
+        }
+        public static Unit LowestUnit(List<Unit> from)
+        {
+            int maxPower = int.MaxValue;
+            foreach (Unit u in from)
+                if (u.Power < maxPower) maxPower = u.Power;
+            List<Unit> highs = new List<Unit>();
+            foreach (Unit u in from)
+                if (u.Power == maxPower) highs.Add(u);
+            if (highs.Count == 0)
+                return null;
+            return highs[rndStat.Next(highs.Count)];
         }
         public enum CountPlace
         {
@@ -435,7 +460,10 @@ namespace GWENT
             {
                 u.TriggerEvent(Event.turnEnd, this, u);
             }
-
+            right.onTurnStart(this);
+            // right turn
+            // ...
+            left.onTurnStart(this);
             foreach (Unit u in left.getUnits)
             {
                 u.TriggerEvent(Event.turnStart, this, u);
