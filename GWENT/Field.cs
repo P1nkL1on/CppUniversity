@@ -171,12 +171,9 @@ namespace GWENT
         {
             for (int i = 0; i < rows.Count; i++)
             {
-                for (int j = 0; j < (3 - i * i); j++)
+                for (int j = 0; j < (7 - i * i); j++)
                     //{
-                    if ((i + j) % 2 == 0)
-                        rows[i].DeployUnitOnRow(new Unit(Cards.AedirianMauler), 0);//(new Unit(11, "Fiend", "", Rarity.bronze, new List<Tag>() { Tag.Monsters, Tag.Relict }), 0);
-                    else
-                        rows[i].DeployUnitOnRow(new Unit(Cards.TemerianDrummer), 0);
+                    rows[i].DeployUnitOnRow(new Unit(2 * j + 1, "unit", "", Rarity.bronze, new List<Tag>() { Tag.Beast}), 0);
                 //rows[i].DeployUnitOnRow(new Unit(16, "Geralt", "", Rarity.gold, new List<Tag>() { Tag.Neutral, Tag.Witcher }), 0);
                 //}
             }

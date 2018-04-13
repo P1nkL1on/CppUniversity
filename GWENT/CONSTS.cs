@@ -50,7 +50,8 @@ namespace GWENT
         Token = 40,
         Cursed = 41,
         Doomed = 42,
-        Hazard = 43
+        Hazard = 43,
+        Spell = 44,
     }
 
     public enum Cards
@@ -58,6 +59,7 @@ namespace GWENT
         Any = 0,
         None = -1,
         // nothern bronze
+        BearToken = 400,
         BloodFlail = 501,
         Specter = 502,
         Winch = 503,
@@ -98,8 +100,35 @@ namespace GWENT
         DandelionPoet = 1000,               //!
 
 
-        BitingFrost = 2000,
-        InpenetrableFog = 2001,
-        TorrentioalRain = 2002
+        BitingFrost = 2000, //++
+        InpenetrableFog = 2001, //!
+        TorrentioalRain = 2002, //!
+
+
+        AdrenalineRush = 2050,
+        AlzursThunder = 2051,
+        ArachasVenom = 2052,
+        BloodcurlingRoar = 2053,
+        CrowsEye = 2054,
+        DimetriumShakles = 2055,
+        Doppler = 2056,
+        Epidemic = 2057,
+        FirstLight = 2058,
+        GoldenFroth = 2059,
+        Lacerate = 2060,
+        MahakamAle = 2061,
+        Mardroeme = 2062,
+        MastercraftedSpear = 2063,
+        PeasantMilitia = 2064,
+        Peasant = 2065,
+        PetrisPhilter = 2066,
+        Reconnaisance = 2067,
+        RockBarrage = 2068,
+        Shrike = 2069,
+        Spores = 2070,
+        StammelfordsTremor = 2071,
+        Swallow = 2072,
+        Thunderbolt = 2073,
+        WywernScaleShield = 2074
     }
 }
