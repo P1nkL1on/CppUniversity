@@ -208,8 +208,12 @@ namespace ColorChoosert
                         int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
                         for (int d = 0; d < dictionary.Count; d++)
                         {
-                            int cd = diff(dictionary[d].associate, clr);
-                            if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
+                            int cd = diff(dictionary[d].associate, clr)
+                                //
+                            ;// +(int)(dictionary[d].colorDiff / 300.0);
+                            //
+                            //if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
+                            if (cd < minDiff) { minDiff = cd; bestInd = d; }
                             if (minDiff <= 0) break;
                         }
                         dictionary[bestInd].Print();
