@@ -29,7 +29,7 @@ namespace GWENT
         }
         public static ConsoleColor rarityColor(Rarity rar)
         {
-            ConsoleColor clr = ConsoleColor.DarkMagenta;
+            ConsoleColor clr = ConsoleColor.DarkCyan;
             switch (rar)
             {
                 case Rarity.silver:
@@ -54,7 +54,7 @@ namespace GWENT
         public static void str(string s, int maxLength, bool onePoint)
         {
             if (s.Length <= maxLength)
-                Console.Write(s);
+                Console.Write(s.PadRight(maxLength,' '));
             else
                 Console.Write(s.Remove(maxLength - ((onePoint) ? 1 : 2)) + ((onePoint) ? "." : ".."));
         }

@@ -81,9 +81,104 @@ namespace GWENT
 
         public Special(Cards c)
         {
-            switch (c){
+            exapler = c;
+            switch (c)
+            {
+                case Cards.AdrenalineRush:
+                    SetParams("Adrenaline Rush", "Toggle a unit's Resilience status.", new List<Tag>() { Tag.Neutral, Tag.Organic, Tag.Special }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        List<Card> ens = game.AllUnitsOnField();
+                        List<Card> enemies = Game.selectFrom("Select a unit", 1, true, ens);
+                        Unit u = (enemies.Count > 0) ? enemies[0] as Unit : null;
+                        if (u != null)
+                        {
+                            game.pingBoard(this, u, 1600, 15, ConsoleColor.Magenta);
+                            u.ChangeStatus(Ability.resilence);
+                        }
+                    });
+                    break;
+                case Cards.AlzursThunder:
+                    SetParams("Alzur's Thunder", "Deal 9 damage.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Spell }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        List<Card> enemies = Game.selectFrom("Select enemy to deal 9 damage", 1, true, game.AllUnitsOnField());
+                        Unit enemy = (enemies.Count > 0) ? enemies[0] as Unit : null;
+                        if (enemy != null)
+                        {
+                            game.pingBoard(this, enemy, 800, 10, ConsoleColor.Yellow);
+                            enemy.Damage(9, this);
+                        }
+                    });
+                    break;
+                case Cards.DimetriumShakles:
+                    SetParams("Dimetrium Shackles", "Toggle a unit's Lock status. If an enemy, deal 4 damage to it.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Alchemy, Tag.Item }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        List<Card> enemies = Game.selectFrom("Lock unit", 1, true, game.AllUnitsOnField());
+                        Unit enemy = (enemies.Count > 0) ? enemies[0] as Unit : null;
+                        if (enemy != null)
+                        {
+                            game.pingBoard(this, enemy, 900, 4, ConsoleColor.Gray);
+                            if (game.FriendField(enemy).isBlue != game.FriendField(this.isLeft).isBlue)
+                                enemy.Damage(4, this);
+
+                            enemy.ChangeStatus(Ability.locked);
+                        }
+                    });
+                    break;
+                case Cards.BloodcurlingRoar:
+                    SetParams("Bloodcurling Roar", "Destroy an ally. Spawn a Bear.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Organic }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        List<Card> us = Game.selectFrom("Select ally to destroy", 1, true, game.FriendField(isLeft).getUnitsAsCards);
+                        Unit u = (us.Count > 0) ? us[0] as Unit : null;
+                        if (u != null)
+                        {
+                            game.pingBoard(this, u, 400, 20, ConsoleColor.Red);
+                            u.Die(game);
+                            Unit bear = new Unit(Cards.BearToken);
+                            game.FriendField(isLeft).SelectAndDeployUnit(bear, game);
+                        }
+                    });
+                    break;
+                case Cards.CrowsEye:
+                    SetParams("Crow's Eye", "Deal 4 damage to the Highest enemy on each row. Deal 1 extra damage for each copy of this card in your graveyard.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Organic , Tag.Alchemy}, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.EnemyField(this.isLeft);
+                        int bonusDamage = 0;
+                        foreach (Card ca in game.cardFrom(Game.From.friendlyGraveyard, this.isLeft))
+                            if (ca.exapler == Cards.CrowsEye)
+                                bonusDamage++;
+                        
+                        for (int i = 0; i < 3; i++)
+                            Game.HighestUnit(f.getRow(i).getUnits).Damage(4 + bonusDamage, this);
+                    });
+                    break;
+
+
+                case Cards.ArachasVenom:
+                    SetParams("Arachas Venom", "Deal 4 damage to 3 adjacent units.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Organic }, Rarity.bronze);
+                    onDeploy = new Action((card, game) =>
+                    {
+                        Field f = game.EnemyField(this.isLeft);
+                        List<Card> enemies = Game.selectFrom("Select central enemy", 1, true, f.getUnitsAsCards);
+                        Unit enemy = (enemies.Count > 0) ? enemies[0] as Unit : null;
+                        if (enemy != null)
+                        {
+                            game.pingBoard(this, enemy, 800, 10, ConsoleColor.Red);
+                            enemy.Damage(4, this);
+                            int rowIndex, enInd = f.IndexOf(enemy, out rowIndex);
+                            Unit len = f.getRow(rowIndex).getUnit(enInd - 1),
+                                 ren = f.getRow(rowIndex).getUnit(enInd + 1);
+                            if (len != null) len.Damage(4, this);
+                            if (ren != null) ren.Damage(4, this);
+                        }
+                    });
+                    break;
                 case Cards.BitingFrost:
-                    SetParams("Biting Frost", "Apply a Hazard to an enemy row that deals 2 damage to the lowest unit on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard}, Rarity.bronze);
+                    SetParams("Biting Frost", "Apply a Hazard to an enemy row that deals 2 damage to the lowest unit on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard }, Rarity.bronze);
                     onDeploy = new Action((card, game) =>
                     {
                         Field f = game.EnemyField(this.isLeft);
@@ -102,7 +197,7 @@ namespace GWENT
                     SetParams("Torrential Rain", "Apply a Hazard to an enemy row that deals 1 damage to 2 random units on turn start.", new List<Tag>() { Tag.Neutral, Tag.Special, Tag.Hazard }, Rarity.bronze);
                     onDeploy = new Action((card, game) =>
                     {
-                        Field f = game.EnemyField(!this.isLeft);
+                        Field f = game.EnemyField(this.isLeft);
                         f.ApplyHazzardToRow(f.SelectRow(), Hazard.Rain);
                     });
                     break;

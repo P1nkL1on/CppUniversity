@@ -18,12 +18,13 @@ namespace GWENT
         move = 6,
 
     }
-
     public enum Ability
     {
         none = 0,
         crew = 1,
         spy = 2,
+        resilence = 3,
+        locked = 4,
     }
 
     public class UnitDeployPlace : Unit
@@ -64,7 +65,14 @@ namespace GWENT
         Action onDeploy, onEnterGraveyard, onTurnEnd, onTurnStart,
                onUnitSpawned, onUnitDie, onThisMove, onUnitMove;
 
-
+        public void ChangeStatus(Ability a)
+        {
+            if (abilities.IndexOf(a) < 0)
+                abilities.Add(a);
+            else
+                abilities.Remove(a);
+            LOGS.Add(name + "'s " + a.ToString() + " status is now " + (abilities.IndexOf(a) >= 0));
+        }
         public void TriggerEvent(Event even, Game game, Unit sender)
         {
             switch (even)
@@ -73,7 +81,7 @@ namespace GWENT
                     this.SpawnEffect(game);
                     Redraw();
                     onDeploy(sender, game);
-                    foreach (Card c in game.allUnitsOnField())
+                    foreach (Card c in game.AllUnitsOnField())
                     {
                         Unit u = c as Unit;
                         if (u != this)
@@ -88,7 +96,7 @@ namespace GWENT
                     break;
                 case Event.death:
                     onEnterGraveyard(sender, game);
-                    foreach (Card c in game.allUnitsOnField())
+                    foreach (Card c in game.AllUnitsOnField())
                     {
                         Unit u = c as Unit;
                         if (u != this)
@@ -144,6 +152,10 @@ namespace GWENT
             exapler = name;
             switch (name)
             {
+                case Cards.BearToken:
+                    SetParams("Bear", "", new List<Tag>() { Tag.Neutral, Tag.Beast, Tag.Token }, Rarity.bronze);
+                    SetStandartActions(11);
+                    break;
                 case Cards.ReinforcedBallista:
                     SetParams("Reinforced Ballista", "Deal 2 damage to an enemy. Crewed: Repeat its ability.", new List<Tag>() { Tag.NothernRealms, Tag.Machine }, Rarity.bronze);
                     SetStandartActions(7);
@@ -413,10 +425,11 @@ namespace GWENT
             if (armorCount > 0 && dmg > 0) { dmg -= armorCount; armorCount = 0; }
             if (buffBonus > 0) { dmg -= buffBonus; buffBonus = 0; }
             currentHealth -= dmg;
-
+            if (currentHealth < 0) currentHealth = 0;
             Redraw();
             return (currentHealth <= 0);
         }
+
         public void Boost(int buff, Card from)
         {
             Boost(buff, from.name);
@@ -475,6 +488,10 @@ namespace GWENT
             row.removeAt(this);
             row.RedrawAll();
             game.AddToGraveyard(at.isBlue, this);
+
+            this.currentHealth = this.basePower;
+            this.armorCount = 0;
+            this.buffBonus = 0;
         }
 
         public void SpawnEffect(Game game)
