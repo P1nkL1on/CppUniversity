@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 namespace GWENT
 {
+
+    public enum Hazard
+    {
+        None = -1,
+        Frost = 1,
+        Tuman = 2,
+        Desert = 3,
+        Ragnarok = 4,
+        GroundTrap = 5,
+        BloodMoon = 6,
+        Rain = 7,
+        ElBoon = 8,
+        MoonLight = 9
+    }
     public class Field
     {
         public bool isBlue;
@@ -33,8 +47,9 @@ namespace GWENT
             DRAW.PushColor(ConsoleColor.DarkGreen);
             String what = "Select a place for " + unit.name;
             DRAW.setBuffTo(39 - what.Length / 2, 32);
-            DRAW.str(" " + what+" : ");
+            DRAW.str(" " + what + " : ");
             DRAW.PopColor();
+            int reverseStep = (!isBlue) ? -1 : 1;
             do
             {
                 rows[curRow].getUnits.Insert(curInd, udp);
@@ -48,12 +63,11 @@ namespace GWENT
                 if (k == ConsoleKey.UpArrow)
                     curInd--;
 
-
                 prevRow = curRow;
                 if (k == ConsoleKey.RightArrow)
-                    curRow--;
+                    curRow-=reverseStep;
                 if (k == ConsoleKey.LeftArrow)
-                    curRow++;
+                    curRow+=reverseStep;
                 curRow = (curRow + rows.Count) % rows.Count;
                 curInd = (curInd + rows[curRow].unitCount + 1) % (rows[curRow].unitCount + 1);
             } while (k != ConsoleKey.Enter);
@@ -69,10 +83,57 @@ namespace GWENT
 
         }
 
+        public int SelectRow()
+        {
+            int curRow = 0, curInd = 0, prevRow = 0;
+            UnitDeployPlace udp = new UnitDeployPlace();
+            ConsoleKey k;
+            DRAW.PushColor(ConsoleColor.DarkGreen);
+            String what = "Select a row";
+            DRAW.setBuffTo(39 - what.Length / 2, 32);
+            DRAW.str(" " + what + " : ");
+            DRAW.PopColor();
+            int reverseStep = (!isBlue) ? -1 : 1;
+            do
+            {
+                rows[curRow].RedrawAll(true);
+                rows[prevRow].RedrawAll();
+
+                k = Console.ReadKey().Key;
+
+                prevRow = curRow;
+                if (k == ConsoleKey.RightArrow)
+                    curRow-= reverseStep;
+                if (k == ConsoleKey.LeftArrow)
+                    curRow+= reverseStep;
+                curRow = (curRow + rows.Count) % rows.Count;
+            } while (k != ConsoleKey.Enter);
+
+            return curRow;
+        }
+        public void ApplyHazzardToRow(int rowIndex, Hazard hazzardType)
+        {
+            rows[rowIndex].effect = hazzardType;
+            if (hazzardType == Hazard.None)
+                LOGS.Add("Cleared all and boons from a row;");
+            else
+                LOGS.Add("Applied a hazzard to row;");
+            rows[rowIndex].RedrawAll();
+        }
+        public void onTurnStart(Game game)
+        {
+            foreach (Row r in rows)
+                r.onTurnStart(game);
+        }
+        public void onUnitEnter()
+        {
+            // none
+        }
+
         public int isCrewed(Unit who)
         {
             int rowIndex, res = 0;
-            int indexOf = IndexOf(who, out rowIndex );
+            int indexOf = IndexOf(who, out rowIndex);
             if (indexOf > 0)
                 if (rows[rowIndex].getUnit(indexOf - 1).abilities.IndexOf(Ability.crew) >= 0) res++;
             if (indexOf < rows[rowIndex].unitCount - 1)
@@ -80,8 +141,9 @@ namespace GWENT
             return res;
         }
 
-        public void RandomlyDeployUnit(Unit unit, Game game){
-            List<int> canBeDeplyedIn = new List<int>() { 0,1,2};
+        public void RandomlyDeployUnit(Unit unit, Game game)
+        {
+            List<int> canBeDeplyedIn = new List<int>() { 0, 1, 2 };
             for (int i = 0; i < rows.Count; i++)
                 if (rows[i].unitCount >= 9)
                     canBeDeplyedIn.Remove(i);
@@ -91,7 +153,7 @@ namespace GWENT
             unit.TriggerEvent(Event.deploy, game, unit);
         }
 
-        public void DeployUnitNear(Unit unit,Game game, Unit near, int offset)
+        public void DeployUnitNear(Unit unit, Game game, Unit near, int offset)
         {
             int rowIndex;
             int atrowindex = IndexOf(near, out rowIndex);
@@ -151,6 +213,8 @@ namespace GWENT
                 return rows[rowIndex].getUnit(rnd.Next(rows[rowIndex].unitCount));
             }
             List<Unit> uns = getUnits;
+            if (uns.Count == 0)
+                return null;
             return uns[rnd.Next(uns.Count)];
         }
         public List<Unit> getUnits
@@ -215,12 +279,55 @@ namespace GWENT
     }
     public class Row
     {
+        public Hazard effect;
         List<Unit> units;
         string name;
         bool isBlue;
         int bufHoriz;
         int bufVert;
+        public void onTurnStart(Game game)
+        {
+            switch (effect)
+            {
+                case Hazard.Frost:
+                case Hazard.Desert:
+                    Unit u = Game.LowestUnit(getUnits);
+                    if (u != null)
+                        u.Damage(2, "Hazard");
+                    break;
+                case Hazard.Tuman:
+                case Hazard.Ragnarok:
+                    Unit l = Game.HighestUnit(getUnits);
+                    if (l != null)
+                        l.Damage(2, "Hazard");
+                    break;
+                case Hazard.Rain:
+                    List<Unit> uns = getUnits;
+                    if (uns.Count == 0) break;
+                    Unit u1 = uns[game.rnd.Next(uns.Count)];
 
+                    if (uns.Count == 1)
+                        u1.Damage(1, "Hazard");
+                    else
+                    {
+                        List<Unit> nextList = new List<Unit>();
+                        for (int i = 0; i < uns.Count; i++)
+                            if (uns[i] != u1)
+                                nextList.Add(uns[i]);
+                        //uns.Remove(u1);
+                        Unit u2 = nextList[game.rnd.Next(nextList.Count)];
+                        u1.Damage(1, "Hazzard");
+                        u2.Damage(1, "Hazzard");
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        public void onUnitEnter()
+        {
+
+        }
         public List<Unit> getUnits
         {
             get
@@ -234,6 +341,7 @@ namespace GWENT
         }
         public Row(int bufHoriz, int bufVert, string name, bool isBlue)
         {
+            effect = Hazard.None;
             this.isBlue = isBlue;
             this.name = name;
             this.bufHoriz = bufHoriz;
@@ -268,11 +376,20 @@ namespace GWENT
 
         public bool RedrawAll()
         {
+            return RedrawAll(false);
+        }
+        public bool RedrawAll(bool selected)
+        {
             DrawTop(TotalPower, 0);
+
+            DRAW.PushColor(((selected)?ConsoleColor.DarkGreen : ConsoleColor.Black));
+            DRAW.setBuffTo(bufHoriz, bufVert + 1);
+            Console.Write("".PadLeft(6, (selected)?'V' : ' '));
             for (int i = 0; i < units.Count; i++)
                 units[i].TraceField(bufHoriz, 2 + bufVert + 3 * i);
             if (units.Count < 9)
                 UnitDeployPlace.ClearField(bufHoriz, 2 + bufVert + 3 * units.Count);
+            DRAW.PopColor();
             return true;
         }
 
@@ -285,7 +402,7 @@ namespace GWENT
                 units.Add(unit);
             else
                 units.Insert(at, unit);
-            
+
             return true;
         }
 
@@ -306,6 +423,29 @@ namespace GWENT
             DRAW.power(number, 4, ConsoleColor.Gray);
             DRAW.str("  ");
             DRAW.PopColor();
+            DrawHazzard();
+        }
+        public void DrawHazzard()
+        {
+            char hazSymb = ' ';
+            ConsoleColor foreColor = ConsoleColor.Black, backColor = ConsoleColor.Black;
+
+            if (effect != Hazard.None) { foreColor = ConsoleColor.Yellow; backColor = ConsoleColor.DarkCyan; hazSymb = 'e'; }
+            if (effect == Hazard.Frost) { foreColor = ConsoleColor.Gray; backColor = ConsoleColor.White; hazSymb = '*'; }
+            if (effect == Hazard.Rain) { foreColor = ConsoleColor.Blue; backColor = ConsoleColor.DarkBlue; hazSymb = '/'; }
+            if (effect == Hazard.Tuman) { foreColor = ConsoleColor.DarkYellow; backColor = ConsoleColor.Gray; hazSymb = '='; }
+            if (effect == Hazard.Ragnarok) { foreColor = ConsoleColor.DarkYellow; backColor = ConsoleColor.DarkRed; hazSymb = '*'; }
+            if (effect == Hazard.Desert) { foreColor = ConsoleColor.Yellow; backColor = ConsoleColor.Gray; hazSymb = '.'; }
+            if (effect == Hazard.GroundTrap) { foreColor = ConsoleColor.Gray; backColor = ConsoleColor.DarkGreen; hazSymb = '^'; }
+            DRAW.PushColor(backColor);
+            Console.ForegroundColor = foreColor;
+            for (int i = 1; i < 9; i++)
+            {
+                DRAW.setBuffTo(bufHoriz, 1 + bufVert + 3 * i);
+                DRAW.str("".PadLeft(6, hazSymb));
+            }
+            DRAW.PopColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
         public Unit getUnit(int index)
         {

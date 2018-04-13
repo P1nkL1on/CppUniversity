@@ -49,7 +49,8 @@ namespace GWENT
 
         Token = 40,
         Cursed = 41,
-        Doomed = 42
+        Doomed = 42,
+        Hazard = 43
     }
 
     public enum Cards
@@ -95,5 +96,10 @@ namespace GWENT
         RightFlankInfantry = 536,
 
         DandelionPoet = 1000,               //!
+
+
+        BitingFrost = 2000,
+        InpenetrableFog = 2001,
+        TorrentioalRain = 2002
     }
 }

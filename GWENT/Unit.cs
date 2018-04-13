@@ -14,13 +14,16 @@ namespace GWENT
         turnEnd = 2,
         turnStart = 3,
         unitSpawned = 4,
-        unitDied = 5
+        unitDied = 5,
+        move = 6,
+
     }
 
     public enum Ability
     {
         none = 0,
         crew = 1,
+        spy = 2,
     }
 
     public class UnitDeployPlace : Unit
@@ -59,7 +62,7 @@ namespace GWENT
         public List<Ability> abilities;
         protected
         Action onDeploy, onEnterGraveyard, onTurnEnd, onTurnStart,
-               onUnitSpawned, onUnitDie;
+               onUnitSpawned, onUnitDie, onThisMove, onUnitMove;
 
 
         public void TriggerEvent(Event even, Game game, Unit sender)
@@ -122,6 +125,8 @@ namespace GWENT
             onTurnEnd = new Action((card, game) => { });
             onUnitDie = new Action((card, game) => { });
             onUnitSpawned = new Action((card, game) => { });
+            onThisMove = new Action((card, game) => { });
+            onUnitMove = new Action((card, game) => { });
             basePower = currentHealth = pow;
             buffBonus = 0;
         }
@@ -393,14 +398,19 @@ namespace GWENT
 
         public bool Damage(int dmg, Card from)
         {
-            LOGS.Add(from.name + " deal " + dmg + "damage to " + name);
+            return Damage(dmg, from.name);
+        }
+        public bool Damage(int dmg, String from)
+        {
+            LOGS.Add(from + " deal " + dmg + " damage to " + name);
             if (armorCount > 0 && dmg >= armorCount)
                 Console.Beep(400, 200);
             Console.Beep(1200, 200);
             DRAW.message(lastHo, lastVe, ("-" + dmg).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.Red, 800);
 
-            if (armorCount >= dmg) { armorCount -= dmg; }
-            if (armorCount > 0) { dmg -= armorCount; armorCount = 0; }
+            if (armorCount >= dmg) { armorCount -= dmg; dmg = 0; }
+            else
+            if (armorCount > 0 && dmg > 0) { dmg -= armorCount; armorCount = 0; }
             if (buffBonus > 0) { dmg -= buffBonus; buffBonus = 0; }
             currentHealth -= dmg;
 
@@ -409,7 +419,11 @@ namespace GWENT
         }
         public void Boost(int buff, Card from)
         {
-            LOGS.Add(from.name + " boost " + name + " for +" + buff);
+            Boost(buff, from.name);
+        }
+        public void Boost(int buff, String from)
+        {
+            LOGS.Add(from + " boost " + name + " for +" + buff);
             Console.Beep(1400, 100);
             DRAW.message(lastHo, lastVe, ("+" + buff).PadLeft(3, ' '), ConsoleColor.Black, ConsoleColor.Green, 800);
             buffBonus += buff;
