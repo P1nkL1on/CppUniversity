@@ -189,7 +189,7 @@ namespace ColorChoosert
         {
             Random rnd = new Random();
             int left = 0, top = 0;
-            int resolHoriz = resol * 6 / 8;
+            int resolHoriz = resol * 3 / 4;
             // what.RotateFlip(RotateFlipType.Rotate90FlipNone);
             Dictionary<Color, int> inds = new Dictionary<Color, int>();
 
@@ -198,7 +198,19 @@ namespace ColorChoosert
                 Console.SetCursorPosition(left, top + i / resol);
                 for (int j = 0; j < what.Width; j += resolHoriz)
                 {
-                    Color clr = what.GetPixel(j, i);
+                    int[] rgb = new int[3]{0,0,0}; int countPixels = 0;
+                    for (int i2 = 0; i2 < resol; i2++)
+                        for (int j2 = 0; j2 < resolHoriz; j2++)
+                        {
+                            if (i + i2 >= what.Height) continue;
+                            if (j + j2 >= what.Width) continue;
+                            rgb[0] += what.GetPixel(j + j2, i + i2).R;
+                            rgb[1] += what.GetPixel(j + j2, i + i2).G;
+                            rgb[2] += what.GetPixel(j + j2, i + i2).B;
+                            countPixels++;
+                        }
+                    Color clr = Color.FromArgb((int)(rgb[0] / (countPixels * 1.0)), (int)(rgb[1] / (countPixels * 1.0)), (int)(rgb[2] / (countPixels * 1.0)));//what.GetPixel(j, i);
+
                     if (inds.ContainsKey(clr))
                     {
                         dictionary[inds.FirstOrDefault(x => x.Key == clr).Value].Print();
@@ -212,7 +224,7 @@ namespace ColorChoosert
                                 //
                             ;// +(int)(dictionary[d].colorDiff / 300.0);
                             //
-                            //if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
+                            if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
                             if (cd < minDiff) { minDiff = cd; bestInd = d; }
                             if (minDiff <= 0) break;
                         }
