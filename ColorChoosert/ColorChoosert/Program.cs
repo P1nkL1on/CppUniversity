@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace ColorChoosert
 {
@@ -12,8 +13,108 @@ namespace ColorChoosert
     {
 
         static List<ConsoleColor> availableBack = new List<ConsoleColor>() { ConsoleColor.Black, ConsoleColor.DarkGray, ConsoleColor.Gray, ConsoleColor.White, ConsoleColor.Blue, ConsoleColor.DarkBlue, ConsoleColor.Cyan, ConsoleColor.DarkCyan, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta, ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.Yellow };
-        static List<Color> sameColors = new List<Color>() { Color.Black,Color.DarkGray, Color.Gray, Color.White, Color.Blue, Color.DarkBlue, Color.Cyan, Color.DarkCyan, Color.DarkGreen, Color.DarkMagenta, Color.DarkRed, Color.FromArgb(122,122,0), Color.Green, Color.Magenta, Color.Red, Color.Yellow };
+        static List<Color> sameColors = new List<Color>() { Color.Black, Color.DarkGray, Color.Gray, Color.White, Color.Blue, Color.DarkBlue, Color.Cyan, Color.DarkCyan, Color.DarkGreen, Color.DarkMagenta, Color.DarkRed, Color.FromArgb(122, 122, 0), Color.Green, Color.Magenta, Color.Red, Color.Yellow };
         static List<ConsoleColor> availableFore = availableBack;
+
+        public class ColNode
+        {
+            int L;
+            public Color separat;
+            public List<Col> child;
+            public ColNode left;
+            public ColNode right;
+            int RGB;    // 0 - R, 1 - G, 2 - B
+            public ColNode(int RGB, Color separat)
+            {
+                this.RGB = RGB;
+                this.separat = separat;
+                left = right = null;
+                child = new List<Col>();
+            }
+            public void AddChild(Col n, int rgb, int level)
+            {
+                L = level;
+                this.RGB = rgb;
+                if (level >= 6) { child.Add(n); return; }
+                AddLeft(level + 1);
+                AddRight(level + 1);
+                switch (rgb)
+                {
+                    case 0: // R
+                        if (n.associate.R <= separat.R)
+                            AddLeft(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        else
+                            AddRight(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        break;
+                    case 1: // G
+                        if (n.associate.G <= separat.G)
+                            AddLeft(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        else
+                            AddRight(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        break;
+                    case 2: // B
+                        if (n.associate.B <= separat.B)
+                            AddLeft(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        else
+                            AddRight(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
+                        break;
+                    default:
+                        throw new Exception("Incorrecrt rgb " + rgb);
+                }
+            }
+            public ColNode AddLeft(int level)
+            {
+                int newrgb = (RGB);
+                if (left == null)
+                {
+                    Color nC = Color.FromArgb(separat.R - ((newrgb == 0) ? 255 / (int)Math.Pow(2, level) : 0),
+                                                 separat.G - ((newrgb == 1) ? 255 / (int)Math.Pow(2, level) : 0),
+                                                separat.B - ((newrgb == 2) ? 255 / (int)Math.Pow(2, level) : 0));
+                    left = new ColNode(newrgb, nC);
+                }
+                return left;
+            }
+            public ColNode AddRight(int level)
+            {
+                int newrgb = (RGB);
+                if (right == null)
+                {
+                    Color nC = Color.FromArgb(separat.R + ((newrgb == 0) ? 255 / (int)Math.Pow(2, level) : 0),
+                                               separat.G + ((newrgb == 1) ? 255 / (int)Math.Pow(2, level) : 0),
+                                               separat.B + ((newrgb == 2) ? 255 / (int)Math.Pow(2, level) : 0));
+                    right = new ColNode(newrgb, nC);
+                }
+                return right;
+            }
+            public Col FindFast(int rgb, Color need)
+            {
+                if (left == null && right == null && child.Count == 0)
+                    return new Col();
+                if (child.Count > 0)
+                {
+                    int bestInd = -1, minDiff = 255 * 3, minClose = 255 * 3;
+                    for (int d = 0; d < child.Count; d++)
+                    {
+                        int cd = diff(child[d].associate, need)
+                            //
+                        ;// +(int)(child[d].colorDiff / 300.0);
+                        //
+                        if (cd < minDiff || ((cd <= minDiff) && (minClose < child[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = child[d].colorDiff; }
+                        if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                        if (minDiff <= 0) break;
+                    }
+                    if (bestInd >= 0)
+                        return child[bestInd];
+                }
+                this.L += 0;
+                if (rgb == 0)
+                { if (need.R <= separat.R) return left.FindFast((rgb + 1) % 3, need); else  return right.FindFast((rgb + 1) % 3, need); }
+                if (rgb == 1)
+                { if (need.G <= separat.G) return left.FindFast((rgb + 1) % 3, need); else  return right.FindFast((rgb + 1) % 3, need); }
+
+                if (need.B <= separat.B) return left.FindFast((rgb + 1) % 3, need); else return right.FindFast((rgb + 1) % 3, need);
+            }
+        }
 
         public struct Col
         {
@@ -53,12 +154,13 @@ namespace ColorChoosert
         static void Main(string[] args)
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            Console.SetBufferSize(2000, 2000);
             Console.WriteLine("Press ENTER to start calibration;");
             string S = Console.ReadLine();
             if (S.ToLower() == "calibrate")
                 WriteAllVariants();
             else
-                LoadDictionary(S=="load");
+                LoadDictionary(S == "load");
             while (true)
             {
                 string fileName = "";
@@ -68,8 +170,10 @@ namespace ColorChoosert
                 {
                     fileName = Console.ReadLine();
                     res = int.Parse(Console.ReadLine().Trim());
-                    Bitmap b = new Bitmap("cards/" + fileName);
-                    Print(b, res);
+                    //Bitmap b = new Bitmap("cards/" + fileName);
+                    Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
+                    foreach (Image i in frames.ToList())
+                        Print((Bitmap)i, res);
                 }
                 catch (Exception e)
                 {
@@ -82,6 +186,23 @@ namespace ColorChoosert
                 Console.ReadLine();
                 Console.Clear();
             }
+        }
+
+        static Image[] getFrames(Image originalImg)
+        {
+            int numberOfFrames = originalImg.GetFrameCount(FrameDimension.Time);
+            Image[] frames = new Image[numberOfFrames];
+
+            for (int i = 0; i < numberOfFrames; i++)
+            {
+                originalImg.SelectActiveFrame(FrameDimension.Time, i);
+                frames[i] = ((Image)originalImg.Clone());
+
+                Console.SetCursorPosition(5,5);
+                Console.Write((i+"/" + numberOfFrames).PadLeft(20));
+            }
+
+            return frames;
         }
 
         static void WriteAllVariants()
@@ -140,27 +261,32 @@ namespace ColorChoosert
                 createText += dictionary[i].ToString() + "\n";
             File.WriteAllText("save.txt", createText);
         }
+        static
+            ColNode root = new ColNode(0, Color.FromArgb(127, 127, 127));
         static void LoadDictionary(bool print)
         {
             //try
             //{
-                string[] lines = System.IO.File.ReadAllLines(@"save.txt");
-                Console.WriteLine();
-                int lineInd = 0;
-                foreach (string line in lines)
-                {
-                    lineInd++;
-                    string[] parts = line.Split(new char[]{','}, 6);
-                    Col a = new Col(availableBack[int.Parse(parts[3])], availableFore[int.Parse(parts[4])], parts[5][0],
-                        Color.FromArgb(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])));
-                    if (print) { a.Print(); Console.ResetColor(); }
-                    dictionary.Add(a);
-                }
+            string[] lines = System.IO.File.ReadAllLines(@"save.txt");
+            Console.WriteLine();
+            int lineInd = 0;
+            foreach (string line in lines)
+            {
+                lineInd++;
+                string[] parts = line.Split(new char[] { ',' }, 6);
+                Col a = new Col(availableBack[int.Parse(parts[3])], availableFore[int.Parse(parts[4])], parts[5][0],
+                    Color.FromArgb(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])));
+                if (print) { a.Print(); Console.ResetColor(); }
+                dictionary.Add(a);
+            }
             //}
             //catch (Exception e)
             //{
             //    Console.WriteLine("\nError in founding save! " + e.Message);
             //}
+            foreach (Col c in dictionary)
+                root.AddChild(c, 0, 1);
+            int X = 10;
         }
         static void WB()
         {
@@ -198,7 +324,7 @@ namespace ColorChoosert
                 Console.SetCursorPosition(left, top + i / resol);
                 for (int j = 0; j < what.Width; j += resolHoriz)
                 {
-                    int[] rgb = new int[3]{0,0,0}; int countPixels = 0;
+                    int[] rgb = new int[3] { 0, 0, 0 }; int countPixels = 0;
                     for (int i2 = 0; i2 < resol; i2++)
                         for (int j2 = 0; j2 < resolHoriz; j2++)
                         {
@@ -211,26 +337,31 @@ namespace ColorChoosert
                         }
                     Color clr = Color.FromArgb((int)(rgb[0] / (countPixels * 1.0)), (int)(rgb[1] / (countPixels * 1.0)), (int)(rgb[2] / (countPixels * 1.0)));//what.GetPixel(j, i);
 
-                    if (inds.ContainsKey(clr))
-                    {
-                        dictionary[inds.FirstOrDefault(x => x.Key == clr).Value].Print();
-                    }
-                    else
-                    {
-                        int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
-                        for (int d = 0; d < dictionary.Count; d++)
-                        {
-                            int cd = diff(dictionary[d].associate, clr)
-                                //
-                            ;// +(int)(dictionary[d].colorDiff / 300.0);
-                            //
-                            if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
-                            if (cd < minDiff) { minDiff = cd; bestInd = d; }
-                            if (minDiff <= 0) break;
-                        }
-                        dictionary[bestInd].Print();
-                        inds.Add(clr, bestInd);
-                    }
+                    //root.FindFast(0, clr).Print();
+                    //if (inds.ContainsKey(clr))
+                    //{
+                    //    dictionary[inds.FirstOrDefault(x => x.Key == clr).Value].Print();
+                    //}
+                    //else
+                    //{
+                    //Col c = ;
+                    root.FindFast(0, clr).Print();
+                    //    inds.Add(clr, dictionary.IndexOf(c));
+                    //}
+                    //    int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
+                    //    for (int d = 0; d < dictionary.Count; d++)
+                    //    {
+                    //        int cd = diff(dictionary[d].associate, clr)
+                    //            //
+                    //        ;// +(int)(dictionary[d].colorDiff / 300.0);
+                    //        //
+                    //        if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
+                    //        if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                    //        if (minDiff <= 0) break;
+                    //    }
+                    //    dictionary[bestInd].Print();
+                    //    inds.Add(clr, bestInd);
+                    //}
                 }
             }
         }
