@@ -163,6 +163,7 @@ namespace ColorChoosert
 
         static void Main(string[] args)
         {
+            
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
             Console.SetBufferSize(2000, 2000);
             Console.WriteLine("Press ENTER to start calibration."); Console.ForegroundColor = ConsoleColor.DarkGreen; Console.WriteLine( "You can type 'calibrate' to restart pocess of education.\nYou can type 'load' to load a ready dictionary.");
@@ -177,21 +178,25 @@ namespace ColorChoosert
             {
                 string fileName = "";
                 int res = 20;
+                string[] input = new string[0];
                 try
                 {
                     msSpentOnFrameDraw.Clear();
-                    string[] input = Console.ReadLine().Split(new string[] { " "}, StringSplitOptions.RemoveEmptyEntries);
+                    input = Console.ReadLine().Split(new string[] { " "}, StringSplitOptions.RemoveEmptyEntries);
                     
                     usePreviousExpirience = ContainKey("e", input);
                     if (ContainKey("?", input)) {
-                        Console.WriteLine("\nUsing:\nName a picture path and set a resolution step and keys : \n\t\t\"nova.png 7 -s -e\"\n\nKeys:\n-e -- use previous frame dicrionary;\n-s -- smooth pixels on reading;\n-l -- loop a gif to infinity;");
+                        Console.WriteLine("\nUsing:\nName a picture path and set a resolution step and keys : \n\t\t\"nova.png 7 -s -e\"\n\nKeys:\n-a -- autosize to screen;\n-e -- use previous frame dicrionary;\n-s -- smooth pixels on reading;\n-l -- loop a gif to infinity;\n-x2-- double image size;\n-h -- half image size;");
                     }
                     else
                     {
-                        fileName = input[0]; res = int.Parse(input[1].Trim()); input[0] = input[1] = "";
+                        fileName = input[0]; res = (ContainKey("a", input))? -1 : int.Parse(input[1].Trim()); input[0]  = "";
                         if (fileName.IndexOf(".gif") < 0)
                         {
                             Bitmap b = new Bitmap("cards/" + fileName);
+                            if (res == -1) { res = 2; while (b.Width / res > Console.WindowWidth * 3 / 4) res++; res++; }
+                            if (ContainKey("x2", input)) res /= 2;
+                            if (ContainKey("h", input)) res *= 2;
                             Print(b, res, ContainKey("s", input));
                         }
                         else
@@ -199,6 +204,12 @@ namespace ColorChoosert
                             Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
                             do
                             {
+                                Bitmap b = (Bitmap)frames[0];
+
+                                if (res == -1) { res = 2; while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
+                                if (ContainKey("x2", input)) res /= 2;
+                                if (ContainKey("h", input)) res *= 2;
+
                                 foreach (Image i in frames.ToList())
                                 {
                                     Print((Bitmap)i, res, ContainKey("s", input));
@@ -215,9 +226,11 @@ namespace ColorChoosert
                 }
                 Console.ResetColor();
                 Console.WriteLine();
-                Console.WriteLine("Press ENTER to retry;");
-                Console.ReadLine();
-                Console.Clear();
+                if (!ContainKey("?", input)) {
+                    Console.WriteLine("Press ENTER to retry;");
+                    Console.ReadLine();
+                    Console.Clear();
+                }
             }
         }
 
