@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Data;
 
 namespace ColorChoosert
 {
@@ -31,17 +32,18 @@ namespace ColorChoosert
                 left = right = null;
                 child = new List<Col>();
             }
+            public static int maxLevelDepth = 32;
             public void AddChild(Col n, int rgb, int level)
             {
                 L = level;
                 this.RGB = rgb;
-                if (level >= 6) { child.Add(n); return; }
+                if (level >= /*6*/maxLevelDepth || n.associate == this.separat) { child.Add(n); return; }
                 AddLeft(level + 1);
                 AddRight(level + 1);
                 switch (rgb)
                 {
                     case 0: // R
-                        if (n.associate.R <= separat.R)
+                        if (n.associate.R < separat.R)
                             AddLeft(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
                         else
                             AddRight(level + 1).AddChild(n, (RGB + 1) % 3, level + 1);
@@ -96,23 +98,24 @@ namespace ColorChoosert
                     for (int d = 0; d < child.Count; d++)
                     {
                         int cd = diff(child[d].associate, need)
-                            //
+                        //
                         ;// +(int)(child[d].colorDiff / 300.0);
                         //
                         if (cd < minDiff || ((cd <= minDiff) && (minClose < child[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = child[d].colorDiff; }
                         if (cd < minDiff) { minDiff = cd; bestInd = d; }
                         if (minDiff <= 0) break;
                     }
-                    if (bestInd >= 0)
+                    if (bestInd >= 0 && (minDiff == 0 || (left == null && right == null)))
                         return child[bestInd];
                 }
                 this.L += 0;
                 if (rgb == 0)
-                { if (need.R <= separat.R) return left.FindFast((rgb + 1) % 3, need); else  return right.FindFast((rgb + 1) % 3, need); }
+                { if (need.R < separat.R) return left.FindFast((rgb + 1) % 3, need); else return right.FindFast((rgb + 1) % 3, need); }
                 if (rgb == 1)
-                { if (need.G <= separat.G) return left.FindFast((rgb + 1) % 3, need); else  return right.FindFast((rgb + 1) % 3, need); }
-
-                if (need.B <= separat.B) return left.FindFast((rgb + 1) % 3, need); else return right.FindFast((rgb + 1) % 3, need);
+                { if (need.G < separat.G) return left.FindFast((rgb + 1) % 3, need); else return right.FindFast((rgb + 1) % 3, need); }
+                if (rgb == 2)
+                { if (need.B < separat.B) return left.FindFast((rgb + 1) % 3, need); else return right.FindFast((rgb + 1) % 3, need); }
+                return new Col(ConsoleColor.DarkRed, ConsoleColor.Red, '@', Color.Red);
             }
         }
 
@@ -124,8 +127,10 @@ namespace ColorChoosert
             public Color associate;
             public void Print()
             {
-                Console.BackgroundColor = back;
-                Console.ForegroundColor = fore;
+                if (Console.BackgroundColor != back)
+                    Console.BackgroundColor = back;
+                if (Console.ForegroundColor != fore)
+                    Console.ForegroundColor = fore;
                 Console.Write(symbol);
             }
             public Col(ConsoleColor back, ConsoleColor fore, char symbol, Color associate)
@@ -140,7 +145,10 @@ namespace ColorChoosert
                 return String.Format("{0},{1},{2},{3},{4},{5}",
                     associate.R, associate.G, associate.B, availableBack.IndexOf(back), availableFore.IndexOf(fore), symbol);
             }
-
+            public bool isBlack()
+            {
+                return (back == ConsoleColor.Black && fore == ConsoleColor.Black);
+            }
             public int colorDiff
             {
                 get { return diff(sameColors[availableFore.IndexOf(fore)], sameColors[availableBack.IndexOf(back)]); }
@@ -151,35 +159,60 @@ namespace ColorChoosert
         static string s = " `.-',_=^:\u001c\"+\\/~\u001b\u001a|;<>()\u001d?{}%sc!][Itivxz\u0016r1\u007f*\u0018leo\u0019anuTfw73\u0013jyJ\u0011\u001059Y$C\u001262mLS\u001f4kpgqFP\u001ebhdVOXGEZAU\u0017W8KDH@R&\u0015BQ#0MN\u0014";
 
         static List<Col> dictionary = new List<Col>();
+        static bool ContainKey(string key, string[] param) { return param.ToList().IndexOf("-"+key) >= 0; }
+
         static void Main(string[] args)
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
             Console.SetBufferSize(2000, 2000);
-            Console.WriteLine("Press ENTER to start calibration;");
+            Console.WriteLine("Press ENTER to start calibration."); Console.ForegroundColor = ConsoleColor.DarkGreen; Console.WriteLine( "You can type 'calibrate' to restart pocess of education.\nYou can type 'load' to load a ready dictionary.");
             string S = Console.ReadLine();
             if (S.ToLower() == "calibrate")
                 WriteAllVariants();
             else
                 LoadDictionary(S == "load");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Enter a command :");
             while (true)
             {
                 string fileName = "";
                 int res = 20;
-                Console.WriteLine("\nName a picture path and set a resolution step;\nExample:\n\n\t\tnova.png\n\t\t7\n");
                 try
                 {
-                    fileName = Console.ReadLine();
-                    res = int.Parse(Console.ReadLine().Trim());
-                    //Bitmap b = new Bitmap("cards/" + fileName);
-                    Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
-                    foreach (Image i in frames.ToList())
-                        Print((Bitmap)i, res);
+                    msSpentOnFrameDraw.Clear();
+                    string[] input = Console.ReadLine().Split(new string[] { " "}, StringSplitOptions.RemoveEmptyEntries);
+                    
+                    usePreviousExpirience = ContainKey("e", input);
+                    if (ContainKey("?", input)) {
+                        Console.WriteLine("\nUsing:\nName a picture path and set a resolution step and keys : \n\t\t\"nova.png 7 -s -e\"\n\nKeys:\n-e -- use previous frame dicrionary;\n-s -- smooth pixels on reading;\n-l -- loop a gif to infinity;");
+                    }
+                    else
+                    {
+                        fileName = input[0]; res = int.Parse(input[1].Trim()); input[0] = input[1] = "";
+                        if (fileName.IndexOf(".gif") < 0)
+                        {
+                            Bitmap b = new Bitmap("cards/" + fileName);
+                            Print(b, res, ContainKey("s", input));
+                        }
+                        else
+                        {
+                            Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
+                            do
+                            {
+                                foreach (Image i in frames.ToList())
+                                {
+                                    Print((Bitmap)i, res, ContainKey("s", input));
+                                    usePreviousExpirience = true;
+                                }
+                            } while (ContainKey("l", input));
+                        }
+                        PrintTime();
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
-
                 Console.ResetColor();
                 Console.WriteLine();
                 Console.WriteLine("Press ENTER to retry;");
@@ -198,8 +231,8 @@ namespace ColorChoosert
                 originalImg.SelectActiveFrame(FrameDimension.Time, i);
                 frames[i] = ((Image)originalImg.Clone());
 
-                Console.SetCursorPosition(5,5);
-                Console.Write((i+"/" + numberOfFrames).PadLeft(20));
+                Console.SetCursorPosition(5, 5);
+                Console.Write((i + "/" + numberOfFrames).PadLeft(20));
             }
 
             return frames;
@@ -311,42 +344,54 @@ namespace ColorChoosert
         {
             return Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
         }
-        static void Print(Bitmap what, int resol)
+        static bool usePreviousExpirience = false;
+        static List<int> msSpentOnFrameDraw = new List<int>();
+        static void Print(Bitmap what, int resol, bool smooth)
         {
+            DateTime startDate = DateTime.Now;
             Random rnd = new Random();
             int left = 0, top = 0;
             int resolHoriz = resol * 3 / 4;
             // what.RotateFlip(RotateFlipType.Rotate90FlipNone);
             Dictionary<Color, int> inds = new Dictionary<Color, int>();
-
+            Col c;
             for (int i = 0; i < what.Height; i += resol)
             {
                 Console.SetCursorPosition(left, top + i / resol);
                 for (int j = 0; j < what.Width; j += resolHoriz)
                 {
-                    int[] rgb = new int[3] { 0, 0, 0 }; int countPixels = 0;
-                    for (int i2 = 0; i2 < resol; i2++)
-                        for (int j2 = 0; j2 < resolHoriz; j2++)
-                        {
-                            if (i + i2 >= what.Height) continue;
-                            if (j + j2 >= what.Width) continue;
-                            rgb[0] += what.GetPixel(j + j2, i + i2).R;
-                            rgb[1] += what.GetPixel(j + j2, i + i2).G;
-                            rgb[2] += what.GetPixel(j + j2, i + i2).B;
-                            countPixels++;
-                        }
-                    Color clr = Color.FromArgb((int)(rgb[0] / (countPixels * 1.0)), (int)(rgb[1] / (countPixels * 1.0)), (int)(rgb[2] / (countPixels * 1.0)));//what.GetPixel(j, i);
-
+                    Color clr = what.GetPixel(j, i);
+                    if (smooth)
+                    {
+                        int[] rgb = new int[3] { 0, 0, 0 }; int countPixels = 0;
+                        for (int i2 = 0; i2 < resol; i2++)
+                            for (int j2 = 0; j2 < resolHoriz; j2++)
+                            {
+                                if (i + i2 >= what.Height) continue;
+                                if (j + j2 >= what.Width) continue;
+                                rgb[0] += what.GetPixel(j + j2, i + i2).R;
+                                rgb[1] += what.GetPixel(j + j2, i + i2).G;
+                                rgb[2] += what.GetPixel(j + j2, i + i2).B;
+                                countPixels++;
+                            }
+                        clr = Color.FromArgb((int)(rgb[0] / (countPixels * 1.0)), (int)(rgb[1] / (countPixels * 1.0)), (int)(rgb[2] / (countPixels * 1.0)));//what.GetPixel(j, i);
+                    }
                     //root.FindFast(0, clr).Print();
-                    //if (inds.ContainsKey(clr))
+                    //if (usePreviousExpirience && inds.ContainsKey(clr))
                     //{
                     //    dictionary[inds.FirstOrDefault(x => x.Key == clr).Value].Print();
                     //}
                     //else
                     //{
-                    //Col c = ;
-                    root.FindFast(0, clr).Print();
-                    //    inds.Add(clr, dictionary.IndexOf(c));
+                    c = root.FindFast(0, clr);
+
+                    if (c.isBlack() && clr != Color.Black)
+                        drawCostil(clr);
+                    else
+                        c.Print();
+                    //    c;
+                    //    if (!inds.ContainsKey(clr))
+                    //        inds.Add(clr, dictionary.IndexOf(c));
                     //}
                     //    int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
                     //    for (int d = 0; d < dictionary.Count; d++)
@@ -364,6 +409,25 @@ namespace ColorChoosert
                     //}
                 }
             }
+            msSpentOnFrameDraw.Add((DateTime.Now - startDate).Milliseconds);
+        }
+        static void drawCostil(Color clr)
+        {
+            int bestInd = 0, minDiff = 255 * 3, minClose = 255 * 3;
+            for (int d = 0; d < dictionary.Count; d++)
+            {
+                int cd = diff(dictionary[d].associate, clr);
+                if (cd < minDiff || ((cd <= minDiff) && (minClose < dictionary[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = dictionary[d].colorDiff; }
+                if (cd < minDiff) { minDiff = cd; bestInd = d; }
+                if (minDiff <= 0) break;
+            }
+            dictionary[bestInd].Print();
+        }
+        static void PrintTime()
+        {
+            Console.ResetColor(); Console.WriteLine("\nKDtree uses max level depth : " + ColNode.maxLevelDepth);
+            for (int i = 0; i < msSpentOnFrameDraw.Count; i++)
+                Console.WriteLine(String.Format("Picture #{0} : {1} ms", (i + "").PadRight(3), (msSpentOnFrameDraw[i] + "").PadLeft(10)));
         }
         static void Print(Bitmap what, List<List<char>> with, int resol)
         {
