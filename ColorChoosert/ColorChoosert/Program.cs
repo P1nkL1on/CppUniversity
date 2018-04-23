@@ -202,18 +202,20 @@ namespace ColorChoosert
                         else
                         {
                             Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
+                            Bitmap b = (Bitmap)frames[0];
+
+                            if (res == -1) { res = 2; while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
+                            if (ContainKey("x2", input)) res /= 2;
+                            if (ContainKey("h", input)) res *= 2;
+
                             do
                             {
-                                Bitmap b = (Bitmap)frames[0];
-
-                                if (res == -1) { res = 2; while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
-                                if (ContainKey("x2", input)) res /= 2;
-                                if (ContainKey("h", input)) res *= 2;
-
-                                foreach (Image i in frames.ToList())
+                                List<Image> conv = frames.ToList();
+                                foreach (Image i in conv)
                                 {
                                     Print((Bitmap)i, res, ContainKey("s", input));
-                                    usePreviousExpirience = true;
+                                    //if (usePreviousExpirience)usePreviousExpirience = true;
+                                    Console.ResetColor();Console.Write(String.Format("\n{0}/{1}", (conv.IndexOf(i)+"").PadLeft(6), conv.Count));
                                 }
                             } while (ContainKey("l", input));
                         }
