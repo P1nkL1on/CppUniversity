@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -98,7 +98,7 @@ namespace ColorChoosert
                     for (int d = 0; d < child.Count; d++)
                     {
                         int cd = diff(child[d].associate, need)
-                        //
+                            //
                         ;// +(int)(child[d].colorDiff / 300.0);
                         //
                         if (cd < minDiff || ((cd <= minDiff) && (minClose < child[d].colorDiff))) { minDiff = cd; bestInd = d; minClose = child[d].colorDiff; }
@@ -159,14 +159,14 @@ namespace ColorChoosert
         static string s = " `.-',_=^:\u001c\"+\\/~\u001b\u001a|;<>()\u001d?{}%sc!][Itivxz\u0016r1\u007f*\u0018leo\u0019anuTfw73\u0013jyJ\u0011\u001059Y$C\u001262mLS\u001f4kpgqFP\u001ebhdVOXGEZAU\u0017W8KDH@R&\u0015BQ#0MN\u0014";
 
         static List<Col> dictionary = new List<Col>();
-        static bool ContainKey(string key, string[] param) { return param.ToList().IndexOf("-"+key) >= 0; }
+        static bool ContainKey(string key, string[] param) { return param.ToList().IndexOf("-" + key) >= 0; }
 
         static void Main(string[] args)
         {
             
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
-            Console.SetBufferSize(2000, 2000);
-            Console.WriteLine("Press ENTER to start calibration."); Console.ForegroundColor = ConsoleColor.DarkGreen; Console.WriteLine( "You can type 'calibrate' to restart pocess of education.\nYou can type 'load' to load a ready dictionary.");
+            Console.SetBufferSize(2000, 20000);
+            Console.WriteLine("Press ENTER to start calibration."); Console.ForegroundColor = ConsoleColor.DarkGreen; Console.WriteLine("You can type 'calibrate' to restart pocess of education.\nYou can type 'load' to load a ready dictionary.");
             string S = Console.ReadLine();
             if (S.ToLower() == "calibrate")
                 WriteAllVariants();
@@ -182,15 +182,16 @@ namespace ColorChoosert
                 try
                 {
                     msSpentOnFrameDraw.Clear();
-                    input = Console.ReadLine().Split(new string[] { " "}, StringSplitOptions.RemoveEmptyEntries);
-                    
+                    input = Console.ReadLine().Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+
                     usePreviousExpirience = ContainKey("e", input);
-                    if (ContainKey("?", input)) {
+                    if (ContainKey("?", input))
+                    {
                         Console.WriteLine("\nUsing:\nName a picture path and set a resolution step and keys : \n\t\t\"nova.png 7 -s -e\"\n\nKeys:\n-a -- autosize to screen;\n-e -- use previous frame dicrionary;\n-s -- smooth pixels on reading;\n-l -- loop a gif to infinity;\n-x2-- double image size;\n-h -- half image size;");
                     }
                     else
                     {
-                        fileName = input[0]; res = (ContainKey("a", input))? -1 : int.Parse(input[1].Trim()); input[0]  = "";
+                        fileName = input[0]; res = (ContainKey("a", input)) ? -1 : int.Parse(input[1].Trim()); input[0] = "";
                         if (fileName.IndexOf(".gif") < 0)
                         {
                             Bitmap b = new Bitmap("cards/" + fileName);
@@ -201,6 +202,7 @@ namespace ColorChoosert
                         }
                         else
                         {
+                            int waitBetweenFames = (input.Length < 2)? 50 : int.Parse(input[2]);
                             Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
                             Bitmap b = (Bitmap)frames[0];
 
@@ -208,16 +210,24 @@ namespace ColorChoosert
                             if (ContainKey("x2", input)) res /= 2;
                             if (ContainKey("h", input)) res *= 2;
 
+
+
+                            int curFr = 0, frameHei = Math.Max(b.Height / res + 20, Console.LargestWindowHeight);
+                            List<Image> conv = frames.ToList();
+                            Console.SetBufferSize(2000, frameHei * (conv.Count + 5));
+                            for (int it = 0; it < conv.Count; it++)
+                            {
+                                Image i = conv[it];
+                                Print((Bitmap)i, res, ContainKey("s", input), new Point(0, it * frameHei));
+                                //if (usePreviousExpirience)usePreviousExpirience = true;
+                                Console.ResetColor(); Console.Write(String.Format("\n{0}/{1}", (it + "").PadLeft(6), conv.Count));
+                            }
                             do
                             {
-                                List<Image> conv = frames.ToList();
-                                foreach (Image i in conv)
-                                {
-                                    Print((Bitmap)i, res, ContainKey("s", input));
-                                    //if (usePreviousExpirience)usePreviousExpirience = true;
-                                    Console.ResetColor();Console.Write(String.Format("\n{0}/{1}", (conv.IndexOf(i)+"").PadLeft(6), conv.Count));
-                                }
-                            } while (ContainKey("l", input));
+                                curFr = (curFr + 1) % conv.Count;
+                                Console.SetWindowPosition(0, curFr * frameHei);
+                                Thread.Sleep(waitBetweenFames);
+                            } while (ContainKey("l", input) || curFr < conv.Count - 1);
                         }
                         PrintTime();
                     }
@@ -228,7 +238,8 @@ namespace ColorChoosert
                 }
                 Console.ResetColor();
                 Console.WriteLine();
-                if (!ContainKey("?", input)) {
+                if (!ContainKey("?", input))
+                {
                     Console.WriteLine("Press ENTER to retry;");
                     Console.ReadLine();
                     Console.Clear();
@@ -363,6 +374,10 @@ namespace ColorChoosert
         static List<int> msSpentOnFrameDraw = new List<int>();
         static void Print(Bitmap what, int resol, bool smooth)
         {
+            Print(what, resol, smooth, new Point(0, 0));
+        }
+        static void Print(Bitmap what, int resol, bool smooth, Point offset)
+        {
             DateTime startDate = DateTime.Now;
             Random rnd = new Random();
             int left = 0, top = 0;
@@ -372,7 +387,7 @@ namespace ColorChoosert
             Col c;
             for (int i = 0; i < what.Height; i += resol)
             {
-                Console.SetCursorPosition(left, top + i / resol);
+                Console.SetCursorPosition(left + offset.X, top + i / resol + offset.Y);
                 for (int j = 0; j < what.Width; j += resolHoriz)
                 {
                     Color clr = what.GetPixel(j, i);
