@@ -202,9 +202,25 @@ namespace ColorChoosert
                         }
                         else
                         {
+                            Image originalImg = Image.FromFile("cards/" + fileName);
+                            int numberOfFrames = originalImg.GetFrameCount(FrameDimension.Time);
+                            while ((numberOfFrames + 5) * Console.WindowHeight > Int16.MaxValue / 10 * 9)
+                                numberOfFrames--;
+                            //Image[] frames = new Image[numberOfFrames];
+
+                            //for (int i = 0; i < numberOfFrames; i++)
+                            //{
+                            //    originalImg.SelectActiveFrame(FrameDimension.Time, i);
+                            //    frames[i] = ((Image)(Image)originalImg.Clone());
+
+                            //    Console.SetCursorPosition(5, 5);
+                            //    Console.Write((i + "/" + numberOfFrames).PadLeft(20));
+                            //}
+
                             int waitBetweenFames = (input.Length < 2)? 50 : int.Parse(input[2]);
-                            Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
-                            Bitmap b = (Bitmap)frames[0];
+                            //Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
+                            originalImg.SelectActiveFrame(FrameDimension.Time, 0);
+                            Bitmap b = (Bitmap)originalImg.Clone();
 
                             if (res == -1) { res = 2; while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
                             if (ContainKey("x2", input)) res /= 2;
@@ -213,21 +229,22 @@ namespace ColorChoosert
 
 
                             int curFr = 0, frameHei = Math.Max(b.Height / res + 20, Console.LargestWindowHeight);
-                            List<Image> conv = frames.ToList();
-                            Console.SetBufferSize(2000, frameHei * (conv.Count + 5));
-                            for (int it = 0; it < conv.Count; it++)
+                            //List<Image> conv = frames.ToList();
+                            Console.SetBufferSize(2000, frameHei * (numberOfFrames + 5));
+                            for (int it = 0; it < numberOfFrames; it++)
                             {
-                                Image i = conv[it];
-                                Print((Bitmap)i, res, ContainKey("s", input), new Point(0, it * frameHei));
+                                originalImg.SelectActiveFrame(FrameDimension.Time, it);
+                                Bitmap i =(Bitmap) originalImg.Clone();//conv[it];
+                                Print(i, res, ContainKey("s", input), new Point(0, it * frameHei));
                                 //if (usePreviousExpirience)usePreviousExpirience = true;
-                                Console.ResetColor(); Console.Write(String.Format("\n{0}/{1}", (it + "").PadLeft(6), conv.Count));
+                                //Console.ResetColor(); Console.Write(String.Format("\n{0}/{1}", (it + "").PadLeft(6), numberOfFrames));
                             }
                             do
                             {
-                                curFr = (curFr + 1) % conv.Count;
+                                curFr = (curFr + 1) % numberOfFrames;
                                 Console.SetWindowPosition(0, curFr * frameHei);
                                 Thread.Sleep(waitBetweenFames);
-                            } while (ContainKey("l", input) || curFr < conv.Count - 1);
+                            } while (ContainKey("l", input) || curFr < numberOfFrames - 1);
                         }
                         PrintTime();
                     }
