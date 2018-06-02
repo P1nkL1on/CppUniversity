@@ -1,0 +1,14 @@
+INPUT(
+./release\main.o
+./release\utils.o
+./release\mainwindow.o
+./release\filesubwindow.o
+./release\dialog.o
+./release\fileentries.o
+./release\entry.o
+./release\urlentries.o
+./release\qrc_qml.o
+./release\moc_mainwindow.o
+./release\moc_filesubwindow.o
+./release\moc_dialog.o
+);
