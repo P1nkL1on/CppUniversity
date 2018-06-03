@@ -1,0 +1,19 @@
+<event_name>встреча
+<date>15 ма€, 18 год
+<description>увидимс€ в гаражах с корешами
+<depends>
+<member_depend>ƒруз€шки
+<member_number>1
+<member_depend>ƒруз€шки
+<member_number>2
+<member_depend>ƒруз€шки
+<member_number>3
+<member_depend>–одичи
+<member_number>1
+@
+<event_name>день рождень€ деда
+<date>18 ма€, 18 год
+<description>собираемс€ со всеми из группы родичей и развлекаемс€
+<depends>
+<group_depend>–одичи
+@

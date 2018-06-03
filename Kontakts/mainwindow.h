@@ -17,13 +17,17 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    void showFileSubWindow(const QString &text = nullptr, const QString &title = nullptr);
+    void showErrorDialog(const QString &text);
 
-//private slots:
+private slots:
 //    void createNewGroup();
 //    void createNewEvent();
-//    void openFile();
 //    void save();
 //    void saveAs();
+    void on_actionOpen_triggered();
+    void on_actionSave_triggered();
+    void on_actionSave_as_triggered();
 };
 
 #endif // MAINWINDOW_H

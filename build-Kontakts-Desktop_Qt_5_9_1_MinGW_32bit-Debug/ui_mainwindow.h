@@ -14,13 +14,12 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QListView>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMdiArea>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -33,12 +32,13 @@ public:
     QAction *actionSave;
     QAction *actionSave_as;
     QAction *actionOpen;
+    QAction *actionShow_all_groups;
+    QAction *actionShow_all_events;
     QWidget *centralWidget;
-    QWidget *verticalLayoutWidget;
-    QVBoxLayout *verticalLayout;
-    QListView *listView;
+    QMdiArea *mdi;
     QMenuBar *menuBar;
     QMenu *menuFile;
+    QMenu *menuShow;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -46,7 +46,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(400, 300);
+        MainWindow->resize(431, 609);
         actionNew_group = new QAction(MainWindow);
         actionNew_group->setObjectName(QStringLiteral("actionNew_group"));
         actionNew_event = new QAction(MainWindow);
@@ -57,27 +57,23 @@ public:
         actionSave_as->setObjectName(QStringLiteral("actionSave_as"));
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QStringLiteral("actionOpen"));
+        actionShow_all_groups = new QAction(MainWindow);
+        actionShow_all_groups->setObjectName(QStringLiteral("actionShow_all_groups"));
+        actionShow_all_events = new QAction(MainWindow);
+        actionShow_all_events->setObjectName(QStringLiteral("actionShow_all_events"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        verticalLayoutWidget = new QWidget(centralWidget);
-        verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(9, 0, 381, 241));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout->setSpacing(6);
-        verticalLayout->setContentsMargins(11, 11, 11, 11);
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        listView = new QListView(verticalLayoutWidget);
-        listView->setObjectName(QStringLiteral("listView"));
-
-        verticalLayout->addWidget(listView);
-
+        mdi = new QMdiArea(centralWidget);
+        mdi->setObjectName(QStringLiteral("mdi"));
+        mdi->setGeometry(QRect(10, 10, 411, 541));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 400, 21));
+        menuBar->setGeometry(QRect(0, 0, 431, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
+        menuShow = new QMenu(menuBar);
+        menuShow->setObjectName(QStringLiteral("menuShow"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -87,11 +83,14 @@ public:
         MainWindow->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
+        menuBar->addAction(menuShow->menuAction());
         menuFile->addAction(actionNew_group);
         menuFile->addAction(actionNew_event);
         menuFile->addAction(actionOpen);
         menuFile->addAction(actionSave);
         menuFile->addAction(actionSave_as);
+        menuShow->addAction(actionShow_all_groups);
+        menuShow->addAction(actionShow_all_events);
 
         retranslateUi(MainWindow);
 
@@ -104,9 +103,21 @@ public:
         actionNew_group->setText(QApplication::translate("MainWindow", "New group", Q_NULLPTR));
         actionNew_event->setText(QApplication::translate("MainWindow", "New event", Q_NULLPTR));
         actionSave->setText(QApplication::translate("MainWindow", "Save", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionSave->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
         actionSave_as->setText(QApplication::translate("MainWindow", "Save as", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionSave_as->setShortcut(QApplication::translate("MainWindow", "Ctrl+Shift+S", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
         actionOpen->setText(QApplication::translate("MainWindow", "Open", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionShow_all_groups->setText(QApplication::translate("MainWindow", "Show all groups", Q_NULLPTR));
+        actionShow_all_events->setText(QApplication::translate("MainWindow", "Show all events", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", Q_NULLPTR));
+        menuShow->setTitle(QApplication::translate("MainWindow", "Show", Q_NULLPTR));
     } // retranslateUi
 
 };
