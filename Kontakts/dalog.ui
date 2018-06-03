@@ -46,9 +46,10 @@
    </widget>
    <widget class="QMenu" name="menuShow">
     <property name="title">
-     <string>Edit</string>
+     <string>Show</string>
     </property>
-    <addaction name="actionAdd_member_dependence"/>
+    <addaction name="actionShow_all_groups"/>
+    <addaction name="actionShow_all_events"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -104,14 +105,6 @@
   <action name="actionShow_all_events">
    <property name="text">
     <string>Show all events</string>
-   </property>
-  </action>
-  <action name="actionAdd_member_dependence">
-   <property name="text">
-    <string>Add member dependence</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

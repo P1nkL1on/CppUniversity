@@ -21,10 +21,11 @@ public:
 class Group : public Writable
 {
 public:
-    Group(QVector<QString> fromLines);
+    Group(QVector<QString> fromLines, bool fromFile);
     ~Group();
     QVector<QString> WriteToFileStrings () override;
     QString Trace() override;
+    QVector<QString> contacNames();
 private:
     QString groupName;
     QVector<Contact*> contacts;

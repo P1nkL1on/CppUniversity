@@ -15,9 +15,11 @@ public:
     FileSubWindow(QWidget *parent, const QString &text = nullptr);
     ~FileSubWindow();
     QString getText();
+    void SetType (const bool isEvent);
 
 private:
     QTextEdit *textEdit;
+    bool isEvent;
 };
 
 #endif // FILESUBWINDOW_H

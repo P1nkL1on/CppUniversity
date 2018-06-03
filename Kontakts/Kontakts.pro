@@ -31,7 +31,8 @@ SOURCES += \
     event.cpp \
     writable.cpp \
     filesubwindow.cpp \
-    misc.cpp
+    misc.cpp \
+    dialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,7 +41,10 @@ HEADERS += \
     event.h \
     writable.h \
     filesubwindow.h \
-    misc.h
+    misc.h \
+    eventcreatedialog.h \
+    dialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    dialog.ui
