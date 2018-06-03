@@ -17,6 +17,7 @@ public:
     FileSubWindow(QWidget *parent, const QString &text = nullptr);
     ~FileSubWindow();
     QString getTextForSave();
+    QString getTextEventForSave();
     void setType (const bool isEvent);
     void addToText(const QString what);
     bool isGroup() const;

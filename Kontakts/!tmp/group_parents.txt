@@ -1,0 +1,10 @@
+<group_name>Родичи
+<group_member>
+<name>Батя
+<phone>1122
+<group_member>
+<name>Матушка
+<phone>33-1-2--342
+<group_member>
+<name>Дед Георгий
+<phone>0000

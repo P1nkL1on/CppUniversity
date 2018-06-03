@@ -1,0 +1,13 @@
+<group_name>Друзяшки
+<group_member>
+<name>Антоха, мой кореш
+<phone>88005553535
+<group_member>
+<name>Серёга, мой кореш
+<phone>123
+<group_member>
+<name>Димон из гаражей
+<phone>8995177781122
+<group_member>
+<name>Сергей Вячеславович
+<phone>-

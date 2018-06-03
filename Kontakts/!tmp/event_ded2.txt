@@ -1,0 +1,13 @@
+<group_name>день рождень€ деда:
+<group_member>
+<name>18 ма€, 18 год
+<phone>, 18 год
+<group_member>
+<name>собираемс€ со всеми из группы родичей и развлекаемс€
+<phone>емс€ со всеми из группы родичей и развлекаемс€
+<group_member>
+<name>”частники:
+<phone>ики:
+<group_member>
+<name>Родичи
+<phone>

@@ -18,10 +18,10 @@ Event::Event(QVector<QString> fromLines, bool fromFile)
         QString tag = "none", text="", n = "", t = "";
         //int state = 0;
 
+        pointedMembers = QVector<QString>();
         for (int i = 0; i < fromLines.length(); i++){
             tag = Misc::viewTag(fromLines[i], text);
             qDebug () << tag << text;
-            pointedMembers = QVector<QString>();
 
             if (tag == "event_name")
                 eventName = text;
@@ -33,11 +33,11 @@ Event::Event(QVector<QString> fromLines, bool fromFile)
                 pointedMembers << text;
         }
     }else{
-//        groupName = fromLines[0].remove(fromLines[0].length() - 1); // <group_name>
-//        for (int i = 1; i < fromLines.length(); i++){
-//            contacts << new Contact(fromLines[i].mid(0, fromLines[i].indexOf(", тел. ")).trimmed(),
-//                                    fromLines[i].remove(0, fromLines[i].indexOf(", тел. ") + 7).trimmed());
-//        }
+        eventName = fromLines[0].remove(fromLines[0].length() - 1);
+        date = fromLines[1];
+        description = fromLines[2];
+        for (int i = 4; i < fromLines.length(); i++)
+            pointedMembers << fromLines[i];
     }
     int X = 10;
 }

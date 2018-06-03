@@ -80,10 +80,10 @@ void MainWindow::on_actionSave_triggered()
         QString text ="";
         if (!activeWindow->isGroup())
         {
-            showErrorDialog("NONONONONONONON!");
-            return;
+            text= activeWindow->getTextEventForSave();
+        }else{
+            text= activeWindow->getTextForSave();
         }
-        text= activeWindow->getTextForSave();
         QFile file(fileInfo.absoluteFilePath());
         if (file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
             QTextStream textStram(&file);
@@ -99,7 +99,13 @@ void MainWindow::on_actionSave_as_triggered()
         showErrorDialog("No file selected");
         return;
     }
-    QString text = activeWindow->getTextForSave();
+    QString text ="";
+    if (!activeWindow->isGroup())
+    {
+        text= activeWindow->getTextEventForSave();
+    }else{
+        text= activeWindow->getTextForSave();
+    }
     QString path = QFileDialog::getSaveFileName(this, "Save as", "/", "All Files (*)");
     if (path.trimmed().size() == 0) return;
     QFileInfo fileInfo(path);
