@@ -1,0 +1,13 @@
+<event_name>встреча:::
+<date>15 мая, 18 год
+<description>увидимся в гаражах с корешами
+<group_depend>Андрюха, мой кореш
+<group_depend>Серёга, мой кореш
+<group_depend>Дед
+<group_depend>Батя
+<group_depend>Посмотрите, это же Артёма пришёл
+<group_depend>Лолирую с вам, оно тупо
+<group_depend>Тупость
+<group_depend>Маргиналы
+<group_depend>Проклятья
+<member_depend>Семён Фролов, тел. 113

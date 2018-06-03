@@ -1,0 +1,10 @@
+<group_name>Нов:
+<group_member>
+<name>Контакт №1
+<phone>1-111-222-33-33
+<group_member>
+<name>Контакт №2
+<phone>11233-444-555-33-3300000[eq
+<group_member>
+<name>Контакт №3
+<phone>2-33-44-55

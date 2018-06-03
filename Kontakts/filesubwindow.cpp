@@ -20,6 +20,14 @@ QString FileSubWindow::getTextForSave() {
     return res;
 }
 
+QString FileSubWindow::getTextEventForSave()
+{
+    Event e = Event(textEdit->toPlainText().split(QRegExp("[\n]"),QString::SkipEmptyParts).toVector(), false);
+    QVector<QString> qs= e.WriteToFileStrings(); QString res = "";
+    for (int i = 0; i < qs.length(); i++)res += qs[i]+"\n";
+    return res;
+}
+
 void FileSubWindow::setType(const bool isEvent)
 {
     isevent = isEvent;
