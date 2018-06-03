@@ -210,6 +210,7 @@ Makefile: ../Kontakts/Kontakts.pro ../../progs/QT_creator/5.9.1/mingw53_32/mkspe
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/qt_config.prf \
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/win32-g++/qmake.conf \
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/exclusive_builds.prf \
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/toolchain.prf \
 		../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/default_pre.prf \
@@ -387,6 +388,7 @@ Makefile: ../Kontakts/Kontakts.pro ../../progs/QT_creator/5.9.1/mingw53_32/mkspe
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/qt_config.prf:
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/win32-g++/qmake.conf:
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/exclusive_builds.prf:
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/toolchain.prf:
 ../../progs/QT_creator/5.9.1/mingw53_32/mkspecs/features/default_pre.prf:

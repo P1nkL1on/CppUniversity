@@ -5,12 +5,18 @@ FileSubWindow::FileSubWindow(QWidget *parent, const QString &text): QMdiSubWindo
     textEdit = new QTextEdit();
     textEdit->setPlainText(text);
     setWidget(textEdit);
+    isEvent = false;
 }
 
 FileSubWindow::~FileSubWindow() {
      textEdit->~QTextEdit();
 }
 
-QString FileSubWindow::getText() {
+QString FileSubWindow::getText() const {
     return textEdit->toPlainText();
+}
+
+void FileSubWindow::SetType(const bool isEvent)
+{
+    this->isEvent = isEvent;
 }

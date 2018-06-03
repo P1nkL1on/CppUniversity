@@ -17,11 +17,12 @@ public:
     FileSubWindow(QWidget *parent, const QString &text = nullptr);
     ~FileSubWindow();
     QString getTextForSave();
-
+    void setType (const bool isEvent);
+    void addToText(const QString what);
+    bool isGroup() const;
 private:
     QTextEdit *textEdit;
-    Group* g;
-    Event* e;
+    bool isevent;
 };
 
 #endif // FILESUBWINDOW_H

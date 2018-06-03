@@ -7,6 +7,8 @@ INPUT(
 ./release\writable.o
 ./release\filesubwindow.o
 ./release\misc.o
+./release\dialog.o
 ./release\moc_mainwindow.o
 ./release\moc_filesubwindow.o
+./release\moc_dialog.o
 );

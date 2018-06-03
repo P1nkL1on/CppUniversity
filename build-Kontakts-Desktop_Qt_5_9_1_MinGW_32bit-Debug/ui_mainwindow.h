@@ -34,6 +34,7 @@ public:
     QAction *actionOpen;
     QAction *actionShow_all_groups;
     QAction *actionShow_all_events;
+    QAction *actionAdd_member_dependence;
     QWidget *centralWidget;
     QMdiArea *mdi;
     QMenuBar *menuBar;
@@ -61,6 +62,8 @@ public:
         actionShow_all_groups->setObjectName(QStringLiteral("actionShow_all_groups"));
         actionShow_all_events = new QAction(MainWindow);
         actionShow_all_events->setObjectName(QStringLiteral("actionShow_all_events"));
+        actionAdd_member_dependence = new QAction(MainWindow);
+        actionAdd_member_dependence->setObjectName(QStringLiteral("actionAdd_member_dependence"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         mdi = new QMdiArea(centralWidget);
@@ -89,8 +92,7 @@ public:
         menuFile->addAction(actionOpen);
         menuFile->addAction(actionSave);
         menuFile->addAction(actionSave_as);
-        menuShow->addAction(actionShow_all_groups);
-        menuShow->addAction(actionShow_all_events);
+        menuShow->addAction(actionAdd_member_dependence);
 
         retranslateUi(MainWindow);
 
@@ -116,8 +118,12 @@ public:
 #endif // QT_NO_SHORTCUT
         actionShow_all_groups->setText(QApplication::translate("MainWindow", "Show all groups", Q_NULLPTR));
         actionShow_all_events->setText(QApplication::translate("MainWindow", "Show all events", Q_NULLPTR));
+        actionAdd_member_dependence->setText(QApplication::translate("MainWindow", "Add member dependence", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionAdd_member_dependence->setShortcut(QApplication::translate("MainWindow", "Ctrl+D", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
         menuFile->setTitle(QApplication::translate("MainWindow", "File", Q_NULLPTR));
-        menuShow->setTitle(QApplication::translate("MainWindow", "Show", Q_NULLPTR));
+        menuShow->setTitle(QApplication::translate("MainWindow", "Edit", Q_NULLPTR));
     } // retranslateUi
 
 };
