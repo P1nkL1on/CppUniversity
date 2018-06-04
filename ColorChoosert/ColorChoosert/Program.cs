@@ -174,10 +174,14 @@ namespace ColorChoosert
                 LoadDictionary(S == "load");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("Enter a command :");
+
+            //PrintFunc();
+            //return;
+
             while (true)
             {
                 string fileName = "";
-                int res = 20;
+                double res = 20;
                 string[] input = new string[0];
                 try
                 {
@@ -191,11 +195,12 @@ namespace ColorChoosert
                     }
                     else
                     {
-                        fileName = input[0]; res = (ContainKey("a", input)) ? -1 : int.Parse(input[1].Trim()); input[0] = "";
+                        fileName = input[0]; res = (ContainKey("a", input)) ? -1 : double.Parse(input[1].Trim()); input[0] = "";
                         if (fileName.IndexOf(".gif") < 0)
                         {
                             Bitmap b = new Bitmap("cards/" + fileName);
-                            if (res == -1) { res = 2; while (b.Width / res > Console.WindowWidth * 3 / 4) res++; res++; }
+                            if (res == -1) { res = 2; res = (double)b.Height / (Console.WindowWidth * .75); }
+                            //if (res == -1) { res = 2; while (b.Width / res > Console.WindowWidth * 3 / 4) res++; res++; }
                             if (ContainKey("x2", input)) res /= 2;
                             if (ContainKey("h", input)) res *= 2;
                             Print(b, res, ContainKey("s", input));
@@ -206,13 +211,11 @@ namespace ColorChoosert
                             Image[] frames = getFrames(Image.FromFile("cards/" + fileName));
                             Bitmap b = (Bitmap)frames[0];
 
-                            if (res == -1) { res = 2; while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
+                            if (res == -1) { res = 2; res = (double)b.Height / Console.WindowHeight; }//}/while (b.Height / res > Console.WindowHeight * 3 / 4) res++; }
                             if (ContainKey("x2", input)) res /= 2;
                             if (ContainKey("h", input)) res *= 2;
 
-
-
-                            int curFr = 0, frameHei = Math.Max(b.Height / res + 20, Console.LargestWindowHeight);
+                            int curFr = 0, frameHei = Math.Max((b.Height / (int)res) + 20, Console.LargestWindowHeight);
                             List<Image> conv = frames.ToList();
                             Console.SetBufferSize(2000, frameHei * (conv.Count + 5));
                             for (int it = 0; it < conv.Count; it++)
@@ -372,24 +375,77 @@ namespace ColorChoosert
         }
         static bool usePreviousExpirience = false;
         static List<int> msSpentOnFrameDraw = new List<int>();
-        static void Print(Bitmap what, int resol, bool smooth)
+
+
+        static Color Summ (Color color_min, Color color_max, double color_in)
+        {
+            return Color.FromArgb((int)(color_min.R + (color_max.R - color_min.R) * color_in),
+                                                (int)(color_min.G + (color_max.G - color_min.G) * color_in),
+                                                (int)(color_min.B + (color_max.B - color_min.B) * color_in));
+        }
+
+        static void PrintFunc()
+        {
+            double x_from = 0, x_to = 10, y_from = 0, y_to = 10, step = .05;
+            double func_min = -0, func_max = 10;
+            Color color_min = Color.Blue, color_max = Color.White;
+
+            Console.Clear();
+            while (true)
+            {
+                Console.SetCursorPosition(10, 5);
+                double map_step = (func_max - func_min) / (x_to - x_from) * step * .75; int steps = 0;
+                for (double val = func_min; val < func_max; val += map_step, steps++)
+                    root.FindFast(0, Summ(color_min, color_max, (val - func_min) / (func_max - func_min))).Print();
+
+                Console.ResetColor();
+                Console.SetCursorPosition(10, 4); string leftVal = Math.Round(100 * func_min) / 100 + "", rightVal = Math.Round(100 * func_max) / 100 + "";
+                Console.Write(leftVal.PadRight(steps - rightVal.Length) + rightVal);
+
+                Console.SetCursorPosition(10, 10);
+                for (double y = y_from; y < y_to; y += step)
+                {
+                    Console.SetCursorPosition(10, Console.CursorTop + 1);
+                    for (double x = x_from; x < x_to; x += step * .75)
+                    {
+                        double func_value = Math.Pow(x, 1 + y / 10.0 - x/10.0);
+
+
+                        double color_in = Math.Max(0, Math.Min(1, (func_value - func_min) / (func_max - func_min)));
+                        Color clr = Summ(color_min, color_max, color_in);
+                        Col c = root.FindFast(0, clr);
+
+                        if (c.isBlack() && clr != Color.Black)
+                            drawCostil(clr);
+                        else
+                            c.Print();
+                    }
+                }
+                Console.ReadLine();
+            }
+        }
+
+        static void Print(Bitmap what, double resol, bool smooth)
         {
             Print(what, resol, smooth, new Point(0, 0));
         }
-        static void Print(Bitmap what, int resol, bool smooth, Point offset)
+        static void Print(Bitmap what, double resol, bool smooth, Point offset)
         {
             DateTime startDate = DateTime.Now;
             Random rnd = new Random();
             int left = 0, top = 0;
-            int resolHoriz = resol * 3 / 4;
+            double resolHoriz = resol * 3 / 4;
             // what.RotateFlip(RotateFlipType.Rotate90FlipNone);
             Dictionary<Color, int> inds = new Dictionary<Color, int>();
-            Col c;
-            for (int i = 0; i < what.Height; i += resol)
+            Col c; int lin = 0;
+            for (double di = 0; di < what.Height; di += resol)
             {
-                Console.SetCursorPosition(left + offset.X, top + i / resol + offset.Y);
-                for (int j = 0; j < what.Width; j += resolHoriz)
+                lin++;
+                int i = (int)di;
+                Console.SetCursorPosition(left + offset.X, top + lin+ offset.Y);
+                for (double dj = 0; dj < what.Width; dj += resolHoriz)
                 {
+                    int j = (int)dj;
                     Color clr = what.GetPixel(j, i);
                     if (smooth)
                     {
