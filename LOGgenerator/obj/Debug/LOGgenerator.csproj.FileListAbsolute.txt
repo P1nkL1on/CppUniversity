@@ -1,0 +1,9 @@
+D:\CPPuniver\LOGgenerator\bin\Debug\LOGgenerator.exe.config
+D:\CPPuniver\LOGgenerator\bin\Debug\LOGgenerator.exe
+D:\CPPuniver\LOGgenerator\bin\Debug\LOGgenerator.pdb
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.csprojResolveAssemblyReference.cache
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.Form1.resources
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.Properties.Resources.resources
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.csproj.GenerateResource.Cache
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.exe
+D:\CPPuniver\LOGgenerator\obj\Debug\LOGgenerator.pdb
