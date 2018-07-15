@@ -10,7 +10,7 @@ namespace LOGgenerator
     {
         static Random rnd = new Random();
         static string[] months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-        static string[] methods = new string[] { "GET", "POST", "ADD", "PUSH", "LOL" };
+        static string[] methods = new string[] { "GET", "POST", "ADD", "PUSH", "LOL", "ERROR", "PEACE","SUCCESS" };
         static string[] adresses = new string[] { "/foo/", "/fo/", "/done/", "/serv/", "/tmp/", "/clnt/" };
         static string nameCan = "1234567890qwertyuiopasdfghjklzxcvbnm";
         static string[] backs = new string[] { ".ru", ".com", ".html", ".en" };
@@ -41,11 +41,11 @@ namespace LOGgenerator
 
         public static string getVersion()
         {
-            return String.Format("#Version: {0}.{1}", rnd.Next(1, 10), rnd.Next(0, 1000));
+            return String.Format("#Type: {0}", methods[rnd.Next(methods.Length)].ToLower());
         }
         public static string getDate()
         {
-            return String.Format("#Date: {0}-{1}-{2} {3}:{4}:{5}", rnd.Next(28) + 1, months[rnd.Next(12)], 1990 + rnd.Next(28), rnd.Next(24).ToString().PadLeft(2, '0'), rnd.Next(60).ToString().PadLeft(2, '0'), rnd.Next(60).ToString().PadLeft(2, '0'));
+            return String.Format("#Date: {2}-{1}-{0} {3}:{4}:{5}", (rnd.Next(28) + 1).ToString().PadLeft(2, '0'), (rnd.Next(12) + 1).ToString().PadLeft(2, '0'), (1990 + rnd.Next(28)).ToString().PadLeft(4, '0'), rnd.Next(24).ToString().PadLeft(2, '0'), rnd.Next(60).ToString().PadLeft(2, '0'), rnd.Next(60).ToString().PadLeft(2, '0'));
         }
         public static string getFields()
         {

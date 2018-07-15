@@ -194,7 +194,7 @@ namespace ColorChoosert
                         fileName = input[0]; res = (ContainKey("a", input)) ? -1 : int.Parse(input[1].Trim()); input[0] = "";
                         if (fileName.IndexOf(".gif") < 0)
                         {
-                            Bitmap b = new Bitmap("cards/" + fileName);
+                            Bitmap b = new Bitmap(@"../cards/" + fileName);
                             if (res == -1) { res = 2; while (b.Width / res > Console.WindowWidth * 3 / 4) res++; res++; }
                             if (ContainKey("x2", input)) res /= 2;
                             if (ContainKey("h", input)) res *= 2;
@@ -202,7 +202,7 @@ namespace ColorChoosert
                         }
                         else
                         {
-                            Image originalImg = Image.FromFile("cards/" + fileName);
+                            Image originalImg = Image.FromFile(@"../cards/" + fileName);
                             int numberOfFrames = originalImg.GetFrameCount(FrameDimension.Time);
                             while ((numberOfFrames + 5) * Console.WindowHeight > Int16.MaxValue / 10 * 9)
                                 numberOfFrames--;
@@ -343,7 +343,7 @@ namespace ColorChoosert
         {
             //try
             //{
-            string[] lines = System.IO.File.ReadAllLines(@"save.txt");
+            string[] lines = System.IO.File.ReadAllLines(@"../save.txt");
             Console.WriteLine();
             int lineInd = 0;
             foreach (string line in lines)
