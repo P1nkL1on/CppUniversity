@@ -26,6 +26,10 @@ namespace MTGhandler
             Console.BackgroundColor = back;
             Console.ForegroundColor = fore;
         }
+        public CColor Inverse()
+        {
+            return new CColor(fore, back);
+        }
     }
 
     struct MPoint
