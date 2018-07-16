@@ -11,6 +11,7 @@ namespace MTGhandler
         public static void MaximiseWindow()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            Console.SetBufferSize(5000, 5000);
         }
         private static Stack<MPoint> pointStack = new Stack<MPoint>();
         private static List<CColor> colorStack = new List<CColor>();
