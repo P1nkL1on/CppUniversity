@@ -22,9 +22,8 @@ namespace MTGhandler
                 MEventType.Unlock,
                 new EventAction((param, w, sender) =>
                 {
-                    w.SetLock(false);
                     w.Children[(w as MLayout).selectedWidgetIndex].Controller.SendEvent(new MEvent(MEventType.Unlock, param, sender));
-                    return false;
+                    w.SetLock(false);
                 }));
         }
         protected void setDefaultColors()
@@ -43,9 +42,46 @@ namespace MTGhandler
         {
             get { return "Layout"; }
         }
+        protected abstract ConsoleKey keyDecrease { get; }
+        protected abstract ConsoleKey keyIncrease { get; }
+        protected int MoveModifyer = 4;
+        public void AddIndex(int X)
+        {
+            int prevIndex = selectedWidgetIndex;
+            selectedWidgetIndex += X;
+            while (selectedWidgetIndex < 0)
+                selectedWidgetIndex += childrenCount;
+            while (selectedWidgetIndex >= childrenCount)
+                selectedWidgetIndex -= childrenCount;
+            Children[prevIndex].Controller.SendEvent(MEvent.LockEvent(this));
+            Children[selectedWidgetIndex].Controller.SendEvent(MEvent.UnlockEvent(this));
+            Logs.Trace(String.Format("{0}: selected {1}->{2}", name, prevIndex, selectedWidgetIndex));
+        }
+        public override bool KeyPressAction(ConsoleKeyInfo keyInfo)
+        {
+            // make it byhimself
+            if ((int)keyInfo.Modifiers != MoveModifyer)
+                return false;
+            if (keyInfo.Key == keyIncrease)
+            {
+                AddIndex(1);
+                return true;
+            }
+            if (keyInfo.Key == keyDecrease)
+            {
+                AddIndex(-1);
+                return true;
+            }
+            return false;
+        }
     }
     class MLayoutHorizontal : MLayout
     {
+        protected override ConsoleKey keyDecrease
+        { get { return ConsoleKey.LeftArrow; } }
+        protected override ConsoleKey keyIncrease
+        { get { return ConsoleKey.RightArrow; } }
+
         public MLayoutHorizontal()
         {
             spaceWidth = 0;
@@ -92,11 +128,19 @@ namespace MTGhandler
                 xOffset += spaceWidth + w.GetWidth;
             }
         }
-
+        public override string name
+        {
+            get { return "Horizontal Layout"; }
+        }
     }
 
     class MLayoutVertical : MLayout
     {
+        protected override ConsoleKey keyDecrease
+        { get { return ConsoleKey.UpArrow; } }
+        protected override ConsoleKey keyIncrease
+        { get { return ConsoleKey.DownArrow; } }
+
         public MLayoutVertical()
         {
             spaceHeight = 0;
@@ -142,6 +186,10 @@ namespace MTGhandler
                 w.Redraw(where);
                 yOffset += spaceHeight + w.GetHeight;
             }
+        }
+        public override string name
+        {
+            get { return "Vertical Layout"; }
         }
     }
 }

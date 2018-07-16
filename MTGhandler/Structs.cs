@@ -48,6 +48,10 @@ namespace MTGhandler
         {
             return Add(0, _y);
         }
+        public bool isEmpty
+        {
+            get { return (x == -1) && (y == -1); }
+        }
     }
     struct MRectangle
     {

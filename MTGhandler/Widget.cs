@@ -12,18 +12,39 @@ namespace MTGhandler
         public abstract int GetWidth { get; }
         public abstract int GetHeight { get; }
         protected bool isLocked = true;
+        public bool IsLocked { get { return isLocked; } }
         public void SetLock(bool isLocked) { this.isLocked = isLocked; }
         public MWidget Parent = null;
         public List<MWidget> Children = new List<MWidget>();
+        public virtual List<MWidget> SelectedChildren { get { return Children; } }
         protected CColor mainColor = new CColor(ConsoleColor.White, ConsoleColor.Black);
         protected CColor lockColor = new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray);
-        protected CColor Color { get { return (isLocked)? lockColor : mainColor; } }
-
+        protected CColor Color { get { return (isLocked) ? lockColor : mainColor; } }
+        protected MPoint LastRedrawPoint = new MPoint(-1, -1);
+        public void Redraw()
+        {
+            Redraw(LastRedrawPoint);
+        }
+        public void RedrawChild(MWidget who)
+        {
+            foreach (MWidget w in Children)
+            {
+                if (w == who)
+                {
+                    w.Redraw();
+                    return;
+                }
+                w.RedrawChild(who);
+            }
+        }
         public virtual void Redraw(MPoint leftUpCorner)
         {
-            MDrawHandler.DrawRectangle(leftUpCorner, GetWidth, GetHeight, Color);
-            if (!isLocked)
-                MDrawHandler.DrawRectangleBorder(new MRectangle(leftUpCorner, GetWidth, GetHeight), new CColor(ConsoleColor.DarkGreen));
+            Logs.Trace(String.Format("{0} was redrawn at ({1};{2})", name, leftUpCorner.x, leftUpCorner.y));
+            if (LastRedrawPoint.isEmpty)
+                MDrawHandler.DrawRectangle(leftUpCorner, GetWidth, GetHeight, Color);
+            LastRedrawPoint = leftUpCorner;
+            //if (!isLocked)
+            //    MDrawHandler.DrawRectangleBorder(new MRectangle(leftUpCorner, GetWidth, GetHeight), new CColor(ConsoleColor.DarkGreen));
             //MDrawHandler.DrawStringInPoint(leftUpCorner, Color, String.Format("{0} -- ({1};{2})", name, GetWidth, GetHeight), GetWidth);
         }
         public virtual void setMainColor(CColor c)
@@ -36,7 +57,7 @@ namespace MTGhandler
         }
         public virtual int childrenCount
         {
-            get { return 0; }
+            get { return Children.Count; }
         }
         public abstract String name { get; }
 
@@ -49,6 +70,28 @@ namespace MTGhandler
         {
             this.Parent = what;
             what.Children.Add(this);
+        }
+        public bool HandleKeyPress(List<int> param)
+        {
+            if (param[0] < 0)
+                return false;   // non usurped
+
+            ConsoleKeyInfo key = new ConsoleKeyInfo(' ', IO.KeyAvailable[param[0]], false, false, param[1] >= 4);
+            bool usurped = KeyPressAction(key);
+            if (usurped)
+                return true;    // usurped
+            foreach (MWidget c in SelectedChildren)
+                if (!c.IsLocked)
+                {
+                    usurped = c.HandleKeyPress(param);
+                    if (usurped) return true;
+                }
+            return false;
+        }
+        public virtual bool KeyPressAction(ConsoleKeyInfo key)
+        {
+            // do nothing
+            return false; // do not usurpait
         }
     }
 
