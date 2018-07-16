@@ -31,14 +31,20 @@ namespace MTGhandler
             setLockColor(new CColor(ConsoleColor.DarkGray, ConsoleColor.DarkGray));
             setMainColor(new CColor(ConsoleColor.Gray, ConsoleColor.Gray));
         }
-        protected override CColor Color
+        public override CColor Color
         {
             get
             {
+                //foreach (MWidget c in Children)
+                //    if (!c.IsLocked && ((c as MLayout) == null))
+                //        return lockColor;
+                //return mainColor;
+                if (IsLocked)
+                    return lockColor;
                 foreach (MWidget c in Children)
-                    if (!c.IsLocked && (c as MLayout) == null)
-                        return mainColor;
-                return lockColor;
+                    if (((c as MLayout) != null) && c.Color.back == mainColor.back) // any colored layouts
+                        return lockColor;
+                return mainColor;
             }
         }
         public override int childrenCount
@@ -63,10 +69,17 @@ namespace MTGhandler
                 selectedWidgetIndex += childrenCount;
             while (selectedWidgetIndex >= childrenCount)
                 selectedWidgetIndex -= childrenCount;
-            Children[prevIndex].Controller.SendEvent(MEvent.LockEvent(this));
-            Children[selectedWidgetIndex].Controller.SendEvent(MEvent.UnlockEvent(this));
-            RedrawChild(Children[prevIndex]);
-            RedrawChild(Children[selectedWidgetIndex]);
+            MWidget was = Children[prevIndex];
+            MWidget now = Children[selectedWidgetIndex];
+            was.Controller.SendEvent(MEvent.LockEvent(this));
+            now.Controller.SendEvent(MEvent.UnlockEvent(this));
+
+            if (was as MLayout != null || now as MLayout != null)
+                Redraw();
+            else
+            {
+                RedrawChild(now); RedrawChild(was);
+            }
             Logs.Trace(String.Format("{0}: selected {1}->{2}", name, prevIndex, selectedWidgetIndex));
         }
         public override bool KeyPressAction(ConsoleKeyInfo keyInfo)
@@ -75,8 +88,18 @@ namespace MTGhandler
             // make it byhimself
             if ((int)keyInfo.Modifiers != MoveModifyer)
                 return false;
+            return Move(keyInfo);
+        }
+        public override bool KeyPressActionAndNoneChildrenAnswered(ConsoleKeyInfo keyInfo)
+        {
+            base.KeyPressActionAndNoneChildrenAnswered(keyInfo);
+            // do not check a modifyer if none children dones
+            return Move(keyInfo);
+        }
+        bool Move(ConsoleKeyInfo keyInfo)
+        {
             MLayout childLay = this.FindChildrenLayoutWithSameControls(this);
-            if (childLay != null && !childLay.IsLocked)
+            if (childLay != null)
                 return false;
             if (keyInfo.Key == keyIncrease)
             {

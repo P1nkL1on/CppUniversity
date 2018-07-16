@@ -19,7 +19,7 @@ namespace MTGhandler
         public virtual List<MWidget> SelectedChildren { get { return Children; } }
         protected CColor mainColor = new CColor(ConsoleColor.White, ConsoleColor.Black);
         protected CColor lockColor = new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray);
-        protected virtual CColor Color { get { return (isLocked) ? lockColor : mainColor; } }
+        public virtual CColor Color { get { return (isLocked) ? lockColor : mainColor; } }
         protected MPoint LastRedrawPoint = new MPoint(-1, -1);
         public void Redraw()
         {
@@ -42,10 +42,10 @@ namespace MTGhandler
             foreach (MWidget w in Children)
             {
                 MLayout ml = w as MLayout;
-                if (ml != null && ml.CompareKeys(who))
+                if (ml != null && ml.CompareKeys(who) && !ml.IsLocked)
                     return ml;
                 ml = w.FindChildrenLayoutWithSameControls(who);
-                if (ml != null)
+                if (ml != null && !ml.IsLocked)
                     return ml;
             }
             return null;
@@ -96,7 +96,7 @@ namespace MTGhandler
             bool usurped = KeyPressAction(key);
             if (usurped)
             {
-                Logs.Trace(String.Format("╔══►{0} handled key {1}", name, key + ""));
+                Logs.Trace(String.Format("╔══►{0} handled key {1}", name, key.Key + ""));
                 return true;
             }    // usurped
             foreach (MWidget c in SelectedChildren)
@@ -105,15 +105,25 @@ namespace MTGhandler
                     usurped = c.HandleKeyPress(param);
                     if (usurped)
                     {
-                        Logs.Trace(String.Format("╔══►{0} handled key {1}", name, key + ""));
+                        Logs.Trace(String.Format("╔══►{0} handled key {1}", name, key.Key + ""));
                         return true;
                     }
                 }
+            if (!usurped)
+            {
+                // well, no children was usurped
+                Logs.Trace(String.Format("╔══►{0} handled key {1} --- no children answered", name, key.Key + ""));
+                return KeyPressActionAndNoneChildrenAnswered(key);
+            }
             return false;
         }
         public virtual bool KeyPressAction(ConsoleKeyInfo key)
         {
             // do nothing
+            return false; // do not usurpait
+        }
+        public virtual bool KeyPressActionAndNoneChildrenAnswered(ConsoleKeyInfo key)
+        {
             return false; // do not usurpait
         }
     }
