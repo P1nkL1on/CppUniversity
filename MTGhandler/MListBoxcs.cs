@@ -32,7 +32,7 @@ namespace MTGhandler
         {
             width = Width;
             height = Height;
-            Controller = new MWidgetController(this);
+            MakeController();
         }
         public MListBox(int Width, int Height, List<MLineWidget> lines)
         {
@@ -40,12 +40,20 @@ namespace MTGhandler
             height = Height;
             foreach (MLineWidget line in lines)
                 AddLine(line);
+            MakeController();
+        }
+        void MakeController()
+        {
             Controller = new MWidgetController(this);
+            Controller.SetAction(
+                MEventType.Unlock,
+                new EventAction((param, w, sender) =>
+                { w.SetLock(false); return true; }));
         }
         // add a scroll bar
         public override int GetHeight
         {
-            get { return ((height >= 0)? height : LineCount + 2); }
+            get { return ((height >= 0) ? height : LineCount + 2); }
         }
         public override int GetWidth
         {
@@ -54,18 +62,18 @@ namespace MTGhandler
         public override void Redraw(MPoint leftUpCorner)
         {
             base.Redraw(leftUpCorner);
-            
-                for (int i = 0; i < ((height < 0)? LineCount : (height - 2)); ++i)
-                {
-                    if (i == selectedIndex) lines[i].setMainColor(selectedColor);
-                    lines[i].Redraw(leftUpCorner.Add(1, 1 + i));
-                    if (i == selectedIndex) lines[i].setDefaultColors();
-                }
+
+            for (int i = 0; i < ((height < 0) ? LineCount : (height - 2)); ++i)
+            {
+                if (i == selectedIndex) lines[i].setMainColor(selectedColor);
+                lines[i].Redraw(leftUpCorner.Add(1, 1 + i));
+                if (i == selectedIndex) lines[i].setDefaultColors();
+            }
         }
         public override string name
         {
             get { return "ListBox"; }
         }
-        
+
     }
 }

@@ -96,18 +96,23 @@ namespace MTGhandler
             //ButtonPress = 3,
             actions.Add(new EventAction((param, w, sender) => { return true; }));
             //Unlock = 4,
-            actions.Add(new EventAction((param, w, sender) => { w.SetLock(true); return true; }));
-            //Lock = 5,
             actions.Add(new EventAction((param, w, sender) => { w.SetLock(false); return false; }));
+            //Lock = 5,
+            actions.Add(new EventAction((param, w, sender) => { w.SetLock(true); return true; }));
             //Redraw = 6
             actions.Add(new EventAction((param, w, sender) => { w.Redraw(new MPoint(param[0], param[1])); return false; }));
         }
-        public void SendEvent(MEvent what)
+        public void SetAction(MEventType type, EventAction action)
+        {
+            actions[(int)type] = action;
+        }
+        public bool SendEvent(MEvent what)
         {
             if (ExecuteEvent(what))
                 foreach (MWidget w in Widget.Children)
                     if (w.Controller != null)
                         w.Controller.SendEvent(what);
+
         }
         protected bool ExecuteEvent(MEvent E)
         {
