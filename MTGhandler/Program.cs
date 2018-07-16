@@ -31,10 +31,12 @@ namespace MTGhandler
                 new MCheckBox("Сварить кофеёк", true),
                 new MLable("Почесать котику пузико"),
                 new MCheckBox("Злобный смех", false)}));
+            for (int i = 0; i < 3; ++i)
+                testV.AddWidget(new MTestWidget());
 
             //testV.Redraw(new MPoint(10, 20));
-            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(20,10), null));
-            testV.Controller.SendEvent(MEvent.PingEvent(null));
+            testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
+            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(20, 10), testV));
 
             Console.ReadLine();
         }

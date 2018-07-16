@@ -18,6 +18,14 @@ namespace MTGhandler
         {
             setDefaultColors();
             Controller = new MWidgetController(this);
+            Controller.SetAction(
+                MEventType.Unlock,
+                new EventAction((param, w, sender) =>
+                {
+                    w.SetLock(false);
+                    w.Children[(w as MLayout).selectedWidgetIndex].Controller.SendEvent(new MEvent(MEventType.Unlock, param, sender));
+                    return false;
+                }));
         }
         protected void setDefaultColors()
         {
@@ -52,7 +60,8 @@ namespace MTGhandler
 
         public override int GetHeight
         {
-            get {
+            get
+            {
                 int maxHeight = 0;
                 foreach (MWidget w in Children)
                     if (w.GetHeight > maxHeight)
@@ -62,7 +71,8 @@ namespace MTGhandler
         }
         public override int GetWidth
         {
-            get {
+            get
+            {
                 int width = 0;
                 foreach (MWidget w in Children)
                     width += w.GetWidth;
@@ -82,7 +92,7 @@ namespace MTGhandler
                 xOffset += spaceWidth + w.GetWidth;
             }
         }
-        
+
     }
 
     class MLayoutVertical : MLayout
