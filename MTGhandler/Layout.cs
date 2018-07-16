@@ -9,13 +9,15 @@ namespace MTGhandler
     abstract class MLayout : MWidget
     {
         protected int selectedWidgetIndex = -1;
-        protected List<MWidget> _widgets = new List<MWidget>();
-        protected List<MWidget> widgets { get { return _widgets; } set { _widgets = value; } }
         public void AddWidget(MWidget w)
         {
-            widgets.Add(w);
-            selectedWidgetIndex = widgets.Count - 1;
-            w.Parent = this;
+            w.SetParent(this);
+            selectedWidgetIndex = Children.Count - 1;
+        }
+        protected void setDefaultParams()
+        {
+            setDefaultColors();
+            Controller = new MWidgetController(this);
         }
         protected void setDefaultColors()
         {
@@ -26,7 +28,7 @@ namespace MTGhandler
         {
             get
             {
-                return widgets.Count;
+                return Children.Count;
             }
         }
         public override string name
@@ -39,12 +41,12 @@ namespace MTGhandler
         public MLayoutHorizontal()
         {
             spaceWidth = 0;
-            setDefaultColors();
+            setDefaultParams();
         }
         public MLayoutHorizontal(int _spaces)
         {
             spaceWidth = _spaces;
-            setDefaultColors();
+            setDefaultParams();
         }
         int spaceWidth;
 
@@ -52,7 +54,7 @@ namespace MTGhandler
         {
             get {
                 int maxHeight = 0;
-                foreach (MWidget w in widgets)
+                foreach (MWidget w in Children)
                     if (w.GetHeight > maxHeight)
                         maxHeight = w.GetHeight;
                 return maxHeight;
@@ -62,9 +64,9 @@ namespace MTGhandler
         {
             get {
                 int width = 0;
-                foreach (MWidget w in widgets)
+                foreach (MWidget w in Children)
                     width += w.GetWidth;
-                width += Math.Max(0, widgets.Count - 1) * spaceWidth;
+                width += Math.Max(0, Children.Count - 1) * spaceWidth;
                 return width;
             }
         }
@@ -73,7 +75,7 @@ namespace MTGhandler
             base.Redraw(leftUpCorner);
             int xOffset = 0;
             int height = GetHeight;
-            foreach (MWidget w in widgets)
+            foreach (MWidget w in Children)
             {
                 MPoint where = new MPoint(leftUpCorner.x + xOffset, leftUpCorner.y + height / 2 - w.GetHeight / 2);
                 w.Redraw(where);
@@ -88,12 +90,12 @@ namespace MTGhandler
         public MLayoutVertical()
         {
             spaceHeight = 0;
-            setDefaultColors();
+            setDefaultParams();
         }
         public MLayoutVertical(int _spaces)
         {
             spaceHeight = _spaces;
-            setDefaultColors();
+            setDefaultParams();
         }
         int spaceHeight;
 
@@ -102,7 +104,7 @@ namespace MTGhandler
             get
             {
                 int maxWidth = 0;
-                foreach (MWidget w in widgets)
+                foreach (MWidget w in Children)
                     if (w.GetWidth > maxWidth)
                         maxWidth = w.GetWidth;
                 return maxWidth;
@@ -113,9 +115,9 @@ namespace MTGhandler
             get
             {
                 int height = 0;
-                foreach (MWidget w in widgets)
+                foreach (MWidget w in Children)
                     height += w.GetHeight;
-                height += Math.Max(0, widgets.Count - 1) * spaceHeight;
+                height += Math.Max(0, Children.Count - 1) * spaceHeight;
                 return height;
             }
         }
@@ -124,7 +126,7 @@ namespace MTGhandler
             base.Redraw(leftUpCorner);
             int yOffset = 0;
             int width = GetWidth;
-            foreach (MWidget w in widgets)
+            foreach (MWidget w in Children)
             {
                 MPoint where = new MPoint(leftUpCorner.x + width / 2 - w.GetWidth / 2, leftUpCorner.y + yOffset);
                 w.Redraw(where);

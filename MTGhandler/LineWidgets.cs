@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MTGhandler
 {
-    abstract class MLine : MWidget
+    abstract class MLineWidget : MWidget
     {
         public override int GetHeight
         {
@@ -15,6 +15,10 @@ namespace MTGhandler
 
         public String Text;
         protected int Width = 10;
+        public void SetWidth(int width)
+        {
+            this.Width = width;
+        }
         public override int GetWidth
         {
             get { return Width; }
@@ -24,17 +28,23 @@ namespace MTGhandler
             MDrawHandler.DrawStringInPoint(leftUpCorner, Color, DrawText, Width);
         }
         public abstract String DrawText { get; }
+        protected void Init()
+        {
+            Controller = new MWidgetController(this);
+        }
     }
-    class MLable : MLine
+    class MLable : MLineWidget
     {
         public MLable(String S)
         {
             Text = S;
             Width = S.Length;
+            Init();
         }
         public MLable(String S, int width)
         {
             Width = width; Text = S;
+            Init();
         }
         public override string name
         {
@@ -45,26 +55,30 @@ namespace MTGhandler
             get { return Text.PadRight(Width); }
         }
     }
-    class MCheckBox : MLine
+    class MCheckBox : MLineWidget
     {
         public bool isChecked;
         public MCheckBox(String S)
         {
             Text = S;
-            Width = S.Length;
+            Width = S.Length + 4;
+            Init();
         }
         public MCheckBox(String S, bool isChecked)
         {
             Text = S;
-            Width = S.Length;
+            Width = S.Length + 4;
             this.isChecked = isChecked;
+            Init();
         }
         public MCheckBox(String S, int width)
         {
             Width = width; Text = S;
+            Init();
         }
         public MCheckBox(String S, int width, bool isChecked){
             Width = width; Text = S; this.isChecked = isChecked;
+            Init();
         }
         public override string name
         {
@@ -72,7 +86,7 @@ namespace MTGhandler
         }
         public override string DrawText
         {
-            get { return String.Format("[{0}] {1}",((isChecked)? "v" : " "),Text).PadRight(Width); }
+            get { return String.Format("[{0}] {1}",((isChecked)? "X" : " "),Text).PadRight(Width); }
         }
     }
 }
