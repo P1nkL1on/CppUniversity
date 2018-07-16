@@ -44,6 +44,7 @@
     <Compile Include="Drawer.cs" />
     <Compile Include="Layout.cs" />
     <Compile Include="LineWidgets.cs" />
+    <Compile Include="Logs.cs" />
     <Compile Include="MListBoxcs.cs" />
     <Compile Include="Widget.cs" />
     <Compile Include="Structs.cs" />

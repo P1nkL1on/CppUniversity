@@ -25,6 +25,7 @@ namespace MTGhandler
         }
         public override void Redraw(MPoint leftUpCorner)
         {
+            base.Redraw(leftUpCorner);
             MDrawHandler.DrawStringInPoint(leftUpCorner, Color, DrawText, Width);
         }
         public abstract String DrawText { get; }
@@ -48,7 +49,7 @@ namespace MTGhandler
         }
         public override string name
         {
-            get { return "Label"; }
+            get { return String.Format("Label \"{0}\"", MDrawHandler.Short(Text, 8)); }
         }
         public override string DrawText
         {
@@ -82,11 +83,25 @@ namespace MTGhandler
         }
         public override string name
         {
-            get { return "CheckBox"; }
+            get { return String.Format("CheckBox \"{0}\"", MDrawHandler.Short(Text, 8)); }
         }
         public override string DrawText
         {
             get { return String.Format("[{0}] {1}",((isChecked)? "X" : " "),Text).PadRight(Width); }
+        }
+        public void Toggle()
+        {
+            isChecked = !isChecked;
+        }
+        public override bool KeyPressAction(ConsoleKeyInfo cKey)
+        {
+            // make it byhimself
+            if (cKey.Key == ConsoleKey.Spacebar)
+            {
+                Toggle();
+                return true;
+            }
+            return false;
         }
     }
 }

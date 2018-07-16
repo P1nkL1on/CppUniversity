@@ -17,26 +17,48 @@ namespace MTGhandler
 
 
             MLayoutHorizontal test = new MLayoutHorizontal(4);
-            MLayoutVertical testV = new MLayoutVertical(1);
+            MLayoutVertical testV = new MLayoutVertical(1), testL = new MLayoutVertical(3);
             test.AddWidget(new MLable("okay", 2));
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < 3; ++i)
+                test.AddWidget(new MTestWidget());
+            for (int i = 0; i < 6; ++i)
+                testL.AddWidget(new MLable("Line number " + i * i * i));
+            test.AddWidget(testL);
+            for (int i = 0; i < 3; ++i)
+                test.AddWidget(new MTestWidget());
+            test.AddWidget(new MListBox(20, -1, new List<MLineWidget>(){
+                new MLable("---A---"),
+                new MCheckBox("A1", false),
+                new MCheckBox("A2", true),
+                new MLable("---B---"),
+                new MCheckBox("B1", false),
+                new MCheckBox("B2", true),
+                new MCheckBox("B3", true),
+                }));
+            for (int i = 0; i < 2; ++i)
                 test.AddWidget(new MTestWidget());
             for (int i = 0; i < 3; ++i)
                 testV.AddWidget(new MTestWidget());
-            testV.AddWidget(test);
 
-            testV.AddWidget(
-                new MListBox(25, -1, new List<MLineWidget>(){
+            testV.AddWidget(test);
+            MListBox lsitBox = new MListBox(25, -1, new List<MLineWidget>(){
                 new MCheckBox("Уничтожить вселенную", false),
                 new MCheckBox("Сварить кофеёк", true),
                 new MLable("Почесать котику пузико"),
-                new MCheckBox("Злобный смех", false)}));
-            for (int i = 0; i < 3; ++i)
-                testV.AddWidget(new MTestWidget());
+                new MCheckBox("Злобный смех", false)});
+            testV.AddWidget(lsitBox);
+           // for (int i = 0; i < 3; ++i)
+           //     testV.AddWidget(new MTestWidget());
 
-            //testV.Redraw(new MPoint(10, 20));
+            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(4, 10), testV));
+
             testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
-            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(20, 10), testV));
+
+            while (true)
+            {
+                testV.Controller.SendEvent(MEvent.ButtonPressEvent(Console.ReadKey(true), testV));
+                testV.Redraw();
+            }
 
             Console.ReadLine();
         }

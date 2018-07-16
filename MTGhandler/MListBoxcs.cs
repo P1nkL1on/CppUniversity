@@ -48,7 +48,32 @@ namespace MTGhandler
             Controller.SetAction(
                 MEventType.Unlock,
                 new EventAction((param, w, sender) =>
-                { w.SetLock(false); return true; }));
+                { Controller.RepeatForChildren(MEventType.Unlock, param); w.SetLock(false); }));
+        }
+        public void AddIndex(int X)
+        {
+            int prevIndex = selectedIndex;
+            selectedIndex += X;
+            while (selectedIndex < 0)
+                selectedIndex += childrenCount;
+            while (selectedIndex >= childrenCount)
+                selectedIndex -= childrenCount;
+            Logs.Trace(String.Format("{0}: selected {1}->{2}", name, prevIndex, selectedIndex));
+        }
+        public override bool KeyPressAction(ConsoleKeyInfo key)
+        {
+            // make it byhimself
+            if (key.Key == ConsoleKey.DownArrow)
+            {
+                AddIndex(1);
+                return true;
+            }
+            if (key.Key == ConsoleKey.UpArrow)
+            {
+                AddIndex(-1);
+                return true;
+            }
+            return false;
         }
         // add a scroll bar
         public override int GetHeight
@@ -73,6 +98,13 @@ namespace MTGhandler
         public override string name
         {
             get { return "ListBox"; }
+        }
+        public override List<MWidget> SelectedChildren
+        {
+            get
+            {
+                return new List<MWidget>(){Children[selectedIndex]};
+            }
         }
 
     }
