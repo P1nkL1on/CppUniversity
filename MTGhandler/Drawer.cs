@@ -117,7 +117,7 @@ namespace MTGhandler
         {
             SetCursor(where.x, where.y);
             c.Apply();
-            Console.Write(Short(S,maxSymbols));
+            Console.Write(Short(S, maxSymbols));
         }
         public static String Short(String S, int maxSymbols)
         {
@@ -162,6 +162,24 @@ namespace MTGhandler
         private static MPoint MoveCursorFromLastY(int _y)
         {
             return LastPoint().AddY(_y);
+        }
+
+        public static List<String> Strings(String S, int MaxWidth)
+        {
+            List<String> res = new List<string>();
+            while (S.Length > 0)
+                if (S.Length <= MaxWidth)
+                {
+                    res.Add(S);
+                    return res;
+                }
+                else
+                {
+                    res.Add(S.Substring(0, MaxWidth));
+                    S = S.Substring(MaxWidth);
+                }
+
+            return res;
         }
     }
 }

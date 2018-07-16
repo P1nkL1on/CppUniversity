@@ -11,7 +11,7 @@ namespace MTGhandler
     class IO
     {
         public static List<ConsoleKey> KeyAvailable =
-            new List<ConsoleKey>() { ConsoleKey.Escape, ConsoleKey.Spacebar, ConsoleKey.LeftArrow, ConsoleKey.UpArrow, ConsoleKey.RightArrow, ConsoleKey.DownArrow };
+            new List<ConsoleKey>() { ConsoleKey.Escape, ConsoleKey.Spacebar, ConsoleKey.LeftArrow, ConsoleKey.UpArrow, ConsoleKey.RightArrow, ConsoleKey.DownArrow, ConsoleKey.Enter };
     }
     struct MEvent
     {

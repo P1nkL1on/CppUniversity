@@ -56,6 +56,34 @@ namespace MTGhandler
             get { return Text.PadRight(Width); }
         }
     }
+    class MLableMulty : MWidget
+    {
+        List<String> Text;
+        int Width = 0;
+        public MLableMulty(String S, int width)
+        {
+            Width = width; Text = MDrawHandler.Strings(S, width);
+            Controller = new MWidgetController(this);
+        }
+        public override string name
+        {
+            get { return String.Format("MultyText"); }
+        }
+        public override int GetWidth
+        {
+            get { return Math.Min(Text[0].Length, Width); }
+        }
+        public override int GetHeight
+        {
+            get { return Text.Count; }
+        }
+        public override void Redraw(MPoint leftUpCorner)
+        {
+            base.Redraw(leftUpCorner);
+            for (int i = 0; i < Text.Count; ++i)
+                MDrawHandler.DrawStringInPoint(leftUpCorner.AddY(i), Color, Text[i], Width);
+        }
+    }
     class MCheckBox : MLineWidget
     {
         public bool isChecked;
@@ -97,7 +125,7 @@ namespace MTGhandler
         {
             base.KeyPressAction(cKey);
             // make it byhimself
-            if (cKey.Key == ConsoleKey.Spacebar)
+            if (cKey.Key == ConsoleKey.Spacebar || cKey.Key == ConsoleKey.Enter)
             {
                 Toggle();
                 this.Parent.Redraw();

@@ -39,6 +39,7 @@ namespace MTGhandler
             testL.AddWidget(new MListBox(10, -1, new List<MLineWidget>(){
                 new MCheckBox("AaA", false),
                 new MCheckBox("BbBbBb", false)}));
+            testL.AddWidget(new MLableMulty("123456790qwertyuiopasdfghjklzxcvbnm", 10));
             test.AddWidget(new MListBox(20, -1, new List<MLineWidget>(){
                 new MLable("---A---"),
                 new MCheckBox("A1", false),
@@ -54,6 +55,9 @@ namespace MTGhandler
             test.AddWidget(new MTestWidget());
             for (int i = 0; i < 3; ++i)
                 testV.AddWidget(new MTestWidget());
+            
+            testV.AddWidget(new MMessageBox("victory", "You know? Actually you are fucking looserr. But the nae is victory, so you done well. Cause you done your best :3"));
+            testV.AddWidget(new MButton("OKAY", new Slot(() => { Logs.Trace("** OKAY HAS BEEN PRESSED **"); })));
 
             testV.AddWidget(test);
             MListBox lsitBox = new MListBox(25, -1, new List<MLineWidget>(){
@@ -64,7 +68,6 @@ namespace MTGhandler
             testV.AddWidget(lsitBox);
             // for (int i = 0; i < 3; ++i)
             //     testV.AddWidget(new MTestWidget());
-
             testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(4, 10), testV));
 
             testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
