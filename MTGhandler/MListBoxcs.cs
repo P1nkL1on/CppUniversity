@@ -58,10 +58,12 @@ namespace MTGhandler
                 selectedIndex += childrenCount;
             while (selectedIndex >= childrenCount)
                 selectedIndex -= childrenCount;
+            this.Redraw();
             Logs.Trace(String.Format("{0}: selected {1}->{2}", name, prevIndex, selectedIndex));
         }
         public override bool KeyPressAction(ConsoleKeyInfo key)
         {
+            base.KeyPressAction(key);
             // make it byhimself
             if (key.Key == ConsoleKey.DownArrow)
             {

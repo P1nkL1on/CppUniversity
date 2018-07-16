@@ -31,9 +31,10 @@ namespace MTGhandler
                 new MCheckBox("A1", false),
                 new MCheckBox("A2", true),
                 new MLable("---B---"),
-                new MCheckBox("B1", false),
-                new MCheckBox("B2", true),
-                new MCheckBox("B3", true),
+                new MLable("---C---"),
+                new MCheckBox("C1", false),
+                new MCheckBox("C2", true),
+                new MCheckBox("C3", true),
                 }));
             for (int i = 0; i < 2; ++i)
                 test.AddWidget(new MTestWidget());
@@ -47,17 +48,18 @@ namespace MTGhandler
                 new MLable("Почесать котику пузико"),
                 new MCheckBox("Злобный смех", false)});
             testV.AddWidget(lsitBox);
-           // for (int i = 0; i < 3; ++i)
-           //     testV.AddWidget(new MTestWidget());
+            // for (int i = 0; i < 3; ++i)
+            //     testV.AddWidget(new MTestWidget());
 
             testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(4, 10), testV));
 
             testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
 
+            Logs.Write = true;
             while (true)
             {
                 testV.Controller.SendEvent(MEvent.ButtonPressEvent(Console.ReadKey(true), testV));
-                testV.Redraw();
+                //testV.Redraw();
             }
 
             Console.ReadLine();

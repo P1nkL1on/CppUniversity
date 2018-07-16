@@ -95,10 +95,12 @@ namespace MTGhandler
         }
         public override bool KeyPressAction(ConsoleKeyInfo cKey)
         {
+            base.KeyPressAction(cKey);
             // make it byhimself
             if (cKey.Key == ConsoleKey.Spacebar)
             {
                 Toggle();
+                this.Parent.Redraw();
                 return true;
             }
             return false;

@@ -28,8 +28,18 @@ namespace MTGhandler
         }
         protected void setDefaultColors()
         {
-            setMainColor(new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray));
-            setLockColor(new CColor(ConsoleColor.DarkGray, ConsoleColor.Black));
+            setLockColor(new CColor(ConsoleColor.DarkGray, ConsoleColor.DarkGray));
+            setMainColor(new CColor(ConsoleColor.Gray, ConsoleColor.Gray));
+        }
+        protected override CColor Color
+        {
+            get
+            {
+                foreach (MWidget c in Children)
+                    if (!c.IsLocked && (c as MLayout) == null)
+                        return mainColor;
+                return lockColor;
+            }
         }
         public override int childrenCount
         {
@@ -55,12 +65,18 @@ namespace MTGhandler
                 selectedWidgetIndex -= childrenCount;
             Children[prevIndex].Controller.SendEvent(MEvent.LockEvent(this));
             Children[selectedWidgetIndex].Controller.SendEvent(MEvent.UnlockEvent(this));
+            RedrawChild(Children[prevIndex]);
+            RedrawChild(Children[selectedWidgetIndex]);
             Logs.Trace(String.Format("{0}: selected {1}->{2}", name, prevIndex, selectedWidgetIndex));
         }
         public override bool KeyPressAction(ConsoleKeyInfo keyInfo)
         {
+            base.KeyPressAction(keyInfo);
             // make it byhimself
             if ((int)keyInfo.Modifiers != MoveModifyer)
+                return false;
+            MLayout childLay = this.FindChildrenLayoutWithSameControls(this);
+            if (childLay != null && !childLay.IsLocked)
                 return false;
             if (keyInfo.Key == keyIncrease)
             {
@@ -73,6 +89,10 @@ namespace MTGhandler
                 return true;
             }
             return false;
+        }
+        public bool CompareKeys(MLayout another)
+        {
+            return (keyDecrease == another.keyDecrease) && (keyIncrease == another.keyIncrease);
         }
     }
     class MLayoutHorizontal : MLayout

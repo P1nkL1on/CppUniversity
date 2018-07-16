@@ -12,16 +12,21 @@ namespace MTGhandler
         static CColor logColor = new CColor(ConsoleColor.Black, ConsoleColor.White);
         static CColor markedColor = new CColor(ConsoleColor.Black, ConsoleColor.Red);
 
-        static MPoint leftTopCorner = new MPoint(100, 0);
+        static MPoint leftTopCorner = new MPoint(150, 0);
         static int width = 100;
         static int height = 60;
 
-        static bool Write = false;
+        public static bool Write = false;
 
         public static MPoint Trace(String S)
         {
             if (!Write) return new MPoint(-1,-1);
             logs.Add(S);
+            // clear all
+            if (logs.Count % height == 0)
+            {
+                MDrawHandler.DrawRectangle(new MRectangle(leftTopCorner, width, height), new CColor(ConsoleColor.Black));
+            }
             MPoint where = leftTopCorner.AddY(logs.Count % height);
             MDrawHandler.DrawStringInPoint(where, logColor, S, width);
             return where;
