@@ -24,10 +24,17 @@ namespace MTGhandler
             for (int i = 0; i < 3; ++i)
                 testV.AddWidget(new MTestWidget());
             testV.AddWidget(test);
-            testV.AddWidget(new MLable("Ass is a place for goot kick", 55));
-            
-            testV.Redraw(new MPoint(10, 20));
-            MDrawHandler.DrawRectangleBorder(new MRectangle(3, 3, 3, 3), red);
+
+            testV.AddWidget(
+                new MListBox(25, -1, new List<MLineWidget>(){
+                new MCheckBox("Уничтожить вселенную", false),
+                new MCheckBox("Сварить кофеёк", true),
+                new MLable("Почесать котику пузико"),
+                new MCheckBox("Злобный смех", false)}));
+
+            //testV.Redraw(new MPoint(10, 20));
+            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(20,10), null));
+            testV.Controller.SendEvent(MEvent.PingEvent(null));
 
             Console.ReadLine();
         }

@@ -8,10 +8,13 @@ namespace MTGhandler
 {
     abstract class MWidget
     {
+        public MWidgetController Controller;
         public abstract int GetWidth { get; }
         public abstract int GetHeight { get; }
-        protected bool isLocked = false;
+        protected bool isLocked = true;
+        public void SetLock(bool isLocked) { this.isLocked = isLocked; }
         public MWidget Parent = null;
+        public List<MWidget> Children = new List<MWidget>();
         protected CColor mainColor = new CColor(ConsoleColor.White, ConsoleColor.Black);
         protected CColor lockColor = new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray);
         protected CColor Color { get { return (isLocked)? lockColor : mainColor; } }
@@ -19,7 +22,9 @@ namespace MTGhandler
         public virtual void Redraw(MPoint leftUpCorner)
         {
             MDrawHandler.DrawRectangle(leftUpCorner, GetWidth, GetHeight, Color);
-            MDrawHandler.DrawStringInPoint(leftUpCorner, Color, String.Format("{0} -- ({1};{2})", name, GetWidth, GetHeight), GetWidth);
+            if (!isLocked)
+                MDrawHandler.DrawRectangleBorder(new MRectangle(leftUpCorner, GetWidth, GetHeight), new CColor(ConsoleColor.DarkGreen));
+            //MDrawHandler.DrawStringInPoint(leftUpCorner, Color, String.Format("{0} -- ({1};{2})", name, GetWidth, GetHeight), GetWidth);
         }
         public virtual void setMainColor(CColor c)
         {
@@ -34,14 +39,24 @@ namespace MTGhandler
             get { return 0; }
         }
         public abstract String name { get; }
-        
+
+        public void setDefaultColors()
+        {
+            mainColor = new CColor(ConsoleColor.White, ConsoleColor.Black);
+            lockColor = new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray);
+        }
+        public void SetParent(MWidget what)
+        {
+            this.Parent = what;
+            what.Children.Add(this);
+        }
     }
 
     class MTestWidget : MWidget
     {
         public MTestWidget()
         {
-
+            Controller = new MWidgetController(this);
         }
         public override int GetWidth { get { return 6; } }
         public override int GetHeight { get { return 6; } }
