@@ -13,7 +13,7 @@ namespace Model
         int turnCount = 0;
         public Game()
         {
-            players = new List<Player>() { new PlayerHuman("Player"), new PlayerBot("Bot")};
+            players = new List<Player>() { new PlayerHuman("Player"), new PlayerBot("Bot")/*, new PlayerBot("Bot2"), new PlayerBot("Bot3"), new PlayerBot("Bot4") */};
             currentTurnHostIndex = (new Random(DateTime.Now.Millisecond)).Next(players.Count) - 1;
         }
 
@@ -35,6 +35,7 @@ namespace Model
                 p.Start();
             }
             preGameTimer.setAction(() => {
+                Console.WriteLine("\n** Game starts! **\n\n");
                 foreach (Player p in players)
                     p.startGame();
             });

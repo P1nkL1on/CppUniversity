@@ -9,7 +9,7 @@ namespace Model
     {
         protected string name;
         protected int health;
-        protected int mana = 2, currentMaxMana = 2, startMana = 2, maxMana = 10, startDrawCount = 6;
+        protected int mana = 2, currentMaxMana = 2, startMana = 2, maxMana = 10, startDrawCount = 5;
 
         public override string ToString()
         {
@@ -42,21 +42,33 @@ namespace Model
         }
         public void drawCard(int cardCount)
         {
-            Utils.ConsoleWriteLine(String.Format("{0} draws {1} card(s);", name, cardCount));
+            Utils.ConsoleWriteLine(Utils.tab + String.Format("{0} draws {1} card(s);", name, cardCount));
         }
         public void gainManaCrystall(int manaCount)
         {
-            mana += manaCount; 
-            Utils.ConsoleWriteLine(String.Format("{0} gain {1} mana;", name, manaCount), ConsoleColor.DarkCyan);
+            mana += manaCount;
+            Utils.ConsoleWriteLine(Utils.tab + String.Format("{0} gain {1} mana;", name, manaCount), ConsoleColor.DarkCyan);
         }
         public void setManaCrystalls(int to)
         {
             mana = to;
-            Utils.ConsoleWriteLine(String.Format("{0} now has {1}/{2} mana;  (MAX:{3})", name, mana, currentMaxMana, maxMana), ConsoleColor.DarkCyan);
+            Utils.ConsoleWriteLine(Utils.tab + String.Format("{0} now has {1}/{2} mana;", name, mana, currentMaxMana, maxMana));
         }
         public void refillManaCrystalls()
         {
-            setManaCrystalls( currentMaxMana);
+            setManaCrystalls(currentMaxMana);
+        }
+
+        protected void drawManaCrystals()
+        {
+            setManaCrystalls(mana);
+            Console.Write(Utils.tab + "[");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("".PadRight(mana, '*'));
+            if (mana < currentMaxMana)
+                Console.Write("".PadRight(currentMaxMana - mana, '°'));
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("".PadRight(maxMana - Math.Max(mana, currentMaxMana), '-') + ']');
         }
     }
 }
