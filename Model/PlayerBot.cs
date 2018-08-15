@@ -8,6 +8,7 @@ namespace Model
 {
     class PlayerBot : Player
     {
+        protected ConsoleColor botTextColor = ConsoleColor.DarkGreen;
         public PlayerBot(string name)
         {
             this.name = name;
@@ -16,11 +17,17 @@ namespace Model
         public override void MakeTurn()
         {
             Thread.Sleep(1000);
-            Console.WriteLine(name + " is thinking...");
+            Utils.ConsoleWriteLine(name + " is thinking...", botTextColor);
             Thread.Sleep(2000);
-            Console.WriteLine(name + " decides to end turn.");
+            Utils.ConsoleWriteLine(name + " decides to end turn.", botTextColor);
             Thread.Sleep(500);
             WaitTimer.finishCurrentTimer();
+            return;
+        }
+        public override void GameStartProcess()
+        {
+            Thread.Sleep(5500);
+            WaitTimer.playerReady();
             return;
         }
     }

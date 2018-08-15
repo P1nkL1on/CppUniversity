@@ -10,6 +10,7 @@ namespace Model
     {
         List<Player> players;
         int currentTurnHostIndex = 0;
+        int turnCount = 0;
         public Game()
         {
             players = new List<Player>() { new PlayerHuman("Player"), new PlayerBot("Bot")};
@@ -23,20 +24,42 @@ namespace Model
         void execute()
         {
             nextTurn();
+            preGame();
+        }
+        void preGame()
+        {
+            WaitTimer preGameTimer = new WaitTimer(30, "Pre-game preparations", ConsoleColor.DarkGray, players.Count);
+            for (int i = 0; i < players.Count; ++i)
+            {
+                Thread p = new Thread(players[i].GameStartProcess);
+                p.Start();
+            }
+            preGameTimer.setAction(() => {
+                foreach (Player p in players)
+                    p.startGame();
+            });
         }
         void nextTurn()
         {
             currentTurnHostIndex = (currentTurnHostIndex + 1) % players.Count;
-            Console.WriteLine(String.Format("\n\n** {0}'s turn starts **", currentPlayer.Name));
-            Thread myThread = new Thread(currentPlayerTurns);
-            myThread.Start();
+            if (turnCount == 0)
+                Console.WriteLine(currentPlayer.Name + " will start a game;\n\n");
+            else
+                Console.WriteLine(String.Format("\n\n** {0}'s turn starts **", currentPlayer.Name));
+            turnCount++;
+
+            Thread currentPlayerTurn = new Thread(currentPlayerTurns);
 
             WaitTimer currentTurnTimer = new WaitTimer(90,
                 String.Format("{0}'s turn", currentPlayer.Name),
                 (currentTurnHostIndex == 0) ? ConsoleColor.Green : ConsoleColor.Red);
-            currentTurnTimer.setAction(() => { nextTurn(); });
+            currentTurnTimer.setAction(() => { currentPlayerTurn.Abort() ; nextTurn(); });
 
             WaitTimer turnStartWait = new WaitTimer(3, "Turn starts in...");
+            turnStartWait.setAction(() =>
+            {
+                currentPlayerTurn.Start();
+            });
         }
         void currentPlayerTurns()
         {
