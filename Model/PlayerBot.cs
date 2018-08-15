@@ -18,7 +18,7 @@ namespace Model
         {
             Thread.Sleep(1000);
             Utils.ConsoleWriteLine(name + " is thinking...", botTextColor);
-            Thread.Sleep(2000);
+            Thread.Sleep((new Random(DateTime.Now.Millisecond)).Next(10, 2000));
             Utils.ConsoleWriteLine(name + " decides to end turn.", botTextColor);
             Thread.Sleep(500);
             WaitTimer.finishCurrentTimer();
@@ -26,7 +26,7 @@ namespace Model
         }
         public override void GameStartProcess()
         {
-            Thread.Sleep(5500);
+            Thread.Sleep(new Random(DateTime.Now.Millisecond * (int)(name[name.Length - 1])).Next(1000, 5000));
             WaitTimer.playerReady();
             return;
         }

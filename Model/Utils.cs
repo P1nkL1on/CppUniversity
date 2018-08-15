@@ -9,6 +9,7 @@ namespace Model
     delegate void GameAction();
     class Utils
     {
+        public static string tab { get { return "    "; } }
         private static ConsoleColor defaultFore = ConsoleColor.Gray;
         public static void ConsoleWrite(String s)
         {

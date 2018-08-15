@@ -17,11 +17,20 @@ namespace Model
         {
             Console.CursorVisible = true;
             while (true)
-                if (Console.ReadLine() == "f")
+            {
+                string answer = Console.ReadLine();
+                if (answer == "m")
+                {
+                    drawManaCrystals();
+                }
+                if (answer == "f")
                 {
                     Console.CursorVisible = false;
+                    Console.WriteLine("Ending turn...");
+                    Thread.Sleep(200);
                     WaitTimer.finishCurrentTimer();
                 }
+            }
         }
         public override void GameStartProcess()
         {
