@@ -10,8 +10,11 @@ namespace Model
     {
         static void Main(string[] args)
         {
+            Console.WindowWidth *= 2;
+
             WaitTimer w = new WaitTimer(1, "Game starting in");
-            w.setAction(new GameAction(() => {
+            w.setAction(new GameAction(() =>
+            {
                 Game g = new Game();
                 g.start();
             }));

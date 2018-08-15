@@ -15,9 +15,25 @@ namespace Model
         }
         public override void MakeTurn()
         {
+            Console.CursorVisible = true;
             while (true)
                 if (Console.ReadLine() == "f")
+                {
+                    Console.CursorVisible = false;
                     WaitTimer.finishCurrentTimer();
+                }
+        }
+        public override void GameStartProcess()
+        {
+            Console.CursorVisible = true;
+            Utils.selectNumberTight(ref startMana, ref startDrawCount, 2, "At game start:", 
+                "You'll have {0} mana crystals;",
+                "You'll draw {0} cards.");
+
+            Console.WriteLine("\nPress Enter to continue...");
+            Console.ReadLine();
+            Console.CursorVisible = false;
+            WaitTimer.playerReady();
         }
     }
 }

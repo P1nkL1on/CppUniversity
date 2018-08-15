@@ -11,11 +11,14 @@ namespace Model
         private static List<WaitTimer> allTimers = new List<WaitTimer>();
         private GameAction finish;
         static string loadingBar = "/-\\|";
+        static int readyAwwaits = 0;
+        int totalAwaits = 1;
         int nowBar = 0;
         float secondLasts = 0;
         int secondsToWait = 0;
         int x = 0;
         int y = 0;
+        
         static int wid = 30;
         ConsoleColor color;
         String name;
@@ -28,6 +31,15 @@ namespace Model
             finish = new GameAction(() => { });
             calculateXY();
             start();
+        }
+        public WaitTimer(int time, String name, ConsoleColor color, int playerCount)
+        {
+            secondLasts = this.secondsToWait = time;
+            this.name = name;
+            this.color = color;
+            finish = new GameAction(() => { });
+            calculateXY();
+            start(playerCount);
         }
         public WaitTimer(int time, String name)
         {
@@ -79,6 +91,12 @@ namespace Model
                 int pos = (int)(wid * 1.0 * secondLasts / secondsToWait);
                 Console.Write("".PadLeft(pos, '▓'));
                 Console.Write("".PadLeft(wid - pos, '░'));
+                if (totalAwaits > 1)
+                {
+                    string s = String.Format("Players ready {0} from {1}...", totalAwaits - readyAwwaits, totalAwaits);
+                    Console.SetCursorPosition(x0 + wid - s.Length, y0 + 2);
+                    Console.Write(s);
+                }
                 Console.ForegroundColor = wasFore;
                 Console.SetCursorPosition(wasX, wasY);
             }
@@ -92,10 +110,13 @@ namespace Model
             lock (Utils.ConsoleWriterLock)
             {
                 int wasX = Console.CursorLeft, wasY = Console.CursorTop;
-                Console.SetCursorPosition(x0, y0);
-                Console.Write("".PadLeft(wid));
-                Console.SetCursorPosition(x0, y0 + 1);
-                Console.Write("".PadLeft(wid));
+                int d = 2;
+                if (totalAwaits > 1) d++;
+                for (int i = 0; i < d; ++i)
+                {
+                    Console.SetCursorPosition(x0, y0 + i);
+                    Console.Write("".PadLeft(wid));
+                }
                 Console.SetCursorPosition(wasX, wasY);
             }
         }
@@ -122,13 +143,26 @@ namespace Model
         }
         public void start()
         {
+            start(1);
+        }
+        public void start(int playerNeedResolveToFinish)
+        {
             allTimers.Add(this);
             Thread myThread = new Thread(execute);
             myThread.Start();
+            readyAwwaits = playerNeedResolveToFinish;
+            this.totalAwaits = readyAwwaits;
         }
         public static void finishCurrentTimer()
         {
             allTimers.Last().setTime(0);
+        }
+        public static void playerReady()
+        {
+            readyAwwaits--;
+            //Console.WriteLine((readyAwwaits == 0) ? "Everyone is ready!" : ("Awaits for " + readyAwwaits + " players..."));
+            if (readyAwwaits == 0)
+                allTimers.Last().setTime(0);
         }
     }
 }
