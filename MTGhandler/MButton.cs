@@ -51,12 +51,13 @@ namespace MTGhandler
             base.KeyPressAction(key);
             if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
             {
-                onPressed();
+                if (onPressed != null)
+                    onPressed();
                 return true;
             }
             return false;
         }
-        
+
         public override string DrawText
         {
             get { return String.Format("[{0}]", MDrawHandler.Short(Text, width - 2)); }

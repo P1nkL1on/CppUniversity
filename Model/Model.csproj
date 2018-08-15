@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{863A5BFA-AE0F-4EE7-95AF-BC5C59696707}</ProjectGuid>
+    <ProjectGuid>{C54D2DA6-2601-439A-81FC-18951B4348E3}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MTGhandler</RootNamespace>
-    <AssemblyName>MTGhandler</AssemblyName>
+    <RootNamespace>Model</RootNamespace>
+    <AssemblyName>Model</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,30 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Card.cs" />
-    <Compile Include="CardAbilities.cs" />
-    <Compile Include="CardGround.cs" />
-    <Compile Include="Drawer.cs" />
-    <Compile Include="Layout.cs" />
-    <Compile Include="LineWidgets.cs" />
-    <Compile Include="Logs.cs" />
-    <Compile Include="ManaCosts.cs" />
-    <Compile Include="MButton.cs" />
-    <Compile Include="DrawerMTG.cs" />
-    <Compile Include="MListBoxcs.cs" />
-    <Compile Include="MMessageBox.cs" />
-    <Compile Include="MtgBattlefield.cs" />
-    <Compile Include="MtgCardList.cs" />
-    <Compile Include="MtgDeck.cs" />
-    <Compile Include="MtgExile.cs" />
-    <Compile Include="MtgGraveyard.cs" />
-    <Compile Include="MtgHand.cs" />
-    <Compile Include="PlayerMTG.cs" />
-    <Compile Include="Widget.cs" />
-    <Compile Include="Structs.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="PlayerBot.cs" />
+    <Compile Include="PlayerHuman.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WidgetController.cs" />
+    <Compile Include="Timer.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -12,37 +12,40 @@ namespace MTGhandler
     class MMessageBox : MWindow
     {
         static int MaxWidth = 40;
+        MLable Header;
+        MLableMulty Text;
+        MButton OkButton;
         public MMessageBox(String header, String message)
         {
-            MLable Header = new MLable(header, MaxWidth);
+            Header = new MLable(header, MaxWidth);
             Header.setMainColor(new CColor(ConsoleColor.DarkGray, ConsoleColor.Gray));
             Header.setLockColor(new CColor(ConsoleColor.Gray, ConsoleColor.DarkGray));
-            MLableMulty Text = new MLableMulty(message, MaxWidth - 2);
-            MLayoutVertical layout = new MLayoutVertical(0);
-            layout.AddWidget(Header);
-            layout.AddWidget(Text);
-            layout.AddWidget(new MButton(" OK "));
-            Children.Add(layout);
+            Text = new MLableMulty(message, MaxWidth - 2);
+            OkButton = new MButton(" OK ", new Slot(() => { Logs.Trace("OK ON MESSAGE BOX PRESSED"); }));
+            Children.Add(Header);
+            Children.Add(Text);
+            Children.Add(OkButton);
             MakeController();
-        }
-        MWidget layout
-        {
-            get { return Children[0]; }
         }
         void MakeController()
         {
             Controller = new MWidgetController(this);
-            Controller.SetAction(MEventType.Unlock,
-                new EventAction((param, w, from)
-                => { layout.Controller.SendEvent(MEvent.UnlockEvent(w)); }));
+            Controller.SetAction(
+                MEventType.Unlock,
+                new EventAction((param, w, sender) =>
+                {
+                    foreach (MWidget c in w.Children)
+                        c.Controller.SendEvent(new MEvent(MEventType.Unlock, param, sender));
+                    w.SetLock(false);
+                }));
         }
         public override int GetHeight
         {
-            get { return layout.GetHeight; }
+            get { return Text.GetHeight + 2; }
         }
         public override int GetWidth
         {
-            get { return layout.GetWidth; }
+            get { return Text.GetWidth + 2; }
         }
         public override string name
         {
@@ -51,7 +54,9 @@ namespace MTGhandler
         public override void Redraw(MPoint leftUpCorner)
         {
             base.Redraw(leftUpCorner);
-            layout.Redraw(leftUpCorner);
+            Header.Redraw(leftUpCorner);
+            Text.Redraw(leftUpCorner.Add(1, 1));
+            OkButton.Redraw(leftUpCorner.AddX(GetWidth / 2 - 3).AddY(GetHeight - 1));
         }
     }
 }

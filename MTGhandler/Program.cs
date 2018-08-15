@@ -12,9 +12,26 @@ namespace MTGhandler
         {
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.Clear();
+            Logs.Write = true;
             MDrawHandler.MaximiseWindow();
-            CColor red = new CColor(ConsoleColor.Red);
 
+            //MWidget testV = TestForm();
+            //testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(4, 10), testV));
+            //testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
+            //testV.Redraw();
+            //while (true)
+            //    testV.Controller.SendEvent(MEvent.ButtonPressEvent(Console.ReadKey(true), testV));
+
+            Player p1 = new Player("Lev");
+            Player p2 = new Player("Kotenka");
+            p1.Opponents.Add(p2);
+            p2.Opponents.Add(p1);
+            PlayerHandler.DrawPlayer(new MPoint(2, 2), p1, 40);
+
+            Console.ReadLine();
+        }
+        static MWidget TestForm()
+        {
             MLayoutHorizontal test = new MLayoutHorizontal(4);
             MLayoutVertical testV = new MLayoutVertical(1), testL = new MLayoutVertical(3), testL2 = new MLayoutVertical(1);
             test.AddWidget(new MLable("okay", 2));
@@ -23,8 +40,8 @@ namespace MTGhandler
                     testL2.AddWidget(new MCheckBox("Okay" + i));
                 else
                     testL2.AddWidget(new MTestWidget());
-                for (int i = 0; i < 3; ++i)
-                    test.AddWidget(new MTestWidget());
+            for (int i = 0; i < 3; ++i)
+                test.AddWidget(new MTestWidget());
             for (int i = 0; i < 3; ++i)
                 testL.AddWidget(new MLable("Line number " + i * i * i));
             testL.AddWidget(new MListBox(10, -1, new List<MLineWidget>(){
@@ -55,7 +72,7 @@ namespace MTGhandler
             test.AddWidget(new MTestWidget());
             for (int i = 0; i < 3; ++i)
                 testV.AddWidget(new MTestWidget());
-            
+
             testV.AddWidget(new MMessageBox("victory", "You know? Actually you are fucking looserr. But the nae is victory, so you done well. Cause you done your best :3"));
             testV.AddWidget(new MButton("OKAY", new Slot(() => { Logs.Trace("** OKAY HAS BEEN PRESSED **"); })));
 
@@ -68,19 +85,7 @@ namespace MTGhandler
             testV.AddWidget(lsitBox);
             // for (int i = 0; i < 3; ++i)
             //     testV.AddWidget(new MTestWidget());
-            testV.Controller.SendEvent(MEvent.RedrawEvent(new MPoint(4, 10), testV));
-
-            testV.Controller.SendEvent(MEvent.UnlockEvent(testV));
-            testV.Redraw();
-
-            Logs.Write = true;
-            while (true)
-            {
-                testV.Controller.SendEvent(MEvent.ButtonPressEvent(Console.ReadKey(true), testV));
-                //testV.Redraw();
-            }
-
-            Console.ReadLine();
+            return testV;
         }
     }
 }
