@@ -19,7 +19,7 @@ namespace Model
         int x = 0;
         int y = 0;
         
-        static int wid = 30;
+        static int wid = 40;
         ConsoleColor color;
         String name;
 
@@ -153,8 +153,13 @@ namespace Model
             readyAwwaits = playerNeedResolveToFinish;
             this.totalAwaits = readyAwwaits;
         }
+        public void setColor(ConsoleColor what)
+        {
+            color = what;
+        }
         public static void finishCurrentTimer()
         {
+            allTimers.Last().setColor(ConsoleColor.DarkGray);
             allTimers.Last().setTime(0);
         }
         public static void playerReady()
@@ -162,7 +167,7 @@ namespace Model
             readyAwwaits--;
             //Console.WriteLine((readyAwwaits == 0) ? "Everyone is ready!" : ("Awaits for " + readyAwwaits + " players..."));
             if (readyAwwaits == 0)
-                allTimers.Last().setTime(0);
+                finishCurrentTimer();
         }
     }
 }

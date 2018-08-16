@@ -12,8 +12,9 @@ namespace Model
         {
             this.name = name;
             this.health = 20;
+            constructDefaultHolders();
         }
-        public override void MakeTurn()
+        public override void MakeTurn(TurnPhase phase)
         {
             Console.CursorVisible = true;
             while (true)
@@ -26,7 +27,7 @@ namespace Model
                 if (answer == "f")
                 {
                     Console.CursorVisible = false;
-                    Console.WriteLine("Ending turn...");
+                    Console.WriteLine("Ending phase...");
                     Thread.Sleep(200);
                     WaitTimer.finishCurrentTimer();
                 }
