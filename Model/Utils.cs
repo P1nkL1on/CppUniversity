@@ -42,10 +42,11 @@ namespace Model
         {
             ConsoleWrite(question + "? [y/n]  ");
             ConsoleKeyInfo t = new ConsoleKeyInfo();
-            do{
+            do
+            {
                 t = Console.ReadKey(true);
-            }while(t.KeyChar != 'y' && t.KeyChar != 'n');
-            ConsoleWrite(((t.KeyChar == 'y')? "yes  " : "no   "));
+            } while (t.KeyChar != 'y' && t.KeyChar != 'n');
+            ConsoleWrite(((t.KeyChar == 'y') ? "yes  " : "no   "));
             return (t.KeyChar == 'y');
         }
         public static int selectVariant(List<string> list)
@@ -58,7 +59,7 @@ namespace Model
             int maxLength = 0;
             for (int i = 0; i < list.Count; ++i)
             {
-                if (list[i].Length > maxLength) 
+                if (list[i].Length > maxLength)
                     maxLength = list[i].Length;
                 ConsoleWriteLine(String.Format("  {0}. {1};", i + 1, list[i]));
             }
@@ -72,7 +73,7 @@ namespace Model
                 Console.SetCursorPosition(x, y);
                 ConsoleWrite(list[nowOn].PadRight(maxLength));
                 t = Console.ReadKey(true);
-                int isNumber = acceptKeys.IndexOf(t.KeyChar+"");
+                int isNumber = acceptKeys.IndexOf(t.KeyChar + "");
                 if (isNumber >= 0 && isNumber < list.Count)
                 {
                     Console.SetCursorPosition(x, y);
@@ -81,11 +82,11 @@ namespace Model
                     return isNumber;
                 }
                 if (t.Key == ConsoleKey.UpArrow)
-                    nowOn = (nowOn > 0)? (nowOn - 1) : (list.Count - 1); 
+                    nowOn = (nowOn > 0) ? (nowOn - 1) : (list.Count - 1);
                 if (t.Key == ConsoleKey.DownArrow)
-                    nowOn = (nowOn + 1)% list.Count;
+                    nowOn = (nowOn + 1) % list.Count;
             } while (t.Key != ConsoleKey.Enter);
-            
+
             Console.SetCursorPosition(x, y);
             ConsoleWrite("  You selected: " + list[nowOn].PadRight(maxLength));
             ConsoleWriteLine("");
@@ -97,19 +98,20 @@ namespace Model
         }
         public static int selectNumber(int min, int max, string question)
         {
-            ConsoleWriteLine(String.Format("{0}Select number between {1} and {2}:", (question.Length > 0)?(question + "\n"):"", min, max));
+            ConsoleWriteLine(String.Format("{0}Select number between {1} and {2}:", (question.Length > 0) ? (question + "\n") : "", min, max));
             int nowIn = min + (max - min) / 2;
 
             int x = Console.CursorLeft, y = Console.CursorTop;
             ConsoleKeyInfo t = new ConsoleKeyInfo();
-            do{
+            do
+            {
                 int offset = max - nowIn;
-                string line = "".PadLeft(max - min - offset,'+') + "".PadLeft(offset, '-');
+                string line = "".PadLeft(max - min - offset, '+') + "".PadLeft(offset, '-');
 
                 Console.SetCursorPosition(x, y);
-                string left = (nowIn == min)? "MIN" : "<< ",
-                    right = (nowIn == max)? "MAX" : " >>";
-                ConsoleWrite(String.Format("{3} {0} {1} {2} {4}\nSelect: {5}", min,line,max, left, right, nowIn+"  "));
+                string left = (nowIn == min) ? "MIN" : "<< ",
+                    right = (nowIn == max) ? "MAX" : " >>";
+                ConsoleWrite(String.Format("{3} {0} {1} {2} {4}\nSelect: {5}", min, line, max, left, right, nowIn + "  "));
                 t = Console.ReadKey(true);
 
                 if (t.Key == ConsoleKey.LeftArrow)
@@ -137,7 +139,7 @@ namespace Model
                 string line = "".PadLeft(maxOffset + offset, '>') + "*" + "".PadLeft(maxOffset - offset, '<');
 
                 Console.SetCursorPosition(x, y);
-                ConsoleWrite(String.Format(" {0} {1} {2}\n{3}\n{4}", ((leftV - offset)+"").PadLeft(4), line, ((rightV + offset)+"").PadRight(4),
+                ConsoleWrite(String.Format(" {0} {1} {2}\n{3}\n{4}", ((leftV - offset) + "").PadLeft(4), line, ((rightV + offset) + "").PadRight(4),
                     String.Format(FormatLeft, leftV - offset), String.Format(FormatRight, rightV + offset)));
                 t = Console.ReadKey(true);
 
@@ -149,6 +151,31 @@ namespace Model
             } while (t.Key != ConsoleKey.Enter);
             leftV -= nowIn;
             rightV += nowIn;
+        }
+        static string wordWriting = "";
+        public static string selectItemFromUserCommands()
+        {
+            string selected = "";
+            lock (wordWriting)
+            {
+                wordWriting = "";
+                ConsoleKeyInfo t = new ConsoleKeyInfo();
+                do
+                {
+                    t = Console.ReadKey(true);
+                    if (t.Key == ConsoleKey.Backspace)
+                        wordWriting = wordWriting.Substring(0, Math.Max(0, wordWriting.Length - 1));
+                    else
+                        if (t.Key != ConsoleKey.Enter)
+                            wordWriting += t.KeyChar;
+                    Console.CursorLeft = 0;
+                    Utils.ConsoleWrite(wordWriting.PadRight(Console.WindowWidth / 2));
+                    selected = UserCommands.addCommand(wordWriting);
+                } while (t.Key != ConsoleKey.Enter);
+                Console.WriteLine();
+                wordWriting = "";
+            }
+            return selected;
         }
     }
 }

@@ -41,9 +41,9 @@ namespace Model
             }
             Utils.ConsoleWriteLine(" ** " + Name + " enters phase \'" + phase + "\'");
             context.gameOnPlayerTurn(this, phase);
-            MakeTurn(phase);
+            MakeTurn(phase, context);
         }
-        public abstract void MakeTurn(TurnPhase phase);
+        public abstract void MakeTurn(TurnPhase phase, Game context);
         public abstract void GameStartProcess();
         
         /// <summary>
@@ -67,7 +67,16 @@ namespace Model
             holds.Add(new CardHolder(this, CardHolderTypes.battlefield));
             holds.Add(new CardHolder(this, CardHolderTypes.graveyard));
             holds.Add(new CardHolder(this, CardHolderTypes.exile));
+
+            setUpDeck();
         }
+
+        protected void setUpDeck()
+        {
+            for (int i = 0; i < 60; ++i)
+                deck.addCard(new AbstractCard("Card"+i, (new Random(i)).Next(11)));
+        }
+
         public CardHolder hand { get { return holds[0]; } }
         public CardHolder deck { get { return holds[1]; } }
         public CardHolder battlefield { get { return holds[2]; } }

@@ -8,7 +8,7 @@ namespace Model
 {
     class Game
     {
-        List<Player> players;
+        public List<Player> players;
         int currentTurnHostIndex = 0;
         int turnCount = 0;
         TurnPhase currentTurnPhase;
@@ -16,6 +16,7 @@ namespace Model
         {
             players = new List<Player>() { new PlayerHuman("Player"), new PlayerBot("Bot")/*, new PlayerBot("Bot2"), new PlayerBot("Bot3"), new PlayerBot("Bot4") */};
             currentTurnHostIndex = (new Random(DateTime.Now.Millisecond)).Next(players.Count) - 1;
+            UserCommands.initialiseWordList(this, players[0]);
         }
 
         /// <summary>
@@ -30,13 +31,21 @@ namespace Model
         /// </summary>
         void execute()
         {
+            checkScreenThreadStart();
             nextTurn();
             preGame();
         }
 
 
+        /// <summary>
+        /// Выполняет комагду, тиап смотреть на то, смотреть на сё
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="command"></param>
+        public void executePlayersCommand(Player sender, string command)
+        {
 
-
+        }
 
 
 
@@ -54,12 +63,12 @@ namespace Model
                 if (turnCount > players.Count)
                     who.turnStartAddMana();
                 else
-                    Utils.ConsoleWriteLine(" ** No mana gain, at first turn;", ConsoleColor.DarkGray);
+                    Utils.ConsoleWriteLine(" xx No mana gain, at first turn;", ConsoleColor.DarkRed);
 
                 if (turnCount > 1)
                     who.drawCard();
                 else
-                    Utils.ConsoleWriteLine(" ** No card draw, caused by intiative;", ConsoleColor.DarkGray);
+                    Utils.ConsoleWriteLine(" xx No card draw, caused by intiative;", ConsoleColor.DarkRed);
                 return;
             }
         }
@@ -70,6 +79,20 @@ namespace Model
 
 
 
+        void checkScreenThreadStart()
+        {
+
+            Thread myThread = new Thread(checkScreenBottom);
+            myThread.Start();
+        }
+        void checkScreenBottom()
+        {
+            while (true)
+            {
+                if (Console.CursorTop > Console.WindowHeight * 4 / 5)
+                    Console.Clear();
+            }
+        }
         /// <summary>
         /// Вызывает таймеры. Заставляет каждого игрока принять несколько решений.
         /// Например определить соотношение между картами и стартовыми кристалами  начале партии.
