@@ -16,17 +16,19 @@ namespace Model
     }
     class AbstractCard
     {
-        protected string cardName;
+        public string cardName;
         protected manaCost cost;
+        public Player host;
 
-        public AbstractCard(string name, int cost)
+        public AbstractCard(string name, int cost, Player host)
         {
-            setNameAndCost(name, new manaCost(cost));
+            setNameAndCost(name, new manaCost(cost), host);
         }
-        void setNameAndCost(string name, manaCost cost)
+        void setNameAndCost(string name, manaCost cost, Player host)
         {
             cardName = name;
             this.cost = cost;
+            this.host = host;
         }
         public override string ToString()
         {

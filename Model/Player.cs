@@ -51,7 +51,7 @@ namespace Model
         /// </summary>
         public void startGame()
         {
-            drawCard(startDrawCount * 10);
+            drawCard(startDrawCount * 3);   //!!!
             currentMaxMana = startMana;
             refillManaCrystalls();
         }
@@ -71,10 +71,20 @@ namespace Model
             setUpDeck();
         }
 
+        protected void playCard(AbstractCard card, Game context)
+        {
+            Utils.ConsoleWriteLine(String.Format("\n{0} plays {1}!", card.host.name, card.cardName), ConsoleColor.Yellow);
+            WaitTimer cardResolveTimer = new WaitTimer(10, String.Format("Resolve '{0}'?", card.cardName), ConsoleColor.Yellow);
+            cardResolveTimer.setAction(() =>
+            {
+                Utils.ConsoleWriteLine(String.Format("'{1}' card resolves and comes to play!\n", card.host.name, card.cardName), ConsoleColor.Yellow);
+            });
+        }
+
         protected void setUpDeck()
         {
             for (int i = 0; i < 60; ++i)
-                deck.addCard(new AbstractCard("Card"+i, (new Random(i)).Next(5)));
+                deck.addCard(new AbstractCard("Card"+i, (new Random(i)).Next(5), this));
         }
 
         public CardHolder hand { get { return holds[0]; } }
@@ -89,16 +99,22 @@ namespace Model
 
 
 
-        public List<string> availableCardsToPlay()
+        public List<string> availableCardsToPlay(out List<int> indices)
         {
+            indices = new List<int>();
             drawManaCrystals();
             List<string> res = new List<string>();
             List<string> cannot = new List<string>();
+            int i = 0;
             foreach (AbstractCard card in hand.Cards){
+                i++;
                 if (card.Cost.value <= mana)
+                {
+                    indices.Add(i - 1);
                     res.Add(card.ToString());
+                }
                 else
-                    cannot.Add(card.ToString()+"");
+                    cannot.Add(card.ToString() + "");
             }
             Console.WriteLine(" ** No mana for:");
             foreach(string s in cannot)
@@ -151,7 +167,7 @@ namespace Model
             if (mana < currentMaxMana)
                 Console.Write("".PadRight(currentMaxMana - mana, '°'));
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("".PadRight(maxMana - Math.Max(mana, currentMaxMana), '-') + ']');
+            Console.WriteLine("".PadRight(maxMana - Math.Max(mana, currentMaxMana), '-') + "]".PadRight(15));
         }
     }
 }
