@@ -24,7 +24,7 @@ namespace Model
 
         public override string ToString()
         {
-            return String.Format("{0}'s {1}", host.Name, name+"");
+            return String.Format("{0}'s {1}  ({2})", host.Name, name+"", cards.Count);
         }
         public CardHolder(Player host, CardHolderTypes type, int maxSize)
         {
@@ -50,6 +50,10 @@ namespace Model
                     return false;
                 return count > maximumSize;
             }
+        }
+        public void addCard(AbstractCard card)
+        {
+            cards.Add(card);
         }
     }
 }

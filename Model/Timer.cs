@@ -18,6 +18,7 @@ namespace Model
         int secondsToWait = 0;
         int x = 0;
         int y = 0;
+        bool isPause = false;
         
         static int wid = 40;
         ConsoleColor color;
@@ -56,6 +57,16 @@ namespace Model
             this.name = "Time";
             this.color = Console.ForegroundColor;
             finish = new GameAction(() => { });
+            calculateXY();
+            start();
+        }
+        public WaitTimer(string playerPausesName)
+        {
+            secondLasts = this.secondsToWait = 60;
+            this.name = playerPausesName + " pauses!";
+            this.color = Console.ForegroundColor;
+            finish = new GameAction(() => { });
+            isPause = true;
             calculateXY();
             start();
         }
@@ -124,16 +135,17 @@ namespace Model
         {
             secondLasts = X;
         }
+        static int millisecondsStep = 250;
         void execute()
         {
             Thread.Sleep(100);
             do
             {
                 trace();
-                Thread.Sleep(500);
+                Thread.Sleep(millisecondsStep);
                 if (allTimers.Last() == this)
                 {
-                    secondLasts -= .5f;
+                    secondLasts -= millisecondsStep / 1000f;
                     nowBar++;
                 }
             } while (secondLasts > 0);
@@ -168,6 +180,20 @@ namespace Model
             //Console.WriteLine((readyAwwaits == 0) ? "Everyone is ready!" : ("Awaits for " + readyAwwaits + " players..."));
             if (readyAwwaits == 0)
                 finishCurrentTimer();
+        }
+        public static void unpause(String who)
+        {
+            if (allTimers.Last().isPause
+                && allTimers.Last().name.IndexOf(who) == 0)
+                finishCurrentTimer();
+        }
+        public static bool isPaused
+        {
+            get {
+                if (allTimers.Count == 0)
+                    return false;
+                return allTimers.Last().isPause;
+            }
         }
     }
 }

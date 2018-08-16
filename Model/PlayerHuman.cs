@@ -14,29 +14,44 @@ namespace Model
             this.health = 20;
             constructDefaultHolders();
         }
-        public override void MakeTurn(TurnPhase phase)
+        public override void MakeTurn(TurnPhase phase, Game context)
         {
-            Console.CursorVisible = true;
+            if ((phase + "").IndexOf("main") >= 0)
+                Utils.ConsoleWriteLine("Type any command:", ConsoleColor.DarkCyan);
             while (true)
             {
-                string answer = Console.ReadLine();
-                if (answer == "m")
+                string answer = Utils.selectItemFromUserCommands();
+                Console.CursorLeft = 0; Console.CursorTop--;
+                Console.WriteLine(answer.PadRight(Console.WindowWidth / 2));
+
+                WaitTimer pause = null;
+                if (answer == UserCommands.pauseCommand)
                 {
-                    drawManaCrystals();
+                    pause = new WaitTimer(this.name);
+                    return;
                 }
-                if (answer == "f")
+
+                if (answer == UserCommands.resumeCommand && WaitTimer.isPaused)
                 {
-                    Console.CursorVisible = false;
+                    WaitTimer.unpause(this.name);
+                    return;
+                }
+
+                if (answer == UserCommands.finishCommand)
+                {
                     Console.WriteLine("Ending phase...");
                     Thread.Sleep(200);
                     WaitTimer.finishCurrentTimer();
+                    return;
                 }
+                if (answer != "")
+                    context.executePlayersCommand(this, answer);
             }
         }
         public override void GameStartProcess()
         {
             Console.CursorVisible = true;
-            Utils.selectNumberTight(ref startMana, ref startDrawCount, 2, "At game start:", 
+            Utils.selectNumberTight(ref startMana, ref startDrawCount, 2, "At game start:",
                 "You'll have {0} mana crystals;",
                 "You'll draw {0} cards.");
 

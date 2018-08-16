@@ -12,10 +12,12 @@ namespace Model
         {
             Console.WindowWidth *= 2;
 
+
             WaitTimer w = new WaitTimer(1, "Game starting in");
             w.setAction(new GameAction(() =>
             {
                 Game g = new Game();
+                UserCommands.initialiseWordList(g, g.players[0]);
                 g.start();
             }));
         }

@@ -15,7 +15,7 @@ namespace Model
             this.health = 20;
             constructDefaultHolders();
         }
-        public override void MakeTurn(TurnPhase phase)
+        public override void MakeTurn(TurnPhase phase, Game context)
         {
             string phaseName = phase+"";
             if (phaseName.IndexOf("main") >= 0)
