@@ -40,13 +40,16 @@ namespace Model
         public static readonly object ConsoleWriterLock = new object();
         public static bool playerAgree(string question)
         {
-            ConsoleWrite(question + "? [y/n]  ");
             ConsoleKeyInfo t = new ConsoleKeyInfo();
-            do
+            lock (ConsoleWriterLock)
             {
-                t = Console.ReadKey(true);
-            } while (t.KeyChar != 'y' && t.KeyChar != 'n');
-            ConsoleWrite(((t.KeyChar == 'y') ? "yes  " : "no   "));
+                ConsoleWrite(question + "? [y/n]  ");
+                do
+                {
+                    t = Console.ReadKey(true);
+                } while (t.KeyChar != 'y' && t.KeyChar != 'n');
+                ConsoleWrite(((t.KeyChar == 'y') ? "yes  " : "no   "));
+            }
             return (t.KeyChar == 'y');
         }
         public static int selectVariant(List<string> list)

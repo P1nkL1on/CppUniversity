@@ -42,9 +42,19 @@ namespace Model
                     WaitTimer.finishCurrentTimer();
                     return;
                 }
-                if (answer == UserCommands.playCardCommand){
+                if (answer == UserCommands.playCardCommand)
+                {
                     WaitTimer.writeOnLastTimer(Name + " is selecting card to play");
-                    Utils.selectVariant(availableCardsToPlay(), "Select a card to play");
+                    List<int> workInds = new List<int>();
+                    int selected = Utils.selectVariant(availableCardsToPlay(out workInds), "Select a card to play");
+                    if (selected >= 0)
+                    {
+                        drawManaCrystals();
+                        AbstractCard cardToPlay = hand.Cards[workInds[selected]];
+                        if (Utils.playerAgree(String.Format("Are you sure to play {0} for {1} mana",
+                            cardToPlay.cardName, cardToPlay.Cost.value)))
+                            playCard(hand.topCard(workInds[selected]), context);
+                    }
                 }
                 if (answer != "")
                     context.executePlayersCommand(this, answer);

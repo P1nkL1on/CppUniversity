@@ -68,6 +68,14 @@ namespace Model
             cards.Remove(top);
             return top;
         }
+        public AbstractCard topCard(int ind)
+        {
+            if (cards.Count == 0)
+                return null;
+            AbstractCard top = cards[ind];
+            cards.Remove(top);
+            return top;
+        }
         public void drawFrom(AbstractCard card)
         {
             cards.Add(card);
