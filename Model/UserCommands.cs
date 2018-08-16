@@ -39,7 +39,7 @@ namespace Model
                     plName = pl.Name + "'s ";
                 for (int i = 0; i < things.Count; ++i)
                     commands.Add(String.Format("show {0}{1}", plName, things[i]));
-                for (int j = 0; j < 2; ++j)
+                for (int j = 0; j < 1; ++j)
                     for (int i = 0; i < 5; ++i)
                         commands.Add(String.Format("{2} {0}{1}", plName, (CardHolderTypes)i, (j==1)? "info" : "show"));
             }
@@ -47,7 +47,7 @@ namespace Model
         }
         public static string addCommand(string now)
         {
-            now = now.TrimStart();
+            now = now.TrimStart(' ');
             lock (Utils.ConsoleWriterLock)
             {
                 int maxWid = Console.WindowWidth / 2;

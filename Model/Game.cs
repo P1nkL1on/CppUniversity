@@ -15,7 +15,9 @@ namespace Model
         public Game()
         {
             players = new List<Player>() { new PlayerHuman("Player"), new PlayerBot("Bot")/*, new PlayerBot("Bot2"), new PlayerBot("Bot3"), new PlayerBot("Bot4") */};
-            currentTurnHostIndex = (new Random(DateTime.Now.Millisecond)).Next(players.Count) - 1;
+            currentTurnHostIndex =
+                -1;
+                //(new Random(DateTime.Now.Millisecond)).Next(players.Count) - 1;
             UserCommands.initialiseWordList(this, players[0]);
         }
 
@@ -44,9 +46,29 @@ namespace Model
         /// <param name="command"></param>
         public void executePlayersCommand(Player sender, string command)
         {
+            Player target = sender;
+            foreach (Player pl in players)
+                if (command.IndexOf(pl.Name) >= 0)
+                    target = pl;
 
+            for (int i = 0; i < 5; ++i)
+                if (command.IndexOf((CardHolderTypes)i + "") >= 0
+                    && (command.IndexOf("show") == 0))
+                {
+                    Utils.ConsoleWriteLine(target.where((CardHolderTypes)i).ToString());
+                    return;
+                }
+            if ((command.IndexOf("show") == 0) && (command.IndexOf("stats") >= 0))
+            {
+                showPlayerInfo(target);
+                return;
+            }
         }
-
+        void showPlayerInfo(Player who)
+        {
+            for (int i = 0; i < 5; ++i)
+                Utils.ConsoleWriteLine(who.where((CardHolderTypes)i).ToString());
+        }
 
 
         /// <summary>
@@ -159,14 +181,14 @@ namespace Model
             // skipping phases
             //
             currentTurnPhase = (TurnPhase)turnphase;
-            string phaseName = String.Format("'{0}'",  currentTurnPhase + "");
+            string phaseName = String.Format("'{0}'", currentTurnPhase + "");
             int timer = 15;
             if (phaseName.IndexOf("main") >= 0) timer = 60;
             if (phaseName.IndexOf("beginning") >= 0 || phaseName.IndexOf("ending") >= 0) timer = 2;
 
             WaitTimer currentTurnTimer = new WaitTimer(timer, phaseName,
                 (currentTurnHostIndex == 0) ? ConsoleColor.Green : ConsoleColor.Red);
-            currentTurnTimer.setAction(() => { currentPlayerNextPhase(turnphase+1); });
+            currentTurnTimer.setAction(() => { currentPlayerNextPhase(turnphase + 1); });
 
             currentPlayer.MakeTurnOrSkip(currentTurnPhase, this);
         }
@@ -193,7 +215,7 @@ namespace Model
 
         combat_entering = 20,
         combat_declareAttackers = 21,
-        combat_declareBlockers = 22,
+        combat_declareBlockers = 52,
         combat_damaging = 23,
         combat_finishing = 24,
 

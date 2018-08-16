@@ -51,7 +51,7 @@ namespace Model
         /// </summary>
         public void startGame()
         {
-            drawCard(startDrawCount);
+            drawCard(startDrawCount * 10);
             currentMaxMana = startMana;
             refillManaCrystalls();
         }
@@ -74,7 +74,7 @@ namespace Model
         protected void setUpDeck()
         {
             for (int i = 0; i < 60; ++i)
-                deck.addCard(new AbstractCard("Card"+i, (new Random(i)).Next(11)));
+                deck.addCard(new AbstractCard("Card"+i, (new Random(i)).Next(5)));
         }
 
         public CardHolder hand { get { return holds[0]; } }
@@ -89,7 +89,22 @@ namespace Model
 
 
 
-
+        public List<string> availableCardsToPlay()
+        {
+            drawManaCrystals();
+            List<string> res = new List<string>();
+            List<string> cannot = new List<string>();
+            foreach (AbstractCard card in hand.Cards){
+                if (card.Cost.value <= mana)
+                    res.Add(card.ToString());
+                else
+                    cannot.Add(card.ToString()+"");
+            }
+            Console.WriteLine(" ** No mana for:");
+            foreach(string s in cannot)
+                Utils.ConsoleWriteLine(Utils.tab + "-" + s, ConsoleColor.DarkGray);
+            return res;
+        }
 
         public void drawCard()
         {
@@ -98,6 +113,8 @@ namespace Model
         public void drawCard(int cardCount)
         {
             Utils.ConsoleWriteLine(Utils.tab + String.Format("{0} draws {1} card(s);", name, cardCount));
+            for (int i = 0; i < cardCount; ++i)
+                hand.drawFrom(deck);
         }
         public void gainManaCrystall(int manaCount)
         {

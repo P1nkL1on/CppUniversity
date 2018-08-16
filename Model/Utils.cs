@@ -53,43 +53,63 @@ namespace Model
         {
             return selectVariant(list, "Select one:");
         }
+        static void setMarker(int nowOn, int listCount){
+            int x1 = Console.CursorLeft, y1 = Console.CursorTop;
+            for (int i = 0; i < listCount; ++i)
+            {
+                Console.SetCursorPosition(2, y1 - listCount - 2 + i);
+                ConsoleWrite((i == nowOn) ? ">" : " ", ConsoleColor.Cyan);
+            }
+            Console.SetCursorPosition(x1, y1);
+        }
         public static int selectVariant(List<string> list, string question)
         {
-            ConsoleWriteLine(question + ":");
+            ConsoleWriteLine(" ** " + question + ":");
             int maxLength = 0;
-            for (int i = 0; i < list.Count; ++i)
-            {
-                if (list[i].Length > maxLength)
-                    maxLength = list[i].Length;
-                ConsoleWriteLine(String.Format("  {0}. {1};", i + 1, list[i]));
-            }
-            ConsoleWriteLine("Select : ");
-            int x = Console.CursorLeft, y = Console.CursorTop;
             int nowOn = 0;
-            ConsoleKeyInfo t = new ConsoleKeyInfo();
-            string acceptKeys = "123456789";
-            do
-            {
-                Console.SetCursorPosition(x, y);
-                ConsoleWrite(list[nowOn].PadRight(maxLength));
-                t = Console.ReadKey(true);
-                int isNumber = acceptKeys.IndexOf(t.KeyChar + "");
-                if (isNumber >= 0 && isNumber < list.Count)
+            lock(ConsoleWriterLock){
+                if (Console.CursorTop > Console.WindowHeight - 6 - list.Count)
+                    Console.Clear();
+                for (int i = 0; i < list.Count; ++i)
+                {
+                    if (list[i].Length > maxLength)
+                        maxLength = list[i].Length;
+                    ConsoleWriteLine(Utils.tab + String.Format(" {0}. {1};", i + 1, list[i]));
+                }
+                ConsoleWriteLine(" ** (double ESC to cancel)\n ** Select : ");
+                int x = Console.CursorLeft, y = Console.CursorTop;
+                ConsoleKeyInfo t = new ConsoleKeyInfo();
+                string acceptKeys = "123456789";
+                do
                 {
                     Console.SetCursorPosition(x, y);
-                    ConsoleWrite("  You selected: " + list[isNumber].PadRight(maxLength));
-                    ConsoleWriteLine("");
-                    return isNumber;
-                }
-                if (t.Key == ConsoleKey.UpArrow)
-                    nowOn = (nowOn > 0) ? (nowOn - 1) : (list.Count - 1);
-                if (t.Key == ConsoleKey.DownArrow)
-                    nowOn = (nowOn + 1) % list.Count;
-            } while (t.Key != ConsoleKey.Enter);
+                    ConsoleWrite(tab + list[nowOn].PadRight(maxLength), ConsoleColor.Cyan);
+                    setMarker(nowOn, list.Count);
+                    t = Console.ReadKey(true);
+                    int isNumber = acceptKeys.IndexOf(t.KeyChar + "");
+                    if (isNumber >= 0 && isNumber < list.Count)
+                    {
+                        setMarker(isNumber, list.Count);
+                        nowOn = isNumber;
+                    }
+                    if (t.Key == ConsoleKey.UpArrow)
+                        nowOn = (nowOn > 0) ? (nowOn - 1) : (list.Count - 1);
+                    if (t.Key == ConsoleKey.DownArrow)
+                        nowOn = (nowOn + 1) % list.Count;
+                    if (t.Key == ConsoleKey.Escape)
+                    {
+                        ConsoleWrite("Cancel selection!");
+                        ConsoleWriteLine("");
+                        Console.CursorLeft = 0;
+                        return -1;
+                    }
+                } while (t.Key != ConsoleKey.Enter);
 
-            Console.SetCursorPosition(x, y);
-            ConsoleWrite("  You selected: " + list[nowOn].PadRight(maxLength));
-            ConsoleWriteLine("");
+                Console.SetCursorPosition(x, y);
+                ConsoleWrite("You selected: " + list[nowOn].PadRight(maxLength));
+                ConsoleWriteLine("");
+                Console.CursorLeft = 0;
+            }
             return nowOn;
         }
         public static int selectNumber(int min, int max)
@@ -153,6 +173,7 @@ namespace Model
             rightV += nowIn;
         }
         static string wordWriting = "";
+        static string letters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM ";
         public static string selectItemFromUserCommands()
         {
             string selected = "";
@@ -166,7 +187,7 @@ namespace Model
                     if (t.Key == ConsoleKey.Backspace)
                         wordWriting = wordWriting.Substring(0, Math.Max(0, wordWriting.Length - 1));
                     else
-                        if (t.Key != ConsoleKey.Enter)
+                        if (t.Key != ConsoleKey.Enter && letters.IndexOf(t.KeyChar+"") >=0 )
                             wordWriting += t.KeyChar;
                     Console.CursorLeft = 0;
                     Utils.ConsoleWrite(wordWriting.PadRight(Console.WindowWidth / 2));

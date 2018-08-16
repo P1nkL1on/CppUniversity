@@ -28,13 +28,11 @@ namespace Model
                 if (answer == UserCommands.pauseCommand)
                 {
                     pause = new WaitTimer(this.name);
-                    return;
                 }
 
                 if (answer == UserCommands.resumeCommand && WaitTimer.isPaused)
                 {
                     WaitTimer.unpause(this.name);
-                    return;
                 }
 
                 if (answer == UserCommands.finishCommand)
@@ -43,6 +41,10 @@ namespace Model
                     Thread.Sleep(200);
                     WaitTimer.finishCurrentTimer();
                     return;
+                }
+                if (answer == UserCommands.playCardCommand){
+                    WaitTimer.writeOnLastTimer(Name + " is selecting card to play");
+                    Utils.selectVariant(availableCardsToPlay(), "Select a card to play");
                 }
                 if (answer != "")
                     context.executePlayersCommand(this, answer);
