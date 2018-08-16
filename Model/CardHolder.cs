@@ -24,7 +24,8 @@ namespace Model
 
         public override string ToString()
         {
-            return String.Format("{0}'s {1}  ({2})", host.Name, name+"", cards.Count);
+            string res = String.Format("{0}'s {1} ", host.Name, name+"");
+            return res.PadRight(30, '.') +   String.Format("cards {0}", cards.Count);
         }
         public CardHolder(Player host, CardHolderTypes type, int maxSize)
         {
@@ -54,6 +55,26 @@ namespace Model
         public void addCard(AbstractCard card)
         {
             cards.Add(card);
+        }
+        public List<AbstractCard> Cards
+        {
+            get { return cards; }
+        }
+        public AbstractCard topCard()
+        {
+            if (cards.Count == 0)
+                return null;
+            AbstractCard top = cards.Last();
+            cards.Remove(top);
+            return top;
+        }
+        public void drawFrom(AbstractCard card)
+        {
+            cards.Add(card);
+        }
+        public void drawFrom(CardHolder from)
+        {
+            drawFrom(from.topCard());
         }
     }
 }

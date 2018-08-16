@@ -28,5 +28,13 @@ namespace Model
             cardName = name;
             this.cost = cost;
         }
+        public override string ToString()
+        {
+            return String.Format("{0} ({1})", cardName, cost.value);
+        }
+        public manaCost Cost
+        {
+            get { return cost; }
+        }
     }
 }

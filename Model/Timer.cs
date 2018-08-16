@@ -195,5 +195,16 @@ namespace Model
                 return allTimers.Last().isPause;
             }
         }
+        public static void writeOnLastTimer(string S)
+        {
+            int x = Console.CursorLeft, y = Console.CursorTop;
+            Console.SetCursorPosition(Console.WindowWidth / 2, 2 * allTimers.Count + 4);
+            Console.BackgroundColor = allTimers.Last().color;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(S);
+            Console.ResetColor();
+            Console.SetCursorPosition(x, y);
+            return;
+        }
     }
 }
