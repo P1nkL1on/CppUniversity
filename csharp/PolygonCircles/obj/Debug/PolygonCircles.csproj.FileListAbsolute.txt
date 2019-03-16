@@ -1,0 +1,9 @@
+D:\CPPuniver\PolygonCircles\bin\Debug\PolygonCircles.exe.config
+D:\CPPuniver\PolygonCircles\bin\Debug\PolygonCircles.exe
+D:\CPPuniver\PolygonCircles\bin\Debug\PolygonCircles.pdb
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.csprojResolveAssemblyReference.cache
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.Form1.resources
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.Properties.Resources.resources
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.csproj.GenerateResource.Cache
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.exe
+D:\CPPuniver\PolygonCircles\obj\Debug\PolygonCircles.pdb
