@@ -1,6 +1,0 @@
-D:\CPPuniver\Model\bin\Debug\Model.exe.config
-D:\CPPuniver\Model\bin\Debug\Model.exe
-D:\CPPuniver\Model\bin\Debug\Model.pdb
-D:\CPPuniver\Model\obj\Debug\Model.exe
-D:\CPPuniver\Model\obj\Debug\Model.pdb
-D:\CPPuniver\Model\obj\Debug\Model.csprojResolveAssemblyReference.cache

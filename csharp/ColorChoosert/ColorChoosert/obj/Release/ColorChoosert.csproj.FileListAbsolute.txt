@@ -1,6 +1,0 @@
-D:\CPPuniver\ColorChoosert\ColorChoosert\bin\Release\ColorChoosert.exe.config
-D:\CPPuniver\ColorChoosert\ColorChoosert\bin\Release\ColorChoosert.exe
-D:\CPPuniver\ColorChoosert\ColorChoosert\bin\Release\ColorChoosert.pdb
-D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Release\ColorChoosert.csprojResolveAssemblyReference.cache
-D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Release\ColorChoosert.exe
-D:\CPPuniver\ColorChoosert\ColorChoosert\obj\Release\ColorChoosert.pdb
