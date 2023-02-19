@@ -1,6 +1,0 @@
-D:\CPPuniver\MTGhandler\bin\Debug\MTGhandler.exe.config
-D:\CPPuniver\MTGhandler\obj\Debug\MTGhandler.csprojResolveAssemblyReference.cache
-D:\CPPuniver\MTGhandler\bin\Debug\MTGhandler.exe
-D:\CPPuniver\MTGhandler\bin\Debug\MTGhandler.pdb
-D:\CPPuniver\MTGhandler\obj\Debug\MTGhandler.exe
-D:\CPPuniver\MTGhandler\obj\Debug\MTGhandler.pdb

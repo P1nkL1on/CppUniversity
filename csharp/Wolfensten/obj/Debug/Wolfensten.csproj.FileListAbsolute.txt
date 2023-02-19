@@ -1,6 +1,0 @@
-D:\CPPuniver\Wolfensten\bin\Debug\Wolfensten.exe.config
-D:\CPPuniver\Wolfensten\obj\Debug\Wolfensten.csprojResolveAssemblyReference.cache
-D:\CPPuniver\Wolfensten\bin\Debug\Wolfensten.exe
-D:\CPPuniver\Wolfensten\bin\Debug\Wolfensten.pdb
-D:\CPPuniver\Wolfensten\obj\Debug\Wolfensten.exe
-D:\CPPuniver\Wolfensten\obj\Debug\Wolfensten.pdb

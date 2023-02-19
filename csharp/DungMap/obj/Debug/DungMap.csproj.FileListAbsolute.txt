@@ -1,6 +1,0 @@
-D:\CPPuniver\DungMap\bin\Debug\DungMap.exe.config
-D:\CPPuniver\DungMap\bin\Debug\DungMap.exe
-D:\CPPuniver\DungMap\bin\Debug\DungMap.pdb
-D:\CPPuniver\DungMap\obj\Debug\DungMap.csprojResolveAssemblyReference.cache
-D:\CPPuniver\DungMap\obj\Debug\DungMap.exe
-D:\CPPuniver\DungMap\obj\Debug\DungMap.pdb
