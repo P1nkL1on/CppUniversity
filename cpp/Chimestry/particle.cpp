@@ -1,6 +1,7 @@
 #include "particle.h"
 
 
+<<<<<<< HEAD
 
 Proton::Proton()
 {
@@ -16,3 +17,5 @@ Electron::Electron()
 {
 
 }
+=======
+>>>>>>> 62c28d2fbbdd265169cd23531f8b810e506c6199

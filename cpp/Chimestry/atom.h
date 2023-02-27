@@ -6,7 +6,7 @@ static char atomnames[18][3] = {"H ", "He","Li","Be","B ","C ","N ","O ","F ","N
 struct Atom : public BigParticle
 {
 private:
-    particle* particles;
+    particle** particles;
     char *name;
     int number, particlecount;
 public:
@@ -14,14 +14,14 @@ public:
     Atom (char *atomName, int atomMass, int atomQ);
     ~Atom();
 
-    int getElectronCount () const;
-    int getProtonCount () const;
-    int getNeironCount ()const;
-    int getMass () const;
-    char* getName() const;
-    int getValentElectronCount () const;
+    int getElectronCount () const override;
+    int getProtonCount () const override;
+    int getNeironCount ()const override;
+    int getMass () const override;
+    char* getName() const override;
+    //int getValentElectronCount () const;
 
-    void Trace () const;
+    void Trace () const  override;
 };
 
 
